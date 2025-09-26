@@ -7,16 +7,19 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@nuxt/icon",
     "@nuxt/image",
-    "@nuxtjs/tailwindcss",
     "shadcn-nuxt",
-    'shadcn-nuxt'
+    "shadcn-nuxt",
   ],
   shadcn: {
-    prefix: '',
-    componentDir: './components/ui'
+    prefix: "",
+    componentDir: "./components/ui",
   },
   css: ["~/assets/css/tailwind.css"],
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      allowedHosts: true,
+    },
   },
+  components: true,
 });
