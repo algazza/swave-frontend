@@ -4,8 +4,8 @@ import { dummyProduct, filterArray } from "~/lib/data";
 </script>
 
 <template>
-  <section class="px-4 py-10 grid gap-5">
-    <div class="grid gap-2">
+  <section class="py-10 flex flex-col gap-5 lg:flex-row lg:gap-20 lg:items-start">
+    <div class="grid gap-2 lg:min-w-[400px]">
       <h1 class="text-4xl">Filter</h1>
       <div class="border-[1px] px-3 py-2">
         <h2 class="text-2xl mb-3">Sorting by</h2>
@@ -46,7 +46,7 @@ import { dummyProduct, filterArray } from "~/lib/data";
         </span>
       </div>
 
-      <div class="grid grid-cols-2 gap-y-6 gap-x-2">
+      <div class="grid grid-cols-2 gap-y-6 gap-x-2 md:grid-cols-3">
         <div v-for="product in dummyProduct" class="grid gap-3">
           <div class="aspect-square overflow-hidden">
             <NuxtImg
