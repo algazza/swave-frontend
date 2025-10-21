@@ -8,6 +8,7 @@ import PickEpidemic from "/pick/TOPENG MERAH DEPAN.png";
 import NecklessDragon from "/neckless/Kalung Naga.png";
 import NecklessStrawberry from "/neckless/Kalung Stroberi.png";
 import NecklessEpidemic from "/neckless/Kalung Topeng.png";
+import ModelPick from "/neckless/Model Pick.png";
 import QRIS from "@/assets/brand/Qris.svg";
 import Gopay from "@/assets/brand/Gopay.svg";
 import Dana from "@/assets/brand/dana.svg";
@@ -24,6 +25,7 @@ export {
   NecklessDragon,
   NecklessStrawberry,
   NecklessEpidemic,
+  ModelPick,
   QRIS,
   Gopay,
   Dana,

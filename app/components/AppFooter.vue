@@ -47,7 +47,7 @@ const brandImg = [QRIS, Gopay, Dana, Spay];
 
       <div class="border-t-[1px] border-backgound py-5 text-center mt-5">
         &copy; All Right Reserved By
-        <Link href="/" class="underline">Swave</Link>
+        <NuxtLink href="/" class="underline text-white">Swave</NuxtLink>
       </div>
     </div>
   </footer>
