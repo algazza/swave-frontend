@@ -4,25 +4,77 @@ import { dummyProduct, reviewArray } from "~/lib/data";
 import { ModelPick, NecklessEpidemic, PickEpidemic } from "~/lib/image";
 
 const image = [PickEpidemic, ModelPick, NecklessEpidemic];
-  
+
 const countStock = ref(0);
 const currentImg = ref(0);
 
 const onSlideChange = (index: number) => {
-  currentImg.value = index
-}
+  currentImg.value = index;
+};
 
-const goTo =(index: number) => {
-  currentImg.value = index
-}
+const goTo = (index: number) => {
+  currentImg.value = index;
+};
 </script>
 
 <template>
   <section class="flex flex-col gap-5">
-    <section class="grid gap-8 py-5">
-      <div class="">
+    <section class="grid lg:grid-cols-3 gap-8 py-5 justify-center items-center">
+      <div class="grid gap-5 max-lg:hidden">
+        <div class="grid gap-2">
+          <h1 class="text-3xl">Epidemic Groove</h1>
+          <p class="">Rp 5000</p>
+          <div class="flex gap-5 items-center">
+            <span>Stok: 10</span>
+            <span>Sold: 100</span>
+            <div class="flex gap-2 items-center">
+              <Star class="text-accent" />
+              <span>5.0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-2">
+          <h2 class="text-2xl font-normal">variant</h2>
+          <div class="flex items-center flex-wrap gap-3">
+            <div class="px-4 py-2 bg-secondary rounded-xl">Pick</div>
+            <div class="px-4 py-2 bg-secondary rounded-xl">Keychain</div>
+            <div class="px-4 py-2 bg-secondary rounded-xl">Necklace</div>
+          </div>
+        </div>
+
+        <div class="flex gap-5 w-full">
+          <div
+            class="border-[1px] border-foreground flex gap-3 items-center font-bold"
+          >
+            <div
+              class="size-8 flex justify-center items-center"
+              @click="countStock > 0 && countStock--"
+              :class="
+                countStock <= 0
+                  ? 'cursor-not-allowed text-secondary'
+                  : 'cursor-pointer'
+              "
+            >
+              -
+            </div>
+            <span>{{ countStock }}</span>
+            <div
+              class="size-8 flex justify-center items-center cursor-pointer"
+              @click="countStock++"
+            >
+              +
+            </div>
+          </div>
+          <Button class="bg-foreground text-background px-2 w-full rounded-lg"
+            >Add to cart</Button
+          >
+        </div>
+      </div>
+
+      <div class="grid justify-center">
         <UiCarousel
-          class="relative w-full"
+          class="relative w-full max-w-[360px]"
           :opts="{
             align: 'start',
             loop: true,
@@ -53,8 +105,8 @@ const goTo =(index: number) => {
         </div>
       </div>
 
-      <div class="grid gap-5">
-        <div class="grid gap-2NecklessEpidemic">
+      <div class="grid gap-5 lg:hidden">
+        <div class="grid gap-2">
           <h1 class="text-3xl">Epidemic Groove</h1>
           <p class="">Rp 5000</p>
           <div class="flex gap-5 items-center">
@@ -112,20 +164,33 @@ const goTo =(index: number) => {
           it is a brief summary that highlights the most important features,
           benefits,
         </p>
-        <div
-          class="p-4 border-[1px] border-foreground grid gap-2"
-          v-for="review in reviewArray"
-          :key="review.name"
-        >
-          <h3 class="text-2xl">{{ review.name }}</h3>
-          <div class="flex gap-2 items-center">
-            <Star
-              v-for="i in 5"
-              :key="i"
-              :class="review.star >= i ? 'text-accent' : 'text-secondary'"
-            />
-          </div>
-          <p class="text-base">”{{ review.description }}”</p>
+        <div>
+          <h2 class="text-3xl">Review</h2>
+          <UiCarousel
+            class="relative"
+            :opts="{
+              align: 'start',
+              loop: true,
+            }"
+          >
+            <UiCarouselContent>
+              <UiCarouselItem v-for="review in reviewArray" :key="review.name">
+                <div class="p-4 border-[1px] border-foreground grid gap-2 max-w-full">
+                  <h3 class="text-2xl">{{ review.name }}</h3>
+                    <div class="flex items-center">
+                      <Star
+                        v-for="i in 5"
+                        :key="i"
+                        :class="
+                          review.star >= i ? 'text-accent' : 'text-secondary'
+                        "
+                      />
+                  </div>
+                  <p class="text-base">”{{ review.description }}”</p>
+                </div>
+              </UiCarouselItem>
+            </UiCarouselContent>
+          </UiCarousel>
         </div>
       </div>
     </section>

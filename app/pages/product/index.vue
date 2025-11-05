@@ -47,27 +47,7 @@ import { dummyProduct, filterArray } from "~/lib/data";
       </div>
 
       <div class="grid grid-cols-2 gap-y-6 gap-x-2 md:grid-cols-3">
-        <div v-for="product in dummyProduct" class="grid gap-3">
-          <div class="aspect-square overflow-hidden">
-            <NuxtImg
-              :src="product.product_image"
-              :alt="product.name"
-              class="w-full h-full object-cover object-center overflow-hidden"
-            />
-          </div>
-
-          <div class="grid gap-1">
-            <span class="text-muted-foreground font-semibold">
-              {{ product.categories }}
-            </span>
-            <h2 class="font-ramabhadra text-base">{{ product.name }}</h2>
-            <span class="font-semibold">Rp. {{ product.price }}</span>
-            <div class="flex gap-2">
-              <Star class="text-[#B38F6F]"/>
-              <span>{{ product.review }}</span>
-            </div>
-          </div>
-        </div>
+        <CardProduct v-for="product in dummyProduct" :product="product" />
       </div>
     </div>
   </section>
