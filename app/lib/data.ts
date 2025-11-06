@@ -69,25 +69,55 @@ export const dummyProduct: ProductType[] = [
   },
 ];
 
-export const filterArray = [
-  "Most Visited",
-  "Best Selling",
-  "Average Rating",
-  "A - Z",
-  "Z - A",
-  "Cheap",
-  "Expensive",
-];
-
 export const reviewArray = [
   {
     star: 5,
     name: "Petter Durry",
-    description: "The little boy from Rosario, Argentina on behalf of every little boy wearing his shirt, Greatest Of All Time.",
+    description:
+      "The little boy from Rosario, Argentina on behalf of every little boy wearing his shirt, Greatest Of All Time.",
   },
   {
     star: 4,
     name: "Steven Gerrard",
-    description: "He was so unpredictable. What a game, what a match, and what a player!",
-  }
-]
+    description:
+      "He was so unpredictable. What a game, what a match, and what a player!",
+  },
+];
+
+export const addressSingle = {
+  recipient: "Sultan ken",
+  label: "Home",
+  city: "Kota Semarang",
+  subdistrict: "Semarang Selatan",
+  zip_code: 50249,
+  address: "Jl. Pandanaran 2 No.12",
+  main_address: true,
+};
+
+export const checkoutArray = [
+  {
+    id: 9,
+    quantity: 2,
+    total_price: 20000,
+    variant: "Pick",
+    product: {
+      image: PickEpidemic,
+      name: "Dragon Fruit",
+      price: 10000,
+      categories: "Pick"
+    },
+  },
+  {
+    id: 120,
+    quantity: 2,
+    total_price: 20000,
+    variant: "Keychain",
+    product: {
+      id: 9,
+      image: PickDragon,
+      name: "Epidemic Grove",
+      price: 10000,
+      categories: "Pick"
+    },
+  },
+];

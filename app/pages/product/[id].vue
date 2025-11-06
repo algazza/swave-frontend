@@ -45,7 +45,7 @@ const goTo = (index: number) => {
 
         <div class="flex gap-5 w-full">
           <div
-            class="border-[1px] border-foreground flex gap-3 items-center font-bold"
+            class="border border-foreground flex gap-3 items-center font-bold"
           >
             <div
               class="size-8 flex justify-center items-center"
@@ -130,7 +130,7 @@ const goTo = (index: number) => {
 
         <div class="flex gap-5 w-full">
           <div
-            class="border-[1px] border-foreground flex gap-3 items-center font-bold"
+            class="border border-foreground flex gap-3 items-center font-bold"
           >
             <div
               class="size-8 flex justify-center items-center"
@@ -175,7 +175,7 @@ const goTo = (index: number) => {
           >
             <UiCarouselContent>
               <UiCarouselItem v-for="review in reviewArray" :key="review.name">
-                <div class="p-4 border-[1px] border-foreground grid gap-2 max-w-full">
+                <div class="p-4 border border-foreground grid gap-2 max-w-full">
                   <h3 class="text-2xl">{{ review.name }}</h3>
                     <div class="flex items-center">
                       <Star
@@ -210,5 +210,6 @@ const goTo = (index: number) => {
         <CardProduct v-for="product in dummyProduct" :product="product" />
       </div>
     </section>
+
   </section>
 </template>

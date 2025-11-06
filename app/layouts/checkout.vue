@@ -6,7 +6,7 @@ import { logoBlack } from "~/lib/image";
 <template>
   <div>
     <header
-      class="fixed w-full p-5 top-0 left-0 bg-background z-[100] md:px-10 lg:px-20"
+      class="fixed w-full p-5 top-0 left-0 bg-background z-[100] md:px-10 lg:px-20 flex justify-center"
     >
       <div class="w-full max-w-[1200px]">
         <div class="flex justify-between">
@@ -21,9 +21,9 @@ import { logoBlack } from "~/lib/image";
       </div>
     </header>
     <main
-      class="overflow-hidden mt-20 relative px-4 md:px-10 lg:px-20 grid justify-center"
+      class="overflow-hidden mt-20 relative px-4 md:px-10 lg:px-20 flex justify-center"
     >
-      <div class="max-w-[1200px]">
+      <div class="max-w-[1200px] w-full">
         <slot />
       </div>
     </main>
