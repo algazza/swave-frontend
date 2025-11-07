@@ -16,3 +16,13 @@ export const navLink = [
     url: '/',
   },
 ]
+
+export const filterArray = [
+  "Most Visited",
+  "Best Selling",
+  "Average Rating",
+  "A - Z",
+  "Z - A",
+  "Cheap",
+  "Expensive",
+];
