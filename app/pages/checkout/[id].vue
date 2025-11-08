@@ -1,18 +1,60 @@
 <script setup lang="ts">
-import { ChevronLeft, Home, MapPin } from "lucide-vue-next";
-import { addressSingle, checkoutArray } from "~/lib/data";
-import type { AddressType } from "~/types/address";
-
 definePageMeta({
   layout: "checkout",
 });
 
+import { ref } from "vue";
+import type { CalendarDate, DateValue } from "@internationalized/date";
+import {
+  DateFormatter,
+  getLocalTimeZone,
+  today,
+} from "@internationalized/date";
+
+import { ChevronLeft, Clock, Home, MapPin } from "lucide-vue-next";
+import { CalendarIcon } from "lucide-vue-next";
+
+import { addressSingle, checkoutArray } from "~/lib/data";
+import { cn } from "~/lib/utils";
+import { formatRupiah } from "~/lib/utils";
+import type { AddressType } from "~/types/address";
+
+const df = new DateFormatter("id-ID", {
+  dateStyle: "long",
+});
+
 const router = useRouter();
-const address: AddressType = addressSingle;
+const value = ref<DateValue>();
+const deliveryType = ref("");
+const time = ref("");
 const checkbox = ref(true);
 
-const totalProduct = checkoutArray.reduce((sum, item) => sum + item.quantity, 0)
-const totalQuantity = checkoutArray.reduce((sum, item) => sum + item.total_price, 0)
+const address: AddressType = addressSingle;
+const deliveryCost = 20000;
+
+const totalProduct = checkoutArray.reduce(
+  (sum, item) => sum + item.quantity,
+  0
+);
+const totalQuantity = checkoutArray.reduce(
+  (sum, item) => sum + item.total_price,
+  0
+);
+
+const onInput = (e: Event) => {
+  let val = (e.target as HTMLInputElement).value.replace(/\D/g, "");
+
+  if (val.length >= 3) val = val.slice(0, 2) + ":" + val.slice(2, 4);
+  else if (val.length > 2) val = val.slice(0, 2) + ":" + val.slice(2);
+
+  const [h, m] = val.split(":").map(Number);
+  if ((h ?? 0) > 23)
+    val = "23:" + (m ? String(m).padStart(2, "0").slice(0, 2) : "");
+  if ((m ?? 0) > 59)
+    val = (String(h).padStart(2, "0").slice(0, 2) || "00") + ":59";
+
+  time.value = val.slice(0, 5);
+};
 
 const goBack = () => {
   router.back();
@@ -20,7 +62,7 @@ const goBack = () => {
 </script>
 
 <template>
-  <form class="pb-20">
+  <div class="pb-20">
     <div class="flex gap-2 py-5 items-center justify-start">
       <button @click="goBack">
         <ChevronLeft class="size-8" />
@@ -28,7 +70,7 @@ const goBack = () => {
       <h2 class="text-2xl">Checkout</h2>
     </div>
 
-    <div class="flex flex-col gap-5 lg:flex-row">
+    <form class="flex flex-col gap-5 lg:flex-row">
       <div class="grid gap-5 flex-1 lg:h-fit">
         <div class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
           <div class="flex justify-between items-center">
@@ -84,8 +126,8 @@ const goBack = () => {
               <div class="w-full flex justify-between items-end">
                 <div class="grid">
                   <div class="p-1 bg-secondary w-fit">
-                    {{ check.product.categories }}
-                    {{
+                    {{ check.product.categories
+                    }}{{
                       check.variant !== check.product.categories
                         ? `, ${check.variant}`
                         : ""
@@ -93,7 +135,7 @@ const goBack = () => {
                   </div>
 
                   <h2 class="text-xl mt-2 mb-1">{{ check.product.name }}</h2>
-                  <p class="">Rp {{ check.product.price }}</p>
+                  <p class="">Rp{{ formatRupiah(check.product.price) }}</p>
                 </div>
                 <span class="text-xs">Stok: {{ check.quantity }}</span>
               </div>
@@ -103,7 +145,9 @@ const goBack = () => {
 
             <div class="flex justify-between items-center">
               <span>Total Checkout:</span>
-              <span class="font-bold">Rp {{ check.total_price }}</span>
+              <span class="font-bold"
+                >Rp{{ formatRupiah(check.total_price) }}</span
+              >
             </div>
           </div>
         </div>
@@ -111,7 +155,7 @@ const goBack = () => {
         <div class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
           <p class="text-2xl font-semibold">Delivery</p>
 
-          <UiSelect>
+          <UiSelect v-model="deliveryType">
             <UiSelectTrigger
               class="border-2 border-foreground text-foreground w-full"
             >
@@ -125,28 +169,56 @@ const goBack = () => {
                 </UiSelectItem>
                 <UiSelectItem value="delivery" class="flex gap-2 font-semibold">
                   <span>Delivery </span>
-                  <span class="text-muted-foreground">(Rp 20000)</span>
+                  <span class="text-muted-foreground"
+                    >(Rp{{ formatRupiah(deliveryCost) }})</span
+                  >
                 </UiSelectItem>
               </UiSelectGroup>
             </UiSelectContent>
           </UiSelect>
 
-          <p class="text-2xl font-semibold">Pick Date and Time</p>
-          <div class="flex gap-3 w-full">
-            <div class="flex font-bold gap-2 items-center">
-              <UiInput
-                class="border-2 border-foreground"
-                type="number"
-                min="0"
-                max="2"
-              />
-              :
-              <UiInput
-                class="border-2 border-foreground"
-                type="number"
-                min="0"
-                max="10"
-              />
+          <p v-if="deliveryType === 'pickup'" class="text-2xl font-semibold">Pick Date and Time</p>
+          <div v-if="deliveryType === 'pickup'" class="flex gap-3 w-full">
+            <UiPopover>
+              <UiPopoverTrigger as-child>
+                <UiButton
+                  variant="outline"
+                  :class="
+                    cn(
+                      'w-full justify-start text-left font-normal flex-1 border-2 border-foreground',
+                      !value && 'text-muted-foreground'
+                    )
+                  "
+                >
+                  <CalendarIcon class="mr-2 h-4 w-4" />
+                  {{
+                    value
+                      ? df.format(value.toDate(getLocalTimeZone()))
+                      : "Pick a date"
+                  }}
+                </UiButton>
+              </UiPopoverTrigger>
+              <UiPopoverContent class="w-auto p-0">
+                <UiCalendar
+                  :min-value="today(getLocalTimeZone()).add({ days: 4 })"
+                  v-model="value"
+                  initial-focus
+                />
+              </UiPopoverContent>
+            </UiPopover>
+
+            <div class="flex gap-2 items-center flex-1">
+              <UiInputGroup class="border-2 border-foreground px-2">
+                <UIInputGroupAddon>
+                  <Clock class="size-5 text-muted-foreground" />
+                </UIInputGroupAddon>
+                <UiInputGroupInput
+                  v-model="time"
+                  @input="onInput"
+                  placeholder="hh:mm"
+                  maxlength="5"
+                />
+              </UiInputGroup>
             </div>
           </div>
         </div>
@@ -183,21 +255,21 @@ const goBack = () => {
           <div class="grid gap-2">
             <div class="flex justify-between">
               <p>Total Price ({{ totalProduct }} product)</p>
-              <p class="font-bold">Rp. {{ totalQuantity }}</p>
+              <p class="font-bold">Rp{{ formatRupiah(totalQuantity) }}</p>
             </div>
             <div class="flex justify-between">
               <p>Total Delivery Cost</p>
-              <p class="font-bold">Rp. 20000</p>
+              <p class="font-bold">Rp{{ formatRupiah(deliveryCost) }}</p>
             </div>
-            <div class="content-[''] h-[1px] w-full bg-foreground"/>
+            <div class="content-[''] h-[1px] w-full bg-foreground" />
             <div class="flex justify-between text-xl">
               <p>Total Payment</p>
-              <p class="font-bold">Rp. 70000</p>
+              <p class="font-bold">Rp{{ formatRupiah(60000) }}</p>
             </div>
             <UiButton class="w-full">Chose Payment</UiButton>
           </div>
         </div>
       </div>
-    </div>
-  </form>
+    </form>
+  </div>
 </template>

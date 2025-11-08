@@ -23,7 +23,7 @@ const goTo = (index: number) => {
       <div class="grid gap-5 max-lg:hidden">
         <div class="grid gap-2">
           <h1 class="text-3xl">Epidemic Groove</h1>
-          <p class="">Rp 5000</p>
+          <p class="">Rp5.000</p>
           <div class="flex gap-5 items-center">
             <span>Stok: 10</span>
             <span>Sold: 100</span>

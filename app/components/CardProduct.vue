@@ -22,7 +22,7 @@ defineProps<{
         {{ product.categories }}
       </span>
       <h2 class="font-ramabhadra text-base">{{ product.name }}</h2>
-      <span class="">Rp. {{ product.price }}</span>
+      <span class="">Rp{{ product.price }}</span>
       <div class="flex gap-2 items-center">
         <Star class="text-accent" />
         <span class="font-semibold">{{ product.review }}</span>
