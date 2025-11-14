@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     "@nuxt/image",
     "shadcn-nuxt",
     "shadcn-nuxt",
+    "@pinia/nuxt",
   ],
   shadcn: {
     prefix: "",
