@@ -25,7 +25,7 @@ defineProps<{
       <span class="">Rp{{ product.price }}</span>
       <div class="flex gap-2 items-center">
         <Star class="text-accent" />
-        <span class="font-semibold">{{ product.review }}</span>
+        <span class="font-semibold">{{ product.star }}</span>
       </div>
     </div>
   </div>
