@@ -1,5 +1,6 @@
-import type { ProductType } from "~/types/product";
+import type { ProductDetailType, ProductType } from "~/types/product";
 import {
+  ModelPick,
   NecklessDragon,
   NecklessEpidemic,
   NecklessStrawberry,
@@ -16,56 +17,56 @@ export const dummyProduct: ProductType[] = [
     price: 5000,
     product_image: PickDragon,
     categories: "Pick",
-    review: 5.0,
+    star: 5.0,
   },
   {
     name: "Epidemic Groove",
     price: 5000,
     product_image: PickEpidemic,
     categories: "Pick",
-    review: 4.0,
+    star: 4.0,
   },
   {
     name: "Harmonight",
     price: 5000,
     product_image: PickHarmonight,
     categories: "Pick",
-    review: 4.5,
+    star: 4.5,
   },
   {
     name: "Jagoan",
     price: 5000,
     product_image: PickJagoan,
     categories: "Pick",
-    review: 5.0,
+    star: 5.0,
   },
   {
     name: "Strawberry",
     price: 5000,
     product_image: PickStrawberry,
     categories: "Pick",
-    review: 4.5,
+    star: 4.5,
   },
   {
     name: "Neckless Dragon",
     price: 7000,
     product_image: NecklessDragon,
     categories: "Neckless",
-    review: 4.5,
+    star: 4.5,
   },
   {
     name: "Neckless Epidemic",
     price: 7000,
     product_image: NecklessEpidemic,
     categories: "Neckless",
-    review: 5.0,
+    star: 5.0,
   },
   {
     name: "Neckless Strawberry",
     price: 7000,
     product_image: NecklessStrawberry,
     categories: "Neckless",
-    review: 4.5,
+    star: 4.5,
   },
 ];
 
@@ -83,6 +84,48 @@ export const reviewArray = [
       "He was so unpredictable. What a game, what a match, and what a player!",
   },
 ];
+
+export const productData: ProductDetailType = {
+  name: "Epidemic Groove",
+  price: 5000,
+  stock: 30,
+  sold: 200,
+  star: 4.5,
+  product_image: [PickEpidemic, ModelPick, NecklessEpidemic],
+  categories: "Pick",
+  description: "A product short description is a concise and brief overview of a product, providing key information to potential customers. Typically, it is a brief summary that highlights the most important features, benefits,",
+  variants: [
+    {
+      variant: "Pick",
+      price: 5000,
+      stock: 10,
+    },
+    {
+      variant: "Keychain",
+      price: 7000,
+      stock: 10,
+    },
+    {
+      variant: "Necklace",
+      price: 10000,
+      stock: 10,
+    },
+  ],
+  reviews: [
+    {
+      star: 5,
+      name: "Petter Durry",
+      description:
+        "The little boy from Rosario, Argentina on behalf of every little boy wearing his shirt, Greatest Of All Time.",
+    },
+    {
+      star: 4,
+      name: "Steven Gerrard",
+      description:
+        "He was so unpredictable. What a game, what a match, and what a player!",
+    },
+  ],
+};
 
 export const addressSingle = {
   recipient: "Sultan ken",
@@ -104,7 +147,7 @@ export const checkoutArray = [
       image: PickEpidemic,
       name: "Dragon Fruit",
       price: 10000,
-      categories: "Pick"
+      categories: "Pick",
     },
   },
   {
@@ -117,7 +160,7 @@ export const checkoutArray = [
       image: PickDragon,
       name: "Epidemic Grove",
       price: 10000,
-      categories: "Pick"
+      categories: "Pick",
     },
   },
 ];
