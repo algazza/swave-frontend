@@ -11,7 +11,6 @@ const emblaApi = ref<any>(null);
 const onInitApi = (api: any) => {
   emblaApi.value = api;
 
-  // listening slide change
   api.on("select", () => {
     currentImg.value = api.selectedScrollSnap();
   });
