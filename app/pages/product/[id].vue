@@ -5,15 +5,21 @@ import { formatRupiah } from "~/lib/utils";
 
 const DataProduct = productData;
 
-const countStock = ref(0);
 const currentImg = ref(0);
+const emblaApi = ref<any>(null);
 
-const onSlideChange = (index: number) => {
-  currentImg.value = index;
+const onInitApi = (api: any) => {
+  emblaApi.value = api;
+
+  // listening slide change
+  api.on("select", () => {
+    currentImg.value = api.selectedScrollSnap();
+  });
 };
 
-const goTo = (index: number) => {
-  currentImg.value = index;
+const goTo = (i: number) => {
+  if (!emblaApi.value) return;
+  emblaApi.value.scrollTo(i);
 };
 </script>
 
@@ -48,28 +54,18 @@ const goTo = (index: number) => {
         </div>
 
         <div class="flex gap-5 w-full">
-          <div
-            class="border border-foreground flex gap-3 items-center font-bold"
+          <UiNumberField
+            class="border border-foreground max-w-28"
+            :default-value="1"
+            :min="0"
           >
-            <div
-              class="size-8 flex justify-center items-center"
-              @click="countStock > 0 && countStock--"
-              :class="
-                countStock <= 0
-                  ? 'cursor-not-allowed text-secondary'
-                  : 'cursor-pointer'
-              "
-            >
-              -
-            </div>
-            <span>{{ countStock }}</span>
-            <div
-              class="size-8 flex justify-center items-center cursor-pointer"
-              @click="countStock++"
-            >
-              +
-            </div>
-          </div>
+            <UiNumberFieldContent>
+              <UiNumberFieldDecrement />
+              <UiNumberFieldInput class="text-sm rounded-none" />
+              <UiNumberFieldIncrement />
+            </UiNumberFieldContent>
+          </UiNumberField>
+
           <Button class="bg-foreground text-background px-2 w-full rounded-lg"
             >Add to cart</Button
           >
@@ -83,6 +79,7 @@ const goTo = (index: number) => {
             align: 'start',
             loop: true,
           }"
+          @init-api="onInitApi"
         >
           <UiCarouselContent>
             <UiCarouselItem
@@ -104,10 +101,13 @@ const goTo = (index: number) => {
         </UiCarousel>
         <div class="flex gap-3 items-center justify-center">
           <button
-            class="w-3 h-3 rounded-full transition-all mt-4"
-            :class="i === currentImg ? 'bg-foreground' : 'bg-secondary'"
             v-for="(img, i) in DataProduct.product_image"
             :key="i"
+            @click="goTo(i)"
+            class="w-3 h-3 rounded-full transition-all mt-4"
+            :class="
+              i === currentImg ? 'bg-foreground' : 'bg-secondary'
+            "
           />
         </div>
       </div>
@@ -140,28 +140,18 @@ const goTo = (index: number) => {
         </div>
 
         <div class="flex gap-5 w-full">
-          <div
-            class="border border-foreground flex gap-3 items-center font-bold"
+          <UiNumberField
+            class="border border-foreground max-w-28"
+            :default-value="1"
+            :min="0"
           >
-            <div
-              class="size-8 flex justify-center items-center"
-              @click="countStock > 0 && countStock--"
-              :class="
-                countStock <= 0
-                  ? 'cursor-not-allowed text-secondary'
-                  : 'cursor-pointer'
-              "
-            >
-              -
-            </div>
-            <span>{{ countStock }}</span>
-            <div
-              class="size-8 flex justify-center items-center cursor-pointer"
-              @click="countStock++"
-            >
-              +
-            </div>
-          </div>
+            <UiNumberFieldContent>
+              <UiNumberFieldDecrement />
+              <UiNumberFieldInput class="text-sm rounded-none" />
+              <UiNumberFieldIncrement />
+            </UiNumberFieldContent>
+          </UiNumberField>
+
           <Button class="bg-foreground text-background px-2 w-full rounded-lg"
             >Add to cart</Button
           >
