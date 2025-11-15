@@ -159,3 +159,17 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+::-webkit-scrollbar {
+  width: 4px;
+  border-radius: 100%;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #555555;
+  border-radius: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #D1D0CC;
+}

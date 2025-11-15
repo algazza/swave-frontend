@@ -163,4 +163,29 @@ export const checkoutArray = [
       categories: "Pick",
     },
   },
+  {
+    id: 9,
+    quantity: 2,
+    total_price: 20000,
+    variant: "Pick",
+    product: {
+      image: PickEpidemic,
+      name: "Dragon Fruit Devil Fruit gomu gomu no mo",
+      price: 10000,
+      categories: "Pick",
+    },
+  },
+  {
+    id: 120,
+    quantity: 2,
+    total_price: 20000,
+    variant: "Keychain",
+    product: {
+      id: 9,
+      image: PickDragon,
+      name: "Epidemic Grove",
+      price: 10000,
+      categories: "Pick",
+    },
+  },
 ];
