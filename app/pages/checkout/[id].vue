@@ -17,7 +17,7 @@ import { CalendarIcon } from "lucide-vue-next";
 import { addressSingle, checkoutArray } from "~/lib/data";
 import { cn } from "~/lib/utils";
 import { formatRupiah } from "~/lib/utils";
-import type { AddressType } from "~/types/address";
+import type { AddressType } from "~/types/user";
 
 const df = new DateFormatter("id-ID", {
   dateStyle: "long",

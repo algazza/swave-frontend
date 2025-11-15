@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Star } from "lucide-vue-next";
-import { dummyProduct, reviewArray } from "~/lib/data";
-import { ModelPick, NecklessEpidemic, PickEpidemic } from "~/lib/image";
+import { dummyProduct, productData } from "~/lib/data";
+import { formatRupiah } from "~/lib/utils";
 
-const image = [PickEpidemic, ModelPick, NecklessEpidemic];
+const DataProduct = productData;
 
 const countStock = ref(0);
 const currentImg = ref(0);
@@ -22,14 +22,14 @@ const goTo = (index: number) => {
     <section class="grid lg:grid-cols-3 gap-8 py-5 justify-center items-center">
       <div class="grid gap-5 max-lg:hidden">
         <div class="grid gap-2">
-          <h1 class="text-3xl">Epidemic Groove</h1>
-          <p class="">Rp5.000</p>
+          <h1 class="text-3xl">{{ DataProduct.name }}</h1>
+          <p class="">Rp{{ formatRupiah(DataProduct.price) }}</p>
           <div class="flex gap-5 items-center">
-            <span>Stok: 10</span>
-            <span>Sold: 100</span>
+            <span>Stok: {{ DataProduct.stock }}</span>
+            <span>Sold: {{ DataProduct.sold }}</span>
             <div class="flex gap-2 items-center">
               <Star class="text-accent" />
-              <span>5.0</span>
+              <span>{{ DataProduct.star }}</span>
             </div>
           </div>
         </div>
@@ -37,9 +37,13 @@ const goTo = (index: number) => {
         <div class="grid gap-2">
           <h2 class="text-2xl font-normal">variant</h2>
           <div class="flex items-center flex-wrap gap-3">
-            <div class="px-4 py-2 bg-secondary rounded-xl">Pick</div>
-            <div class="px-4 py-2 bg-secondary rounded-xl">Keychain</div>
-            <div class="px-4 py-2 bg-secondary rounded-xl">Necklace</div>
+            <div
+              v-for="variant in DataProduct.variants"
+              :key="variant.variant"
+              class="px-4 py-2 bg-secondary rounded-xl"
+            >
+              {{ variant.variant }}
+            </div>
           </div>
         </div>
 
@@ -81,7 +85,10 @@ const goTo = (index: number) => {
           }"
         >
           <UiCarouselContent>
-            <UiCarouselItem v-for="(img, index) in image" :key="index">
+            <UiCarouselItem
+              v-for="(img, index) in DataProduct.product_image"
+              :key="index"
+            >
               <div
                 class="aspect-square relative"
                 :class="index === 0 ? 'm-16' : ''"
@@ -99,7 +106,7 @@ const goTo = (index: number) => {
           <button
             class="w-3 h-3 rounded-full transition-all mt-4"
             :class="i === currentImg ? 'bg-foreground' : 'bg-secondary'"
-            v-for="(img, i) in image"
+            v-for="(img, i) in DataProduct.product_image"
             :key="i"
           />
         </div>
@@ -107,14 +114,14 @@ const goTo = (index: number) => {
 
       <div class="grid gap-5 lg:hidden">
         <div class="grid gap-2">
-          <h1 class="text-3xl">Epidemic Groove</h1>
-          <p class="">Rp 5000</p>
+          <h1 class="text-3xl">{{ DataProduct.name }}</h1>
+          <p class="">Rp{{ formatRupiah(DataProduct.price) }}</p>
           <div class="flex gap-5 items-center">
-            <span>Stok: 10</span>
-            <span>Sold: 100</span>
+            <span>Stok: {{ DataProduct.stock }}</span>
+            <span>Sold: {{ DataProduct.sold }}</span>
             <div class="flex gap-2 items-center">
               <Star class="text-accent" />
-              <span>5.0</span>
+              <span>{{ DataProduct.star }}</span>
             </div>
           </div>
         </div>
@@ -122,9 +129,13 @@ const goTo = (index: number) => {
         <div class="grid gap-2">
           <h2 class="text-2xl font-normal">variant</h2>
           <div class="flex items-center flex-wrap gap-3">
-            <div class="px-4 py-2 bg-secondary rounded-xl">Pick</div>
-            <div class="px-4 py-2 bg-secondary rounded-xl">Keychain</div>
-            <div class="px-4 py-2 bg-secondary rounded-xl">Necklace</div>
+            <div
+              v-for="variant in DataProduct.variants"
+              :key="variant.variant"
+              class="px-4 py-2 bg-secondary rounded-xl"
+            >
+              {{ variant.variant }}
+            </div>
           </div>
         </div>
 
@@ -159,10 +170,7 @@ const goTo = (index: number) => {
 
       <div class="grid gap-5">
         <p class="">
-          A product short description is a concise and brief overview of a
-          product, providing key information to potential customers. Typically,
-          it is a brief summary that highlights the most important features,
-          benefits,
+          {{ DataProduct.description }}
         </p>
         <div>
           <h2 class="text-3xl">Review</h2>
@@ -174,17 +182,20 @@ const goTo = (index: number) => {
             }"
           >
             <UiCarouselContent>
-              <UiCarouselItem v-for="review in reviewArray" :key="review.name">
+              <UiCarouselItem
+                v-for="review in DataProduct.reviews"
+                :key="review.name"
+              >
                 <div class="p-4 border border-foreground grid gap-2 max-w-full">
                   <h3 class="text-2xl">{{ review.name }}</h3>
-                    <div class="flex items-center">
-                      <Star
-                        v-for="i in 5"
-                        :key="i"
-                        :class="
-                          review.star >= i ? 'text-accent' : 'text-secondary'
-                        "
-                      />
+                  <div class="flex items-center">
+                    <Star
+                      v-for="i in 5"
+                      :key="i"
+                      :class="
+                        review.star >= i ? 'text-accent' : 'text-secondary'
+                      "
+                    />
                   </div>
                   <p class="text-base">”{{ review.description }}”</p>
                 </div>
@@ -210,6 +221,5 @@ const goTo = (index: number) => {
         <CardProduct v-for="product in dummyProduct" :product="product" />
       </div>
     </section>
-
   </section>
 </template>
