@@ -10,9 +10,11 @@ import {
   PickJagoan,
   PickStrawberry,
 } from "./image";
+import type { CheckoutType } from "~/types/checkout";
 
 export const dummyProduct: ProductType[] = [
   {
+    id: 4,
     name: "Dragon Riff",
     price: 5000,
     product_image: PickDragon,
@@ -20,6 +22,7 @@ export const dummyProduct: ProductType[] = [
     star: 5.0,
   },
   {
+    id: 4,
     name: "Epidemic Groove",
     price: 5000,
     product_image: PickEpidemic,
@@ -27,6 +30,7 @@ export const dummyProduct: ProductType[] = [
     star: 4.0,
   },
   {
+    id: 4,
     name: "Harmonight",
     price: 5000,
     product_image: PickHarmonight,
@@ -34,6 +38,7 @@ export const dummyProduct: ProductType[] = [
     star: 4.5,
   },
   {
+    id: 4,
     name: "Jagoan",
     price: 5000,
     product_image: PickJagoan,
@@ -41,6 +46,7 @@ export const dummyProduct: ProductType[] = [
     star: 5.0,
   },
   {
+    id: 4,
     name: "Strawberry",
     price: 5000,
     product_image: PickStrawberry,
@@ -48,6 +54,7 @@ export const dummyProduct: ProductType[] = [
     star: 4.5,
   },
   {
+    id: 4,
     name: "Neckless Dragon",
     price: 7000,
     product_image: NecklessDragon,
@@ -55,6 +62,7 @@ export const dummyProduct: ProductType[] = [
     star: 4.5,
   },
   {
+    id: 4,
     name: "Neckless Epidemic",
     price: 7000,
     product_image: NecklessEpidemic,
@@ -62,6 +70,7 @@ export const dummyProduct: ProductType[] = [
     star: 5.0,
   },
   {
+    id: 4,
     name: "Neckless Strawberry",
     price: 7000,
     product_image: NecklessStrawberry,
@@ -86,6 +95,7 @@ export const reviewArray = [
 ];
 
 export const productData: ProductDetailType = {
+  id: 4,
   name: "Epidemic Groove",
   price: 5000,
   stock: 30,
@@ -137,14 +147,15 @@ export const addressSingle = {
   main_address: true,
 };
 
-export const checkoutArray = [
+export const checkoutArray: CheckoutType[] = [
   {
     id: 9,
     quantity: 2,
     total_price: 20000,
     variant: "Pick",
     product: {
-      image: PickEpidemic,
+      id: 9,
+      product_image: PickEpidemic,
       name: "Dragon Fruit",
       price: 10000,
       categories: "Pick",
@@ -157,7 +168,7 @@ export const checkoutArray = [
     variant: "Keychain",
     product: {
       id: 9,
-      image: PickDragon,
+      product_image: PickDragon,
       name: "Epidemic Grove",
       price: 10000,
       categories: "Pick",
@@ -169,7 +180,8 @@ export const checkoutArray = [
     total_price: 20000,
     variant: "Pick",
     product: {
-      image: PickEpidemic,
+      id: 9,
+      product_image: PickEpidemic,
       name: "Dragon Fruit Devil Fruit gomu gomu no mo",
       price: 10000,
       categories: "Pick",
@@ -182,7 +194,7 @@ export const checkoutArray = [
     variant: "Keychain",
     product: {
       id: 9,
-      image: PickDragon,
+      product_image: PickDragon,
       name: "Epidemic Grove",
       price: 10000,
       categories: "Pick",
