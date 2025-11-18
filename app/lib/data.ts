@@ -103,7 +103,8 @@ export const productData: ProductDetailType = {
   star: 4.5,
   product_image: [PickEpidemic, ModelPick, NecklessEpidemic],
   categories: "Pick",
-  description: "A product short description is a concise and brief overview of a product, providing key information to potential customers. Typically, it is a brief summary that highlights the most important features, benefits,",
+  description:
+    "A product short description is a concise and brief overview of a product, providing key information to potential customers. Typically, it is a brief summary that highlights the most important features, benefits,",
   variants: [
     {
       variant: "Pick",
@@ -151,52 +152,48 @@ export const checkoutArray: CheckoutType[] = [
   {
     id: 9,
     quantity: 2,
-    total_price: 20000,
+    price: 20000,
     variant: "Pick",
     product: {
       id: 9,
       product_image: PickEpidemic,
       name: "Dragon Fruit",
-      price: 10000,
       categories: "Pick",
     },
   },
   {
     id: 120,
     quantity: 2,
-    total_price: 20000,
+    price: 20000,
     variant: "Keychain",
     product: {
       id: 9,
       product_image: PickDragon,
       name: "Epidemic Grove",
-      price: 10000,
       categories: "Pick",
     },
   },
   {
     id: 9,
     quantity: 2,
-    total_price: 20000,
+    price: 20000,
     variant: "Pick",
     product: {
       id: 9,
       product_image: PickEpidemic,
       name: "Dragon Fruit Devil Fruit gomu gomu no mo",
-      price: 10000,
       categories: "Pick",
     },
   },
   {
     id: 120,
     quantity: 2,
-    total_price: 20000,
+    price: 20000,
     variant: "Keychain",
     product: {
       id: 9,
       product_image: PickDragon,
       name: "Epidemic Grove",
-      price: 10000,
       categories: "Pick",
     },
   },

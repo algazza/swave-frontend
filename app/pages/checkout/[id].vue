@@ -36,10 +36,7 @@ const totalProduct = checkoutArray.reduce(
   (sum, item) => sum + item.quantity,
   0
 );
-const totalQuantity = checkoutArray.reduce(
-  (sum, item) => sum + item.total_price,
-  0
-);
+const totalQuantity = checkoutArray.reduce((sum, item) => sum + item.price, 0);
 
 const onInput = (e: Event) => {
   let val = (e.target as HTMLInputElement).value.replace(/\D/g, "");
@@ -117,7 +114,7 @@ const goBack = () => {
             <div class="flex gap-5">
               <div class="size-20 aspect-square overflow-hidden">
                 <NuxtImg
-                  :src="check.product.image"
+                  :src="check.product.product_image"
                   :alt="check.product.name"
                   class="w-full h-full object-cover object-center outline-hidden"
                 />
@@ -145,9 +142,7 @@ const goBack = () => {
 
             <div class="flex justify-between items-center">
               <span>Total Checkout:</span>
-              <span class="font-bold"
-                >Rp{{ formatRupiah(check.total_price) }}</span
-              >
+              <span class="font-bold">Rp{{ formatRupiah(check.price) }}</span>
             </div>
           </div>
         </div>
@@ -177,7 +172,9 @@ const goBack = () => {
             </UiSelectContent>
           </UiSelect>
 
-          <p v-if="deliveryType === 'pickup'" class="text-2xl font-semibold">Pick Date and Time</p>
+          <p v-if="deliveryType === 'pickup'" class="text-2xl font-semibold">
+            Pick Date and Time
+          </p>
           <div v-if="deliveryType === 'pickup'" class="flex gap-3 w-full">
             <UiPopover>
               <UiPopoverTrigger as-child>
