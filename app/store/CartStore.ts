@@ -1,3 +1,4 @@
+import { PickEpidemic } from "~/lib/image";
 import type { CheckoutType } from "~/types/checkout";
 
 type CartState = {
@@ -7,7 +8,20 @@ type CartState = {
 
 export const useCartStore = defineStore("counter", {
   state: (): CartState => ({
-    cart: [],
+    cart: [
+      {
+        id: 9,
+        quantity: 2,
+        price: 20000,
+        variant: "Neckless",
+        product: {
+          id: 9,
+          product_image: PickEpidemic,
+          name: "Dragon Fruit",
+          categories: "Pick",
+        },
+      },
+    ],
     selectedCart: [],
   }),
   getters: {
@@ -29,16 +43,18 @@ export const useCartStore = defineStore("counter", {
         return c.id !== id;
       });
     },
-    orderCart(product: CheckoutType){
-        const isSelected = this.cart.some((item) => item.id === product.id)
-        if(isSelected){
-            this.selectedCart = this.selectedCart.filter(item => item.id !== product.id)
-        } else {
-            this.selectedCart.push(product)
-        }
+    orderCart(product: CheckoutType) {
+      const isSelected = this.selectedCart.some((item) => item.id === product.id);
+      if (isSelected) {
+        this.selectedCart = this.selectedCart.filter(
+          (item) => item.id !== product.id
+        );
+      } else {
+        this.selectedCart.push(product);
+      }
     },
-    clearOrder(){
-        this.selectedCart = []
-    }
+    clearOrder() {
+      this.selectedCart = [];
+    },
   },
 });
