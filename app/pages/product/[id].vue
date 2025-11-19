@@ -136,7 +136,7 @@ const handleCart = () => {
 
           <UiButton
             @click="handleCart()"
-            class="flex-1 bg-foreground text-background px-2 rounded-lg cursor-pointer"
+            class="flex-1 bg-foreground text-background px-2 rounded-lg"
             :disabled="quantity === 0 ? true : false"
           >
             Add to cart
