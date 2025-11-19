@@ -4,14 +4,9 @@ import { checkoutArray } from "~/lib/data";
 import { formatRupiah } from "~/lib/utils";
 import { useCartStore } from "~/store/CartStore";
 import { useUiStore } from "~/store/UiStore";
-import type { CheckoutType } from "~/types/checkout";
 
 const ui = useUiStore();
 const cartStore = useCartStore();
-
-const checkbox = (item: CheckoutType) => {
-  return Boolean(cartStore.selectedCart.includes(item));
-};
 
 const calculateTotal = () => {
   return cartStore.selectedCart.reduce(
@@ -90,7 +85,7 @@ const calculateTotal = () => {
               </div>
 
               <div class="flex justify-center">
-                <button>
+                <button @click="cartStore.removeCart(check.id)">
                   <Trash2 class="text-destructive" />
                 </button>
               </div>
