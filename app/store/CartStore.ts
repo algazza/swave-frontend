@@ -20,8 +20,11 @@ export const useCartStore = defineStore("counter", {
     addToCart(product: CheckoutType) {
       this.cart.push(product);
     },
-    updateCart(id: number, updatedProduct: CheckoutType) {
+    updateCart(id: number, updatedProduct: Partial<CheckoutType>) {
       this.cart = this.cart.map((item) =>
+        item.id === id ? { ...item, ...updatedProduct } : item
+      );
+      this.selectedCart = this.selectedCart.map((item) =>
         item.id === id ? { ...item, ...updatedProduct } : item
       );
     },
@@ -29,6 +32,9 @@ export const useCartStore = defineStore("counter", {
       this.cart = this.cart.filter((c) => {
         return c.id !== id;
       });
+      this.selectedCart = this.selectedCart.filter((c) => {
+        return c.id !== id
+      })
     },
     orderCart(product: CheckoutType) {
       const isSelected = this.selectedCart.some((item) => item.id === product.id);

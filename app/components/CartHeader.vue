@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Trash2, X } from "lucide-vue-next";
-import { checkoutArray } from "~/lib/data";
 import { formatRupiah } from "~/lib/utils";
 import { useCartStore } from "~/store/CartStore";
 import { useUiStore } from "~/store/UiStore";
@@ -8,12 +7,14 @@ import { useUiStore } from "~/store/UiStore";
 const ui = useUiStore();
 const cartStore = useCartStore();
 
-const calculateTotal = () => {
+const totalPrice = computed(() => {
   return cartStore.selectedCart.reduce(
     (total, item) => total + item.price * (item.quantity || 0),
     0
   );
-};
+});
+
+
 </script>
 
 <template>
@@ -44,7 +45,7 @@ const calculateTotal = () => {
               <div class="flex gap-2 md:gap-6 justify-center items-center">
                 <UiCheckbox
                   class="border-2 border-foreground"
-                  :model-value="cartStore.selectedCart.includes(check)"
+                  :model-value="cartStore.selectedCart.some(item => item.id === check.id)"
                   @update:model-value="cartStore.orderCart(check)"
                 />
                 <div class="size-20 aspect-square">
@@ -72,8 +73,9 @@ const calculateTotal = () => {
 
                   <UiNumberField
                     class="border border-foreground max-w-28"
-                    :default-value="check.quantity"
-                    :min="0"
+                    :model-value="check.quantity"
+                    :min="1"
+                    @update:model-value="(val) => cartStore.updateCart(check.id, {quantity: val})"
                   >
                     <UiNumberFieldContent>
                       <UiNumberFieldDecrement />
@@ -84,9 +86,9 @@ const calculateTotal = () => {
                 </div>
               </div>
 
-              <div class="flex justify-center">
-                <button @click="cartStore.removeCart(check.id)">
-                  <Trash2 class="text-destructive" />
+              <div class="flex justify-center items-center">
+                <button @click="cartStore.removeCart(check.id)" class="h-fit">
+                  <Trash2 class="text-destructive cursor-pointer" />
                 </button>
               </div>
             </div>
@@ -105,10 +107,10 @@ const calculateTotal = () => {
         <div class="flex justify-between items-center">
           <h2 class="text-xl">Subtotal</h2>
           <p class="text-sm font-bold">
-            Rp{{ formatRupiah(calculateTotal()) }}
+            Rp{{ formatRupiah(totalPrice) }}
           </p>
         </div>
-        <UiButton> Checkout </UiButton>
+        <UiButton :disabled="cartStore.selectedCart.length === 0"> Checkout </UiButton>
       </div>
     </div>
   </section>
