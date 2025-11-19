@@ -114,12 +114,12 @@ export const productData: ProductDetailType = {
     {
       variant: "Keychain",
       price: 7000,
-      stock: 10,
+      stock: 20,
     },
     {
       variant: "Necklace",
       price: 10000,
-      stock: 10,
+      stock: 90,
     },
   ],
   reviews: [

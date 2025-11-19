@@ -1,6 +1,6 @@
 import z from "zod";
 
-const ProductVariants = z.object({
+const ProductVariantSchema = z.object({
   variant: z.string(),
   stock: z.number(),
   price: z.number(),
@@ -26,10 +26,10 @@ export const ProductDetailSchema = ProductSchema.extend({
   product_image: z.array(z.string().url()),
   stock: z.number(),
   sold: z.number(),
-  variants: z.array(ProductVariants),
+  variants: z.array(ProductVariantSchema),
   reviews: z.array(ProductReview),
 });
 
-
 export type ProductType = z.infer<typeof ProductSchema>;
 export type ProductDetailType = z.infer<typeof ProductDetailSchema>;
+export type ProductVariantsType = z.infer<typeof ProductVariantSchema>;

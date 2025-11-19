@@ -8,20 +8,7 @@ type CartState = {
 
 export const useCartStore = defineStore("counter", {
   state: (): CartState => ({
-    cart: [
-      {
-        id: 9,
-        quantity: 2,
-        price: 20000,
-        variant: "Neckless",
-        product: {
-          id: 9,
-          product_image: PickEpidemic,
-          name: "Dragon Fruit",
-          categories: "Pick",
-        },
-      },
-    ],
+    cart: [],
     selectedCart: [],
   }),
   getters: {
