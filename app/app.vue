@@ -1,10 +1,13 @@
-<script setup lang="ts">
-import { Toaster } from "./components/ui/sonner";
-</script>
-
 <template>
-  <NuxtLayout>
-    <NuxtPage />
-    <Toaster />
-  </NuxtLayout>
+  <div>
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+
+    <Notivue v-slot="item">
+      <NotivueSwipe :item="item">
+        <Notification :item="item" />
+      </NotivueSwipe>
+    </Notivue>
+  </div>
 </template>
