@@ -9,7 +9,7 @@
     >
       <div class="max-w-[1200px] w-full">
         <slot />
-    </div>
+      </div>
     </main>
 
     <AppFooter />
