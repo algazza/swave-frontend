@@ -4,12 +4,14 @@ import type { CheckoutType } from "~/types/checkout";
 type CartState = {
   cart: CheckoutType[];
   selectedCart: CheckoutType[];
+  checkoutProduct: CheckoutType[];
 };
 
 export const useCartStore = defineStore("counter", {
   state: (): CartState => ({
     cart: [],
     selectedCart: [],
+    checkoutProduct: [],
   }),
   getters: {
     cartLength(): number {
@@ -49,5 +51,11 @@ export const useCartStore = defineStore("counter", {
     clearOrder() {
       this.selectedCart = [];
     },
+    checkoutCart(newCart: CheckoutType[]){
+      this.checkoutProduct = newCart  
+    },
+    clearCheckout(){
+      this.checkoutProduct = []
+    }
   },
 });
