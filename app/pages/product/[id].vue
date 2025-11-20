@@ -29,7 +29,7 @@ const checkout = computed<CheckoutType>(() => ({
   variant: {
     variant: selectedVariant.variant,
     price: selectedVariant.price,
-    stock: selectedVariant.stock
+    stock: selectedVariant.stock,
   },
   product: {
     id: DataProduct.id,
@@ -71,7 +71,6 @@ const handleCart = () => {
   push.success(`${productData.name} has added to your cart`);
   resetCheckout();
 };
-
 </script>
 
 <template>
@@ -131,6 +130,7 @@ const handleCart = () => {
             class="border border-foreground max-w-28"
             :default-value="0"
             :min="0"
+            :max="selectedVariant.stock"
           >
             <UiNumberFieldContent>
               <UiNumberFieldDecrement />
@@ -241,6 +241,7 @@ const handleCart = () => {
             class="border border-foreground max-w-28"
             :default-value="0"
             :min="0"
+            :max="selectedVariant.stock"
           >
             <UiNumberFieldContent>
               <UiNumberFieldDecrement />
