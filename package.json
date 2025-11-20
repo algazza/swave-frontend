@@ -44,5 +44,8 @@
   "devDependencies": {
     "@nuxtjs/color-mode": "^3.5.2",
     "typescript": "^5.9.2"
+  },
+  "overrides": {
+    "@internationalized/date": "3.10.0"
   }
 }

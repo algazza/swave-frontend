@@ -4,10 +4,11 @@ definePageMeta({
 });
 
 import { ref } from "vue";
-import type { CalendarDate, DateValue } from "@internationalized/date";
+import type { DateValue } from "@internationalized/date";
 import {
   DateFormatter,
   getLocalTimeZone,
+  now,
   today,
 } from "@internationalized/date";
 
@@ -24,7 +25,13 @@ const df = new DateFormatter("id-ID", {
 });
 
 const router = useRouter();
-const value = ref<DateValue>();
+
+const zone = getLocalTimeZone();
+const minDate = now(zone)
+  .add({ days: 4 })
+  .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+const date = ref<DateValue>()
+
 const deliveryType = ref("");
 const time = ref("");
 const checkbox = ref(true);
@@ -132,13 +139,13 @@ const goBack = () => {
                   </div>
 
                   <h2 class="text-xl mt-2 mb-1">{{ check.product.name }}</h2>
-                  <p class="">Rp{{ formatRupiah(check.product.price) }}</p>
+                  <p class="">Rp{{ formatRupiah(check.price) }}</p>
                 </div>
                 <span class="text-xs">Stok: {{ check.quantity }}</span>
               </div>
             </div>
 
-            <div class="content-[''] h-[1px] w-full bg-foreground" />
+            <div class="content-[''] h-px w-full bg-foreground" />
 
             <div class="flex justify-between items-center">
               <span>Total Checkout:</span>
@@ -183,22 +190,22 @@ const goBack = () => {
                   :class="
                     cn(
                       'w-full justify-start text-left font-normal flex-1 border-2 border-foreground',
-                      !value && 'text-muted-foreground'
+                      !date && 'text-muted-foreground'
                     )
                   "
                 >
                   <CalendarIcon class="mr-2 h-4 w-4" />
                   {{
-                    value
-                      ? df.format(value.toDate(getLocalTimeZone()))
+                    date
+                      ? df.format(date.toDate(getLocalTimeZone()))
                       : "Pick a date"
                   }}
                 </UiButton>
               </UiPopoverTrigger>
               <UiPopoverContent class="w-auto p-0">
                 <UiCalendar
-                  :min-value="today(getLocalTimeZone()).add({ days: 4 })"
-                  v-model="value"
+                  :min-value="minDate"
+                  v-model="date"
                   initial-focus
                 />
               </UiPopoverContent>
