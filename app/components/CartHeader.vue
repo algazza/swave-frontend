@@ -38,7 +38,7 @@ const totalPrice = computed(() => {
         >
           <template v-if="cartStore.cart.length > 0">
             <div
-              v-for="check in cartStore.cart.reverse()"
+              v-for="check in cartStore.cart"
               class="flex justify-between gap-2"
             >
               <div class="flex gap-2 md:gap-6 justify-center items-center">

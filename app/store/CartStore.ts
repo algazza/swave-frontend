@@ -20,7 +20,7 @@ export const useCartStore = defineStore("counter", {
   },
   actions: {
     addToCart(product: CheckoutType) {
-      this.cart.push(product);
+      this.cart.unshift(product);
     },
     updateCart(id: number, updatedProduct: Partial<CheckoutType>) {
       this.cart = this.cart.map((item) =>
