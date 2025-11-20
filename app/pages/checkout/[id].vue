@@ -5,45 +5,49 @@ definePageMeta({
 
 import { ref } from "vue";
 import type { DateValue } from "@internationalized/date";
-import {
-  DateFormatter,
-  getLocalTimeZone,
-  now,
-  today,
-} from "@internationalized/date";
+import { DateFormatter, getLocalTimeZone, now } from "@internationalized/date";
 
 import { ChevronLeft, Clock, Home, MapPin } from "lucide-vue-next";
 import { CalendarIcon } from "lucide-vue-next";
 
-import { addressSingle, checkoutArray } from "~/lib/data";
+import { addressSingle } from "~/lib/data";
 import { cn } from "~/lib/utils";
 import { formatRupiah } from "~/lib/utils";
 import type { AddressType } from "~/types/user";
+import { useCartStore } from "~/store/CartStore";
+
+const router = useRouter();
+const cartStore = useCartStore();
 
 const df = new DateFormatter("id-ID", {
   dateStyle: "long",
 });
-
-const router = useRouter();
-
 const zone = getLocalTimeZone();
 const minDate = now(zone)
   .add({ days: 4 })
   .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-const date = ref<DateValue>()
+const date = ref<DateValue>();
+const time = ref("");
 
 const deliveryType = ref("");
-const time = ref("");
 const checkbox = ref(true);
 
 const address: AddressType = addressSingle;
 const deliveryCost = 20000;
 
-const totalProduct = checkoutArray.reduce(
+const totalProduct = cartStore.checkoutProduct.reduce(
   (sum, item) => sum + item.quantity,
   0
 );
-const totalQuantity = checkoutArray.reduce((sum, item) => sum + item.price, 0);
+const totalQuantity = cartStore.checkoutProduct.reduce(
+  (sum, item) => sum + item.price,
+  0
+);
+
+const totalPrice = cartStore.checkoutProduct.reduce(
+  (total, item) => total + item.variant.price * (item.quantity || 0),
+  0
+);
 
 const onInput = (e: Event) => {
   let val = (e.target as HTMLInputElement).value.replace(/\D/g, "");
@@ -61,12 +65,13 @@ const onInput = (e: Event) => {
 };
 
 const goBack = () => {
+  cartStore.clearCheckout();
   router.back();
 };
 </script>
 
 <template>
-  <div class="pb-20">
+  <section class="pb-20">
     <div class="flex gap-2 py-5 items-center justify-start">
       <button @click="goBack">
         <ChevronLeft class="size-8" />
@@ -76,7 +81,7 @@ const goBack = () => {
 
     <form class="flex flex-col gap-5 lg:flex-row">
       <div class="grid gap-5 flex-1 lg:h-fit">
-        <div class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
+        <section class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
           <div class="flex justify-between items-center">
             <span class="text-2xl font-semibold">Address</span>
             <span v-if="address" class="font-bold underline">Change</span>
@@ -112,12 +117,12 @@ const goBack = () => {
           <UiButton v-if="!address" class="bg-foreground text-background"
             >+ Add Address</UiButton
           >
-        </div>
+        </section>
 
-        <div class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
+        <section class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
           <p class="text-2xl font-semibold">Product Checkout</p>
 
-          <div v-for="check in checkoutArray" class="grid gap-3">
+          <div v-for="check in cartStore.checkoutProduct" class="grid gap-3">
             <div class="flex gap-5">
               <div class="size-20 aspect-square overflow-hidden">
                 <NuxtImg
@@ -132,14 +137,14 @@ const goBack = () => {
                   <div class="p-1 bg-secondary w-fit">
                     {{ check.product.categories
                     }}{{
-                      check.variant !== check.product.categories
-                        ? `, ${check.variant}`
+                      check.variant.variant !== check.product.categories
+                        ? `, ${check.variant.variant}`
                         : ""
                     }}
                   </div>
 
                   <h2 class="text-xl mt-2 mb-1">{{ check.product.name }}</h2>
-                  <p class="">Rp{{ formatRupiah(check.price) }}</p>
+                  <p class="">Rp{{ formatRupiah(check.variant.price) }}</p>
                 </div>
                 <span class="text-xs">Stok: {{ check.quantity }}</span>
               </div>
@@ -152,9 +157,11 @@ const goBack = () => {
               <span class="font-bold">Rp{{ formatRupiah(check.price) }}</span>
             </div>
           </div>
-        </div>
+        </section>
+      </div>
 
-        <div class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
+      <div class="grid gap-5 flex-1 lg:h-fit">
+        <section class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
           <p class="text-2xl font-semibold">Delivery</p>
 
           <UiSelect v-model="deliveryType">
@@ -203,11 +210,7 @@ const goBack = () => {
                 </UiButton>
               </UiPopoverTrigger>
               <UiPopoverContent class="w-auto p-0">
-                <UiCalendar
-                  :min-value="minDate"
-                  v-model="date"
-                  initial-focus
-                />
+                <UiCalendar :min-value="minDate" v-model="date" initial-focus />
               </UiPopoverContent>
             </UiPopover>
 
@@ -225,14 +228,12 @@ const goBack = () => {
               </UiInputGroup>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <div class="grid gap-5 flex-1 lg:h-fit">
-        <div class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
+        <section class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
           <p class="text-2xl font-semibold">Description (optional)</p>
           <UiTextarea
-            placeholder="Description"
+            placeholder="I smell like teen spirit..."
             class="border-2 border-secondary resize-none"
           />
 
@@ -252,9 +253,9 @@ const goBack = () => {
               class="border-2 border-secondary resize-none"
             />
           </div>
-        </div>
+        </section>
 
-        <div class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
+        <section class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
           <p class="text-2xl font-semibold">Invoice</p>
           <div class="grid gap-2">
             <div class="flex justify-between">
@@ -265,15 +266,15 @@ const goBack = () => {
               <p>Total Delivery Cost</p>
               <p class="font-bold">Rp{{ formatRupiah(deliveryCost) }}</p>
             </div>
-            <div class="content-[''] h-[1px] w-full bg-foreground" />
+            <div class="content-[''] h-px w-full bg-foreground" />
             <div class="flex justify-between text-xl">
               <p>Total Payment</p>
-              <p class="font-bold">Rp{{ formatRupiah(60000) }}</p>
+              <p class="font-bold">Rp{{ formatRupiah(totalPrice + deliveryCost) }}</p>
             </div>
             <UiButton class="w-full">Chose Payment</UiButton>
           </div>
-        </div>
+        </section>
       </div>
     </form>
-  </div>
+  </section>
 </template>
