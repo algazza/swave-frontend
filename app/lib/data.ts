@@ -153,7 +153,11 @@ export const checkoutArray: CheckoutType[] = [
     id: 9,
     quantity: 2,
     price: 20000,
-    variant: "Pick",
+    variant: {
+      variant: "Pick",
+      price: 5000,
+      stock: 10,
+    },
     product: {
       id: 9,
       product_image: PickEpidemic,
@@ -165,7 +169,11 @@ export const checkoutArray: CheckoutType[] = [
     id: 120,
     quantity: 2,
     price: 20000,
-    variant: "Keychain",
+    variant: {
+      variant: "Pick",
+      price: 5000,
+      stock: 10,
+    },
     product: {
       id: 9,
       product_image: PickDragon,
@@ -177,7 +185,11 @@ export const checkoutArray: CheckoutType[] = [
     id: 9,
     quantity: 2,
     price: 20000,
-    variant: "Pick",
+    variant: {
+      variant: "Pick",
+      price: 5000,
+      stock: 10,
+    },
     product: {
       id: 9,
       product_image: PickEpidemic,
@@ -189,7 +201,11 @@ export const checkoutArray: CheckoutType[] = [
     id: 120,
     quantity: 2,
     price: 20000,
-    variant: "Keychain",
+    variant: {
+      variant: "Pick",
+      price: 5000,
+      stock: 10,
+    },
     product: {
       id: 9,
       product_image: PickDragon,

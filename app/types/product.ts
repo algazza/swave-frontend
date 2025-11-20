@@ -1,12 +1,12 @@
 import z from "zod";
 
-const ProductVariantSchema = z.object({
+export const ProductVariantSchema = z.object({
   variant: z.string(),
   stock: z.number(),
   price: z.number(),
 });
 
-const ProductReview = z.object({
+export const ProductReview = z.object({
   name: z.string(),
   star: z.number(),
   description: z.string(),

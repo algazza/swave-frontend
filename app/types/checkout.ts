@@ -1,11 +1,11 @@
 import z from "zod";
-import { ProductSchema } from "./product";
+import { ProductSchema, ProductVariantSchema } from "./product";
 
 export const CheckoutSchema = z.object({
   id: z.number(),
   quantity: z.number(),
   price: z.number(),
-  variant: z.string(),
+  variant: ProductVariantSchema,
   product: ProductSchema.omit({ star: true, price: true }),
 });
 
