@@ -77,7 +77,7 @@ const totalPrice = computed(() => {
                     :model-value="check.quantity"
                     :min="1"
                     @update:model-value="
-                      (val) => cartStore.updateCart(check.id, { quantity: val })
+                      (val) => cartStore.updateCart(check.id, { quantity: val, price: val*check.variant.price })
                     "
                   >
                     <UiNumberFieldContent>
