@@ -24,13 +24,13 @@ const selectedVariant = reactive<ProductVariantsType>({
 
 const checkout = computed<CheckoutType>(() => ({
   id: Date.now() + Math.floor(Math.random() * 1000),
-  price: DataProduct.price,
+  price: selectedVariant.price * quantity.value,
+  quantity: quantity.value,
   variant: {
     variant: selectedVariant.variant,
     price: selectedVariant.price,
     stock: selectedVariant.stock
   },
-  quantity: quantity.value,
   product: {
     id: DataProduct.id,
     name: DataProduct.name,
