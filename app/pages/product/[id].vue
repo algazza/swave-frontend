@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Star } from "lucide-vue-next";
+import Autoplay from "embla-carousel-autoplay";
 import { dummyProduct, productData } from "~/lib/data";
 import { formatRupiah } from "~/lib/utils";
 import { useCartStore } from "~/store/CartStore";
-import type { CheckoutType } from "~/types/checkout";
+import type { CheckoutProductType } from "~/types/checkout";
 import type { ProductVariantsType } from "~/types/product";
 
 const DataProduct = productData;
@@ -16,16 +17,22 @@ const emblaApi = ref<any>(null);
 
 const quantity = ref<number>(0);
 const selectedVariant = reactive<ProductVariantsType>({
+  id: defaultVariant?.id || 0,
   variant: defaultVariant?.variant || "",
   price: defaultVariant?.price || 0,
   stock: defaultVariant?.stock || 0,
 });
 
-const checkout = computed<CheckoutType>(() => ({
+const checkout = computed<CheckoutProductType>(() => ({
   id: Date.now() + Math.floor(Math.random() * 1000),
-  price: DataProduct.price,
-  variant: selectedVariant.variant,
+  price: selectedVariant.price * quantity.value,
   quantity: quantity.value,
+  variant: {
+    id: selectedVariant.id,
+    variant: selectedVariant.variant,
+    price: selectedVariant.price,
+    stock: selectedVariant.stock,
+  },
   product: {
     id: DataProduct.id,
     name: DataProduct.name,
@@ -61,11 +68,10 @@ const resetCheckout = () => {
   quantity.value = 0;
 };
 
-
 const handleCart = () => {
   cartStore.addToCart(checkout.value);
-  push.success(`${productData.name} has added to your cart`)
-  resetCheckout()
+  push.success(`${productData.name} has added to your cart`);
+  resetCheckout();
 };
 </script>
 
@@ -126,6 +132,7 @@ const handleCart = () => {
             class="border border-foreground max-w-28"
             :default-value="0"
             :min="0"
+            :max="selectedVariant.stock"
           >
             <UiNumberFieldContent>
               <UiNumberFieldDecrement />
@@ -185,9 +192,24 @@ const handleCart = () => {
       <div class="grid gap-5 lg:hidden">
         <div class="grid gap-2">
           <h1 class="text-3xl">{{ DataProduct.name }}</h1>
-          <p class="">Rp{{ formatRupiah(DataProduct.price) }}</p>
+          <p class="">
+            Rp{{
+              formatRupiah(
+                selectedVariant.price > 0
+                  ? selectedVariant.price
+                  : DataProduct.price
+              )
+            }}
+          </p>
           <div class="flex gap-5 items-center">
-            <span>Stok: {{ DataProduct.stock }}</span>
+            <span
+              >Stok:
+              {{
+                selectedVariant.stock > 0
+                  ? selectedVariant.stock
+                  : DataProduct.stock
+              }}</span
+            >
             <span>Sold: {{ DataProduct.sold }}</span>
             <div class="flex gap-2 items-center">
               <Star class="text-accent" />
@@ -200,11 +222,17 @@ const handleCart = () => {
           <h2 class="text-2xl font-normal">variant</h2>
           <div class="flex items-center flex-wrap gap-3">
             <div
-              v-for="variant in DataProduct.variants"
-              :key="variant.variant"
-              class="px-4 py-2 bg-secondary rounded-xl"
+              v-for="v in DataProduct.variants"
+              :key="v.variant"
+              class="px-4 py-2 rounded-xl cursor-pointer"
+              :class="
+                selectedVariant.variant === v.variant
+                  ? 'bg-foreground text-background'
+                  : 'bg-secondary'
+              "
+              @click="setVariant(v)"
             >
-              {{ variant.variant }}
+              {{ v.variant }}
             </div>
           </div>
         </div>
@@ -213,8 +241,9 @@ const handleCart = () => {
           <UiNumberField
             v-model="quantity"
             class="border border-foreground max-w-28"
-            :default-value="1"
+            :default-value="0"
             :min="0"
+            :max="selectedVariant.stock"
           >
             <UiNumberFieldContent>
               <UiNumberFieldDecrement />
@@ -223,9 +252,13 @@ const handleCart = () => {
             </UiNumberFieldContent>
           </UiNumberField>
 
-          <Button class="bg-foreground text-background px-2 w-full rounded-lg"
-            >Add to cart</Button
+          <UiButton
+            @click="handleCart()"
+            class="flex-1 bg-foreground text-background px-2 rounded-lg"
+            :disabled="quantity === 0 ? true : false"
           >
+            Add to cart
+          </UiButton>
         </div>
       </div>
 
@@ -241,6 +274,11 @@ const handleCart = () => {
               align: 'start',
               loop: true,
             }"
+            :plugins="[
+              Autoplay({
+                delay: 2000,
+              }),
+            ]"
           >
             <UiCarouselContent>
               <UiCarouselItem
