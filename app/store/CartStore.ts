@@ -1,10 +1,10 @@
 import { PickEpidemic } from "~/lib/image";
-import type { CheckoutType } from "~/types/checkout";
+import type { CheckoutProductType } from "~/types/checkout";
 
 type CartState = {
-  cart: CheckoutType[];
-  selectedCart: CheckoutType[];
-  checkoutProduct: CheckoutType[];
+  cart: CheckoutProductType[];
+  selectedCart: CheckoutProductType[];
+  checkoutProduct: CheckoutProductType[];
 };
 
 export const useCartStore = defineStore("counter", {
@@ -19,10 +19,10 @@ export const useCartStore = defineStore("counter", {
     },
   },
   actions: {
-    addToCart(product: CheckoutType) {
+    addToCart(product: CheckoutProductType) {
       this.cart.unshift(product);
     },
-    updateCart(id: number, updatedProduct: Partial<CheckoutType>) {
+    updateCart(id: number, updatedProduct: Partial<CheckoutProductType>) {
       this.cart = this.cart.map((item) =>
         item.id === id ? { ...item, ...updatedProduct } : item
       );
@@ -35,11 +35,13 @@ export const useCartStore = defineStore("counter", {
         return c.id !== id;
       });
       this.selectedCart = this.selectedCart.filter((c) => {
-        return c.id !== id
-      })
+        return c.id !== id;
+      });
     },
-    orderCart(product: CheckoutType) {
-      const isSelected = this.selectedCart.some((item) => item.id === product.id);
+    orderCart(product: CheckoutProductType) {
+      const isSelected = this.selectedCart.some(
+        (item) => item.id === product.id
+      );
       if (isSelected) {
         this.selectedCart = this.selectedCart.filter(
           (item) => item.id !== product.id
@@ -51,11 +53,11 @@ export const useCartStore = defineStore("counter", {
     clearOrder() {
       this.selectedCart = [];
     },
-    checkoutCart(newCart: CheckoutType[]){
-      this.checkoutProduct = newCart  
+    checkoutCart(newCart: CheckoutProductType[]) {
+      this.checkoutProduct = newCart;
     },
-    clearCheckout(){
-      this.checkoutProduct = []
-    }
+    clearCheckout() {
+      this.checkoutProduct = [];
+    },
   },
 });
