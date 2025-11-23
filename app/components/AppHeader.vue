@@ -6,7 +6,7 @@ import { useCartStore } from "~/store/CartStore";
 import { useUiStore } from "~/store/UiStore";
 
 const ui = useUiStore();
-const cart = useCartStore()
+const cart = useCartStore();
 </script>
 
 <template>
@@ -22,7 +22,7 @@ const cart = useCartStore()
           </div>
 
           <NuxtLink href="/">
-            <img :src="logoBlack" alt="Swave" class="w-[131px] md:hidden" />
+            <NuxtImg :src="logoBlack" alt="Swave" class="w-[131px] md:hidden" />
           </NuxtLink>
         </div>
 
@@ -35,7 +35,11 @@ const cart = useCartStore()
         </ul>
 
         <NuxtLink href="/">
-          <img :src="logoBlack" alt="Swave" class="w-[131px] max-md:hidden" />
+          <NuxtImg
+            :src="logoBlack"
+            alt="Swave"
+            class="w-[131px] max-md:hidden"
+          />
         </NuxtLink>
 
         <div class="flex gap-4 items-center lg:w-[255px] justify-end">
@@ -43,10 +47,10 @@ const cart = useCartStore()
           <User />
           <button @click="ui.toggleCart" class="cursor-pointer relative">
             <div
-            v-if="cart.cartLength > 0"
+              v-if="cart.cartLength > 0"
               class="size-[22px] absolute -top-3 -right-3 bg-destructive text-background rounded-full text-xs flex justify-center items-center text-center font-bold"
             >
-              {{ cart.cartLength > 99 ? '99+' : cart.cartLength}}
+              {{ cart.cartLength > 99 ? "99+" : cart.cartLength }}
             </div>
             <ShoppingCart />
           </button>

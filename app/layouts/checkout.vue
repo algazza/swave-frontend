@@ -11,7 +11,7 @@ import { logoBlack } from "~/lib/image";
       <div class="w-full max-w-[1200px]">
         <div class="flex justify-between">
           <NuxtLink href="/">
-            <img :src="logoBlack" alt="Swave" class="w-[131px]" />
+            <NuxtImg :src="logoBlack" alt="Swave" class="w-[131px]" />
           </NuxtLink>
           <div class="flex gap-4 items-center justify-end">
             <Moon />

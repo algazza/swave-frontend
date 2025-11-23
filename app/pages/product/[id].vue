@@ -169,7 +169,7 @@ const handleCart = () => {
                 class="aspect-square relative"
                 :class="index === 0 ? 'm-16' : ''"
               >
-                <img
+                <NuxtImg
                   :src="img"
                   alt="Pick"
                   class="w-full h-full object-cover object-center"
