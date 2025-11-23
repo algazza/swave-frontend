@@ -4,8 +4,10 @@ definePageMeta({
 });
 
 import { ref } from "vue";
-import type { DateValue } from "@internationalized/date";
 import { DateFormatter, getLocalTimeZone, now } from "@internationalized/date";
+import type { DateValue } from "@internationalized/date";
+import { Field, Form, ErrorMessage } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
 
 import { ChevronLeft, Clock, Home, MapPin } from "lucide-vue-next";
 import { CalendarIcon } from "lucide-vue-next";
@@ -13,11 +15,13 @@ import { CalendarIcon } from "lucide-vue-next";
 import { addressSingle } from "~/lib/data";
 import { cn } from "~/lib/utils";
 import { formatRupiah } from "~/lib/utils";
-import type { AddressType } from "~/types/user";
 import { useCartStore } from "~/store/CartStore";
+import { CheckoutSchema, type CheckoutType } from "~/types/checkout";
+import type { AddressType } from "~/types/user";
 
 const router = useRouter();
 const cartStore = useCartStore();
+const schema = toTypedSchema(CheckoutSchema);
 
 const df = new DateFormatter("id-ID", {
   dateStyle: "long",
@@ -35,6 +39,22 @@ const checkbox = ref(true);
 const address: AddressType = addressSingle;
 const deliveryCost = 20000;
 
+const initialData = {
+  deliveries: {
+    delivery_type: "",
+    pickup_date: "",
+    pickup_hour: "",
+    address_id: address.id,
+  },
+  product_checkout: cartStore.checkoutProduct.map((item) => ({
+    quantity: item.quantity,
+    product_id: item.product.id,
+    product_variant_id: item.variant.id,
+  })),
+  gift_card: true,
+  gift_description: "",
+};
+
 const totalProduct = cartStore.checkoutProduct.reduce(
   (sum, item) => sum + item.quantity,
   0
@@ -49,7 +69,7 @@ const totalPrice = cartStore.checkoutProduct.reduce(
   0
 );
 
-const onInput = (e: Event) => {
+const onInput = (e: Event, field: any) => {
   let val = (e.target as HTMLInputElement).value.replace(/\D/g, "");
 
   if (val.length >= 3) val = val.slice(0, 2) + ":" + val.slice(2, 4);
@@ -61,12 +81,32 @@ const onInput = (e: Event) => {
   if ((m ?? 0) > 59)
     val = (String(h).padStart(2, "0").slice(0, 2) || "00") + ":59";
 
-  time.value = val.slice(0, 5);
+  const formatted = val.slice(0, 5);
+
+  time.value = formatted;
+
+  field.onChange(formatted);
+};
+
+const formatToDDMMYYYY = (dateValue: DateValue | undefined) => {
+  if (!dateValue) return "";
+
+  const jsDate = dateValue.toDate(getLocalTimeZone());
+
+  const day = String(jsDate.getDate()).padStart(2, "0");
+  const month = String(jsDate.getMonth() + 1).padStart(2, "0");
+  const year = jsDate.getFullYear();
+
+  return `${year}-${month}-${day}`;
 };
 
 const goBack = () => {
   cartStore.clearCheckout();
   router.back();
+};
+
+const onSubmit = (values: any) => {
+  console.log(JSON.stringify(values, null, 2));
 };
 </script>
 
@@ -79,7 +119,12 @@ const goBack = () => {
       <h2 class="text-2xl">Checkout</h2>
     </div>
 
-    <form class="flex flex-col gap-5 lg:flex-row">
+    <Form
+      :validation-schema="schema"
+      :initial-values="initialData"
+      class="flex flex-col gap-5 lg:flex-row"
+      @submit="onSubmit"
+    >
       <div class="grid gap-5 flex-1 lg:h-fit">
         <section class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
           <div class="flex justify-between items-center">
@@ -164,93 +209,151 @@ const goBack = () => {
         <section class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
           <p class="text-2xl font-semibold">Delivery</p>
 
-          <UiSelect v-model="deliveryType">
-            <UiSelectTrigger
-              class="border-2 border-foreground text-foreground w-full"
-            >
-              <UiSelectValue placeholder="Select Delivery" />
-            </UiSelectTrigger>
-            <UiSelectContent>
-              <UiSelectGroup>
-                <UiSelectItem value="pickup" class="flex gap-2 font-semibold">
-                  <span>Pick Up at SMK 8 Semarang </span>
-                  <span class="text-muted-foreground">(Rp 0)</span>
-                </UiSelectItem>
-                <UiSelectItem value="delivery" class="flex gap-2 font-semibold">
-                  <span>Delivery </span>
-                  <span class="text-muted-foreground"
-                    >(Rp{{ formatRupiah(deliveryCost) }})</span
-                  >
-                </UiSelectItem>
-              </UiSelectGroup>
-            </UiSelectContent>
-          </UiSelect>
+          <div>
+            <Field name="deliveries.delivery_type" v-slot="{ field }">
+              <UiSelect v-model="deliveryType" v-bind="field">
+                <UiSelectTrigger
+                  class="border-2 border-foreground text-foreground w-full"
+                >
+                  <UiSelectValue placeholder="Select Delivery" />
+                </UiSelectTrigger>
+                <UiSelectContent>
+                  <UiSelectGroup>
+                    <UiSelectItem
+                      value="pickup"
+                      class="flex gap-2 font-semibold"
+                    >
+                      <span>Pick Up at SMK 8 Semarang </span>
+                      <span class="text-muted-foreground">(Rp 0)</span>
+                    </UiSelectItem>
+                    <UiSelectItem
+                      value="delivery"
+                      class="flex gap-2 font-semibold"
+                    >
+                      <span>Delivery </span>
+                      <span class="text-muted-foreground"
+                        >(Rp{{ formatRupiah(deliveryCost) }})</span
+                      >
+                    </UiSelectItem>
+                  </UiSelectGroup>
+                </UiSelectContent>
+              </UiSelect>
+            </Field>
+            <ErrorMessage
+              class="text-destructive text-sm"
+              name="deliveries.delivery_type"
+            />
+          </div>
 
           <p v-if="deliveryType === 'pickup'" class="text-2xl font-semibold">
             Pick Date and Time
           </p>
-          <div v-if="deliveryType === 'pickup'" class="flex gap-3 w-full">
-            <UiPopover>
-              <UiPopoverTrigger as-child>
-                <UiButton
-                  variant="outline"
-                  :class="
-                    cn(
-                      'w-full justify-start text-left font-normal flex-1 border-2 border-foreground',
-                      !date && 'text-muted-foreground'
-                    )
-                  "
-                >
-                  <CalendarIcon class="mr-2 h-4 w-4" />
-                  {{
-                    date
-                      ? df.format(date.toDate(getLocalTimeZone()))
-                      : "Pick a date"
-                  }}
-                </UiButton>
-              </UiPopoverTrigger>
-              <UiPopoverContent class="w-auto p-0">
-                <UiCalendar :min-value="minDate" v-model="date" initial-focus />
-              </UiPopoverContent>
-            </UiPopover>
+          <div
+                id="gift_card"
+            v-if="deliveryType === 'pickup'"
+            class="flex gap-3 w-full items-start"
+          >
+            <div class="w-full">
+              <Field name="deliveries.pickup_date" v-slot="{ field }">
+                <UiPopover>
+                  <UiPopoverTrigger as-child>
+                    <UiButton
+                id="gift_card"
+                      variant="outline"
+                      :class="
+                        cn(
+                          'w-full justify-start text-left font-normal flex-1 border-2 border-foreground',
+                          !date && 'text-muted-foreground'
+                        )
+                      "
+                    >
+                      <CalendarIcon class="mr-2 h-4 w-4" />
+                      {{
+                        date
+                          ? df.format(date.toDate(getLocalTimeZone()))
+                          : "Pick a date"
+                      }}
+                    </UiButton>
+                  </UiPopoverTrigger>
 
-            <div class="flex gap-2 items-center flex-1">
-              <UiInputGroup class="border-2 border-foreground px-2">
-                <UIInputGroupAddon>
-                  <Clock class="size-5 text-muted-foreground" />
-                </UIInputGroupAddon>
-                <UiInputGroupInput
-                  v-model="time"
-                  @input="onInput"
-                  placeholder="hh:mm"
-                  maxlength="5"
+                  <UiPopoverContent class="w-auto p-0">
+                    <UiCalendar
+                      :min-value="minDate"
+                      v-model="date"
+                      @update:modelValue="(v: DateValue | undefined) => {
+                          field.onChange(formatToDDMMYYYY(v));
+                      }"
+                    />
+                  </UiPopoverContent>
+                </UiPopover>
+
+                <ErrorMessage
+                  class="text-destructive text-sm"
+                  name="deliveries.pickup_date"
                 />
-              </UiInputGroup>
+              </Field>
+            </div>
+
+            <div class="w-full">
+              <Field name="deliveries.pickup_hour" v-slot="{ field }">
+                <div class="flex gap-2 items-center flex-1">
+                  <UiInputGroup class="border-2 border-foreground px-2">
+                    <UIInputGroupAddon>
+                      <Clock class="size-5 text-muted-foreground" />
+                    </UIInputGroupAddon>
+                    <UiInputGroupInput
+                      v-model="time"
+                      @input="(e: Event) => onInput(e, field)"
+                      placeholder="hh:mm"
+                      maxlength="5"
+                    />
+                  </UiInputGroup>
+                </div>
+                <ErrorMessage
+                  class="text-destructive text-sm"
+                  name="deliveries.pickup_hour"
+                />
+              </Field>
             </div>
           </div>
         </section>
 
         <section class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
           <p class="text-2xl font-semibold">Description (optional)</p>
-          <UiTextarea
-            placeholder="I smell like teen spirit..."
-            class="border-2 border-secondary resize-none"
-          />
+          <Field name="description" v-slot="{ field }">
+            <UiTextarea
+              v-bind="field"
+              placeholder="I smell like teen spirit..."
+              class="border-2 border-secondary resize-none"
+            />
+          </Field>
 
           <div class="flex items-center gap-2">
-            <UiCheckbox
-              id="gift_card"
-              class="border-2 border-foreground"
-              v-model="checkbox"
-            />
+            <Field name="gift_card" v-slot="{ field }">
+              <UiCheckbox
+                id="gift_card"
+                class="border-2 border-foreground"
+                v-model="checkbox"
+                @update:model-value="(v: boolean | 'indeterminate') => {
+                  field.onChange(v)
+                }"
+              />
+            </Field>
             <UiLabel for="gift-card" class="text-sm">Gift Card</UiLabel>
           </div>
 
           <div v-if="checkbox">
             <p class="text-2xl font-semibold">Gift Card Description</p>
-            <UiTextarea
-              placeholder="Dear God.."
-              class="border-2 border-secondary resize-none"
+            <Field name="gift_description" v-slot="{ field }">
+              <UiTextarea
+                v-bind="field"
+                placeholder="Dear God.."
+                class="border-2 border-secondary resize-none"
+              />
+            </Field>
+            <ErrorMessage
+              class="text-destructive text-sm"
+              name="gift_description"
             />
           </div>
         </section>
@@ -269,12 +372,14 @@ const goBack = () => {
             <div class="content-[''] h-px w-full bg-foreground" />
             <div class="flex justify-between text-xl">
               <p>Total Payment</p>
-              <p class="font-bold">Rp{{ formatRupiah(totalPrice + deliveryCost) }}</p>
+              <p class="font-bold">
+                Rp{{ formatRupiah(totalPrice + deliveryCost) }}
+              </p>
             </div>
             <UiButton class="w-full">Chose Payment</UiButton>
           </div>
         </section>
       </div>
-    </form>
+    </Form>
   </section>
 </template>
