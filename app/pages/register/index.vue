@@ -2,7 +2,7 @@
 import { toTypedSchema } from "@vee-validate/zod";
 import { ErrorMessage, Field, Form } from "vee-validate";
 import { logoBlack } from "~/lib/image";
-import { RegisterSchema, type RegisterType } from "~/types/user";
+import { RegisterSchema } from "~/types/user";
 
 const validationSchema = toTypedSchema(RegisterSchema);
 
