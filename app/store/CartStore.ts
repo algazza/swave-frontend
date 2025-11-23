@@ -1,14 +1,17 @@
-import type { CheckoutType } from "~/types/checkout";
+import { PickEpidemic } from "~/lib/image";
+import type { CheckoutProductType } from "~/types/checkout";
 
 type CartState = {
-  cart: CheckoutType[];
-  selectedCart: CheckoutType[];
+  cart: CheckoutProductType[];
+  selectedCart: CheckoutProductType[];
+  checkoutProduct: CheckoutProductType[];
 };
 
 export const useCartStore = defineStore("counter", {
   state: (): CartState => ({
     cart: [],
     selectedCart: [],
+    checkoutProduct: [],
   }),
   getters: {
     cartLength(): number {
@@ -16,11 +19,14 @@ export const useCartStore = defineStore("counter", {
     },
   },
   actions: {
-    addToCart(product: CheckoutType) {
-      this.cart.push(product);
+    addToCart(product: CheckoutProductType) {
+      this.cart.unshift(product);
     },
-    updateCart(id: number, updatedProduct: CheckoutType) {
+    updateCart(id: number, updatedProduct: Partial<CheckoutProductType>) {
       this.cart = this.cart.map((item) =>
+        item.id === id ? { ...item, ...updatedProduct } : item
+      );
+      this.selectedCart = this.selectedCart.map((item) =>
         item.id === id ? { ...item, ...updatedProduct } : item
       );
     },
@@ -28,17 +34,30 @@ export const useCartStore = defineStore("counter", {
       this.cart = this.cart.filter((c) => {
         return c.id !== id;
       });
+      this.selectedCart = this.selectedCart.filter((c) => {
+        return c.id !== id;
+      });
     },
-    orderCart(product: CheckoutType){
-        const isSelected = this.cart.some((item) => item.id === product.id)
-        if(isSelected){
-            this.selectedCart = this.selectedCart.filter(item => item.id !== product.id)
-        } else {
-            this.selectedCart.push(product)
-        }
+    orderCart(product: CheckoutProductType) {
+      const isSelected = this.selectedCart.some(
+        (item) => item.id === product.id
+      );
+      if (isSelected) {
+        this.selectedCart = this.selectedCart.filter(
+          (item) => item.id !== product.id
+        );
+      } else {
+        this.selectedCart.push(product);
+      }
     },
-    clearOrder(){
-        this.selectedCart = []
-    }
+    clearOrder() {
+      this.selectedCart = [];
+    },
+    checkoutCart(newCart: CheckoutProductType[]) {
+      this.checkoutProduct = newCart;
+    },
+    clearCheckout() {
+      this.checkoutProduct = [];
+    },
   },
 });

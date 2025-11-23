@@ -6,12 +6,12 @@ import { logoBlack } from "~/lib/image";
 <template>
   <div>
     <header
-      class="fixed w-full p-5 top-0 left-0 bg-background z-[100] md:px-10 lg:px-20 flex justify-center"
+      class="fixed w-full p-5 top-0 left-0 bg-background z-100 md:px-10 lg:px-20 flex justify-center"
     >
       <div class="w-full max-w-[1200px]">
         <div class="flex justify-between">
           <NuxtLink href="/">
-            <img :src="logoBlack" alt="Swave" class="w-[131px]" />
+            <NuxtImg :src="logoBlack" alt="Swave" class="w-[131px]" />
           </NuxtLink>
           <div class="flex gap-4 items-center justify-end">
             <Moon />

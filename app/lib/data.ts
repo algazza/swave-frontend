@@ -10,9 +10,11 @@ import {
   PickJagoan,
   PickStrawberry,
 } from "./image";
+import type { CheckoutProductType } from "~/types/checkout";
 
 export const dummyProduct: ProductType[] = [
   {
+    id: 4,
     name: "Dragon Riff",
     price: 5000,
     product_image: PickDragon,
@@ -20,6 +22,7 @@ export const dummyProduct: ProductType[] = [
     star: 5.0,
   },
   {
+    id: 4,
     name: "Epidemic Groove",
     price: 5000,
     product_image: PickEpidemic,
@@ -27,6 +30,7 @@ export const dummyProduct: ProductType[] = [
     star: 4.0,
   },
   {
+    id: 4,
     name: "Harmonight",
     price: 5000,
     product_image: PickHarmonight,
@@ -34,6 +38,7 @@ export const dummyProduct: ProductType[] = [
     star: 4.5,
   },
   {
+    id: 4,
     name: "Jagoan",
     price: 5000,
     product_image: PickJagoan,
@@ -41,6 +46,7 @@ export const dummyProduct: ProductType[] = [
     star: 5.0,
   },
   {
+    id: 4,
     name: "Strawberry",
     price: 5000,
     product_image: PickStrawberry,
@@ -48,6 +54,7 @@ export const dummyProduct: ProductType[] = [
     star: 4.5,
   },
   {
+    id: 4,
     name: "Neckless Dragon",
     price: 7000,
     product_image: NecklessDragon,
@@ -55,6 +62,7 @@ export const dummyProduct: ProductType[] = [
     star: 4.5,
   },
   {
+    id: 4,
     name: "Neckless Epidemic",
     price: 7000,
     product_image: NecklessEpidemic,
@@ -62,6 +70,7 @@ export const dummyProduct: ProductType[] = [
     star: 5.0,
   },
   {
+    id: 4,
     name: "Neckless Strawberry",
     price: 7000,
     product_image: NecklessStrawberry,
@@ -86,6 +95,7 @@ export const reviewArray = [
 ];
 
 export const productData: ProductDetailType = {
+  id: 4,
   name: "Epidemic Groove",
   price: 5000,
   stock: 30,
@@ -93,22 +103,26 @@ export const productData: ProductDetailType = {
   star: 4.5,
   product_image: [PickEpidemic, ModelPick, NecklessEpidemic],
   categories: "Pick",
-  description: "A product short description is a concise and brief overview of a product, providing key information to potential customers. Typically, it is a brief summary that highlights the most important features, benefits,",
+  description:
+    "A product short description is a concise and brief overview of a product, providing key information to potential customers. Typically, it is a brief summary that highlights the most important features, benefits,",
   variants: [
     {
+      id: 1,
       variant: "Pick",
       price: 5000,
       stock: 10,
     },
     {
+      id: 2,
       variant: "Keychain",
       price: 7000,
-      stock: 10,
+      stock: 20,
     },
     {
+      id: 3,
       variant: "Necklace",
       price: 10000,
-      stock: 10,
+      stock: 90,
     },
   ],
   reviews: [
@@ -128,6 +142,7 @@ export const productData: ProductDetailType = {
 };
 
 export const addressSingle = {
+  id: 2,
   recipient: "Sultan ken",
   label: "Home",
   city: "Kota Semarang",
@@ -136,56 +151,3 @@ export const addressSingle = {
   address: "Jl. Pandanaran 2 No.12",
   main_address: true,
 };
-
-export const checkoutArray = [
-  {
-    id: 9,
-    quantity: 2,
-    total_price: 20000,
-    variant: "Pick",
-    product: {
-      image: PickEpidemic,
-      name: "Dragon Fruit",
-      price: 10000,
-      categories: "Pick",
-    },
-  },
-  {
-    id: 120,
-    quantity: 2,
-    total_price: 20000,
-    variant: "Keychain",
-    product: {
-      id: 9,
-      image: PickDragon,
-      name: "Epidemic Grove",
-      price: 10000,
-      categories: "Pick",
-    },
-  },
-  {
-    id: 9,
-    quantity: 2,
-    total_price: 20000,
-    variant: "Pick",
-    product: {
-      image: PickEpidemic,
-      name: "Dragon Fruit Devil Fruit gomu gomu no mo",
-      price: 10000,
-      categories: "Pick",
-    },
-  },
-  {
-    id: 120,
-    quantity: 2,
-    total_price: 20000,
-    variant: "Keychain",
-    product: {
-      id: 9,
-      image: PickDragon,
-      name: "Epidemic Grove",
-      price: 10000,
-      categories: "Pick",
-    },
-  },
-];
