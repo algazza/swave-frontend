@@ -10,7 +10,7 @@ import {
   PickJagoan,
   PickStrawberry,
 } from "./image";
-import type { CheckoutType } from "~/types/checkout";
+import type { CheckoutProductType } from "~/types/checkout";
 
 export const dummyProduct: ProductType[] = [
   {
@@ -139,6 +139,7 @@ export const productData: ProductDetailType = {
 };
 
 export const addressSingle = {
+  id: 2,
   recipient: "Sultan ken",
   label: "Home",
   city: "Kota Semarang",
@@ -148,7 +149,7 @@ export const addressSingle = {
   main_address: true,
 };
 
-export const checkoutArray: CheckoutType[] = [
+export const checkoutArray: CheckoutProductType[] = [
   {
     id: 9,
     quantity: 2,

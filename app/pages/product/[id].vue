@@ -4,7 +4,7 @@ import Autoplay from "embla-carousel-autoplay";
 import { dummyProduct, productData } from "~/lib/data";
 import { formatRupiah } from "~/lib/utils";
 import { useCartStore } from "~/store/CartStore";
-import type { CheckoutType } from "~/types/checkout";
+import type { CheckoutProductType } from "~/types/checkout";
 import type { ProductVariantsType } from "~/types/product";
 
 const DataProduct = productData;
@@ -17,16 +17,18 @@ const emblaApi = ref<any>(null);
 
 const quantity = ref<number>(0);
 const selectedVariant = reactive<ProductVariantsType>({
+  id: defaultVariant?.id || 0,
   variant: defaultVariant?.variant || "",
   price: defaultVariant?.price || 0,
   stock: defaultVariant?.stock || 0,
 });
 
-const checkout = computed<CheckoutType>(() => ({
+const checkout = computed<CheckoutProductType>(() => ({
   id: Date.now() + Math.floor(Math.random() * 1000),
   price: selectedVariant.price * quantity.value,
   quantity: quantity.value,
   variant: {
+    id: selectedVariant.id,
     variant: selectedVariant.variant,
     price: selectedVariant.price,
     stock: selectedVariant.stock,

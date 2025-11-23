@@ -1,6 +1,7 @@
 import z from "zod";
 
 export const ProductVariantSchema = z.object({
+  id: z.number(),
   variant: z.string(),
   stock: z.number(),
   price: z.number(),
