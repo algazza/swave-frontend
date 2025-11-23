@@ -107,16 +107,19 @@ export const productData: ProductDetailType = {
     "A product short description is a concise and brief overview of a product, providing key information to potential customers. Typically, it is a brief summary that highlights the most important features, benefits,",
   variants: [
     {
+      id: 1,
       variant: "Pick",
       price: 5000,
       stock: 10,
     },
     {
+      id: 2,
       variant: "Keychain",
       price: 7000,
       stock: 20,
     },
     {
+      id: 3,
       variant: "Necklace",
       price: 10000,
       stock: 90,
@@ -148,70 +151,3 @@ export const addressSingle = {
   address: "Jl. Pandanaran 2 No.12",
   main_address: true,
 };
-
-export const checkoutArray: CheckoutProductType[] = [
-  {
-    id: 9,
-    quantity: 2,
-    price: 20000,
-    variant: {
-      variant: "Pick",
-      price: 5000,
-      stock: 10,
-    },
-    product: {
-      id: 9,
-      product_image: PickEpidemic,
-      name: "Dragon Fruit",
-      categories: "Pick",
-    },
-  },
-  {
-    id: 120,
-    quantity: 2,
-    price: 20000,
-    variant: {
-      variant: "Pick",
-      price: 5000,
-      stock: 10,
-    },
-    product: {
-      id: 9,
-      product_image: PickDragon,
-      name: "Epidemic Grove",
-      categories: "Pick",
-    },
-  },
-  {
-    id: 9,
-    quantity: 2,
-    price: 20000,
-    variant: {
-      variant: "Pick",
-      price: 5000,
-      stock: 10,
-    },
-    product: {
-      id: 9,
-      product_image: PickEpidemic,
-      name: "Dragon Fruit Devil Fruit gomu gomu no mo",
-      categories: "Pick",
-    },
-  },
-  {
-    id: 120,
-    quantity: 2,
-    price: 20000,
-    variant: {
-      variant: "Pick",
-      price: 5000,
-      stock: 10,
-    },
-    product: {
-      id: 9,
-      product_image: PickDragon,
-      name: "Epidemic Grove",
-      categories: "Pick",
-    },
-  },
-];
