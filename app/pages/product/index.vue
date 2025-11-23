@@ -2,10 +2,22 @@
 import { Search } from "lucide-vue-next";
 import { filterArray } from "~/lib/constanta";
 import { dummyProduct } from "~/lib/data";
+
+const search = ref("");
+
+const filteredProducts = computed(() => {
+  if (!search.value) return dummyProduct;
+
+  return dummyProduct.filter((item) =>
+    item.name.toLowerCase().includes(search.value.toLowerCase())
+  );
+});
 </script>
 
 <template>
-  <section class="py-10 flex flex-col gap-5 lg:flex-row lg:gap-20 lg:items-start">
+  <section
+    class="py-10 flex flex-col gap-5 lg:flex-row lg:gap-20 lg:items-start"
+  >
     <div class="grid gap-2 lg:min-w-[400px]">
       <h1 class="text-4xl">Filter</h1>
       <div class="border px-3 py-2">
@@ -26,15 +38,18 @@ import { dummyProduct } from "~/lib/data";
 
       <div class="border border-border px-3 py-2">
         <h2 class="text-2xl mb-3">Category</h2>
-        <Button class="bg-foreground text-background flex justify-between w-full py-2 px-4 rounded-xl">
+        <Button
+          class="bg-foreground text-background flex justify-between w-full py-2 px-4 rounded-xl"
+        >
           <span>Hat</span> <span>(5)</span>
         </Button>
       </div>
     </div>
 
-    <div class="grid gap-6">
+    <div class="grid gap-6 w-full">
       <div class="relative w-full items-center">
         <UiInput
+          v-model="search"
           id="search"
           type="text"
           placeholder="Search..."
@@ -47,9 +62,13 @@ import { dummyProduct } from "~/lib/data";
         </span>
       </div>
 
-      <div class="grid grid-cols-2 gap-y-6 gap-x-2 md:grid-cols-3">
-        <CardProduct v-for="product in dummyProduct" :product="product" />
+      <div
+        v-if="filteredProducts.length > 0"
+        class="grid grid-cols-2 gap-y-6 gap-x-2 md:grid-cols-3"
+      >
+        <CardProduct v-for="product in filteredProducts" :product="product" />
       </div>
+      <p v-else class="text-center mt-5">Product not found.</p>
     </div>
   </section>
 </template>
