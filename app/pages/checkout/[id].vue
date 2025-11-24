@@ -75,16 +75,23 @@ const onInput = (e: Event, field: any) => {
   if (val.length >= 3) val = val.slice(0, 2) + ":" + val.slice(2, 4);
   else if (val.length > 2) val = val.slice(0, 2) + ":" + val.slice(2);
 
-  const [h, m] = val.split(":").map(Number);
-  if ((h ?? 0) > 23)
-    val = "23:" + (m ? String(m).padStart(2, "0").slice(0, 2) : "");
-  if ((m ?? 0) > 59)
-    val = (String(h).padStart(2, "0").slice(0, 2) || "00") + ":59";
+    if (val.length < 5) {
+    time.value = val;
+    field.onChange(val);
+    return;
+  }
 
-  const formatted = val.slice(0, 5);
+  let [h, m] = val.split(":").map(Number);
+
+  if ((h ?? 0) < 8) h = 8;
+  if ((h ?? 0) > 20) h = 20;
+
+  if ((m ?? 0) > 59) m = 59;
+
+  const formatted =
+    String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
 
   time.value = formatted;
-
   field.onChange(formatted);
 };
 
@@ -249,7 +256,7 @@ const onSubmit = (values: any) => {
             Pick Date and Time
           </p>
           <div
-                id="gift_card"
+            id="gift_card"
             v-if="deliveryType === 'pickup'"
             class="flex gap-3 w-full items-start"
           >
@@ -258,7 +265,7 @@ const onSubmit = (values: any) => {
                 <UiPopover>
                   <UiPopoverTrigger as-child>
                     <UiButton
-                id="gift_card"
+                      id="gift_card"
                       variant="outline"
                       :class="
                         cn(
