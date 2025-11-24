@@ -77,6 +77,7 @@ const totalPrice = computed(() => {
                     class="border border-foreground max-w-28"
                     :model-value="check.quantity"
                     :min="1"
+                    :max="check.variant.stock"
                     @update:model-value="
                       (val: number) => cartStore.updateCart(check.id, { quantity: val, price: val*check.variant.price })
                     "
