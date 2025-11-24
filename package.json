@@ -52,6 +52,6 @@
     "typescript": "^5.9.2"
   },
   "overrides": {
-    "@internationalized/date": "3.10.0"
+    "@internationalized/date": "3.5.0"
   }
 }

@@ -3,6 +3,7 @@ import { Trash2, X } from "lucide-vue-next";
 import { formatRupiah } from "~/lib/utils";
 import { useCartStore } from "~/store/CartStore";
 import { useUiStore } from "~/store/UiStore";
+import type { CheckoutProductType } from "~/types/checkout";
 
 const ui = useUiStore();
 const cartStore = useCartStore();
@@ -45,7 +46,7 @@ const totalPrice = computed(() => {
                 <UiCheckbox
                   class="border-2 border-foreground"
                   :model-value="
-                    cartStore.selectedCart.some((item) => item.id === check.id)
+                    cartStore.selectedCart.some((item: CheckoutProductType) => item.id === check.id)
                   "
                   @update:model-value="cartStore.orderCart(check)"
                 />
@@ -77,7 +78,7 @@ const totalPrice = computed(() => {
                     :model-value="check.quantity"
                     :min="1"
                     @update:model-value="
-                      (val) => cartStore.updateCart(check.id, { quantity: val, price: val*check.variant.price })
+                      (val: number) => cartStore.updateCart(check.id, { quantity: val, price: val*check.variant.price })
                     "
                   >
                     <UiNumberFieldContent>

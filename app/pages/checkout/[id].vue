@@ -30,7 +30,7 @@ const zone = getLocalTimeZone();
 const minDate = now(zone)
   .add({ days: 4 })
   .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-const date = ref<DateValue>();
+const date = ref<DateValue | undefined>();
 const time = ref("");
 
 const deliveryType = ref("");

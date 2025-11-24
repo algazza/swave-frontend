@@ -1,4 +1,3 @@
-import { PickEpidemic } from "~/lib/image";
 import type { CheckoutProductType } from "~/types/checkout";
 
 type CartState = {
