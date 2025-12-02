@@ -66,5 +66,14 @@ export const CheckoutSchema = z
     }
   });
 
+export const CheckoutTableSchema = z.object({
+  order_id: z.number(),
+  name: z.string(),
+  status: z.enum(['pending', 'delivery', 'cancel', 'success']),
+  type: z.enum(['delivery', 'pickup']),
+  amount: z.number()
+})
+
 export type CheckoutProductType = z.infer<typeof ProductCheckoutSchema>;
 export type CheckoutType = z.infer<typeof CheckoutSchema>;
+export type CheckoutTableType = z.infer<typeof CheckoutTableSchema>
