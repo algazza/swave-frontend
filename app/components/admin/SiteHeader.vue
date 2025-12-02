@@ -1,8 +1,14 @@
 <script setup lang="ts">
-import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { UserStar } from "lucide-vue-next";
+
+const route = useRoute()
+
+const lastPath = computed(() => {
+  const parts = route.path.split('/').filter(Boolean)
+  return parts.at(-1) || ''
+})
 </script>
 
 <template>
@@ -14,7 +20,7 @@ import { UserStar } from "lucide-vue-next";
         class="mx-2 data-[orientation=vertical]:h-4"
       />
       <h1 class="text-base font-medium">
-        Dashboard
+        {{lastPath}}
       </h1>
       <div class="ml-auto flex items-center gap-2">
         <UserStar />
