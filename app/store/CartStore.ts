@@ -19,12 +19,11 @@ export const useCartStore = defineStore("counter", {
   },
   actions: {
     addToCart(product: CheckoutProductType) {
-      const existingIndex = this.cart.findIndex((item) => 
-        item.product.id === product.product.id &&
+      const existingIndex = this.cart.findIndex(
+        (item) =>
+          item.product.id === product.product.id &&
           item.variant.id === product.variant.id
       );
-
-      console.log(existingIndex)
 
       if (existingIndex === -1) {
         this.cart.unshift(product);
