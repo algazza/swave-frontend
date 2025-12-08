@@ -12,8 +12,8 @@ import { toTypedSchema } from "@vee-validate/zod";
 import { ChevronLeft, Clock, Home, MapPin } from "lucide-vue-next";
 import { CalendarIcon } from "lucide-vue-next";
 
-import { addressSingle } from "~/lib/data";
-import { cn } from "~/lib/utils";
+import { addressArray, addressSingle } from "~/lib/data";
+import { cn, sumValue } from "~/lib/utils";
 import { formatRupiah } from "~/lib/utils";
 import { useCartStore } from "~/store/CartStore";
 import { CheckoutSchema, type CheckoutType } from "~/types/checkout";
@@ -23,6 +23,7 @@ const router = useRouter();
 const cartStore = useCartStore();
 const schema = toTypedSchema(CheckoutSchema);
 
+const mainAddress = addressArray.find((item) => item.main_address === true);
 const df = new DateFormatter("id-ID", {
   dateStyle: "long",
 });
@@ -30,21 +31,25 @@ const zone = getLocalTimeZone();
 const minDate = now(zone)
   .add({ days: 4 })
   .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+
 const date = ref<DateValue | undefined>();
 const time = ref("");
-
+const address = ref<AddressType | undefined>(mainAddress);
 const deliveryType = ref("");
 const checkbox = ref(true);
 
-const address: AddressType = addressSingle;
 const deliveryCost = 20000;
+
+const handleChangeAddress = (newAddress: AddressType) => {
+  address.value = newAddress;
+};
 
 const initialData = {
   deliveries: {
     delivery_type: "",
     pickup_date: "",
     pickup_hour: "",
-    address_id: address.id,
+    address_id: address.value?.id,
   },
   product_checkout: cartStore.checkoutProduct.map((item) => ({
     quantity: item.quantity,
@@ -55,19 +60,14 @@ const initialData = {
   gift_description: "",
 };
 
-const totalProduct = cartStore.checkoutProduct.reduce(
-  (sum, item) => sum + item.quantity,
-  0
+const totalProduct = sumValue(
+  cartStore.checkoutProduct,
+  (item) => item.quantity
 );
-const totalQuantity = cartStore.checkoutProduct.reduce(
-  (sum, item) => sum + item.price,
-  0
-);
-
-const totalPrice = cartStore.checkoutProduct.reduce(
-  (total, item) => total + item.variant.price * (item.quantity || 0),
-  0
-);
+const totalQuantity = sumValue(
+  cartStore.checkoutProduct,
+  (item) => item.price
+)
 
 const onInput = (e: Event, field: any) => {
   let val = (e.target as HTMLInputElement).value.replace(/\D/g, "");
@@ -75,7 +75,7 @@ const onInput = (e: Event, field: any) => {
   if (val.length >= 3) val = val.slice(0, 2) + ":" + val.slice(2, 4);
   else if (val.length > 2) val = val.slice(0, 2) + ":" + val.slice(2);
 
-    if (val.length < 5) {
+  if (val.length < 5) {
     time.value = val;
     field.onChange(val);
     return;
@@ -136,7 +136,13 @@ const onSubmit = (values: any) => {
         <section class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
           <div class="flex justify-between items-center">
             <span class="text-2xl font-semibold">Address</span>
-            <span v-if="address" class="font-bold underline">Change</span>
+            <PopupAddress
+              :mainAddress="mainAddress"
+              :addressArray="addressArray"
+              @change="handleChangeAddress"
+            >
+              <span v-if="address" class="font-bold underline">Change</span>
+            </PopupAddress>
           </div>
           <div v-if="address" class="grid gap-1">
             <div class="flex justify-start items-center gap-2">
@@ -380,7 +386,7 @@ const onSubmit = (values: any) => {
             <div class="flex justify-between text-xl">
               <p>Total Payment</p>
               <p class="font-bold">
-                Rp{{ formatRupiah(totalPrice + deliveryCost) }}
+                Rp{{ formatRupiah(totalQuantity + deliveryCost) }}
               </p>
             </div>
             <UiButton class="w-full">Chose Payment</UiButton>
