@@ -7,7 +7,7 @@ import {
   getPaginationRowModel,
   useVueTable,
 } from "@tanstack/vue-table";
-import { valueUpdater } from "~/lib/utils";
+import { valueUpdater } from "../ui/table/utils";
 
 const props = defineProps<{
   columns: ColumnDef<TData, TValue>[];
