@@ -1,21 +1,23 @@
+import { CircleGauge, Mail, ShoppingBag, Truck, User } from "lucide-vue-next";
+
 export const navLink = [
   {
-    name: 'Home',
-    url: '/',
+    name: "Home",
+    url: "/",
   },
   {
-    name: 'About',
-    url: '/about',
+    name: "About",
+    url: "/about",
   },
   {
-    name: 'Product',
-    url: '/product',
+    name: "Product",
+    url: "/product",
   },
   {
-    name: 'Contact',
-    url: '/',
+    name: "Contact",
+    url: "/",
   },
-]
+];
 
 export const filterArray = [
   "Most Visited",
@@ -26,3 +28,33 @@ export const filterArray = [
   "Cheap",
   "Expensive",
 ];
+
+export const adminNavLink = [
+  {
+    title: "Dashboard",
+    url: "/admin",
+    icon: CircleGauge,
+  },
+  {
+    title: "Checkout",
+    url: "/admin/checkout",
+    icon: Truck,
+  },
+  {
+    title: "Product",
+    url: "/admin/product",
+    icon: ShoppingBag,
+  },
+  {
+    title: "User",
+    url: "/admin/user",
+    icon: User,
+  },
+  {
+    title: "Contact",
+    url: "/admin/contact",
+    icon: Mail,
+  },
+];
+
+export const statusType = ["pending", "delivery", "cancel", "success"];

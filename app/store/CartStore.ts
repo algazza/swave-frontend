@@ -1,4 +1,3 @@
-import { PickEpidemic } from "~/lib/image";
 import type { CheckoutProductType } from "~/types/checkout";
 
 type CartState = {
@@ -20,7 +19,24 @@ export const useCartStore = defineStore("counter", {
   },
   actions: {
     addToCart(product: CheckoutProductType) {
-      this.cart.unshift(product);
+      const existingIndex = this.cart.findIndex(
+        (item) =>
+          item.product.id === product.product.id &&
+          item.variant.id === product.variant.id
+      );
+
+      if (existingIndex === -1) {
+        this.cart.unshift(product);
+        return;
+      }
+
+      const existing = this.cart[existingIndex] as CheckoutProductType;
+
+      const maxStock = existing.variant.stock;
+      const newQuantity = existing.quantity + product.quantity;
+
+      this.cart[existingIndex]!.quantity =
+        newQuantity > maxStock ? maxStock : newQuantity;
     },
     updateCart(id: number, updatedProduct: Partial<CheckoutProductType>) {
       this.cart = this.cart.map((item) =>

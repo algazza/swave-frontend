@@ -60,6 +60,7 @@ const setVariant = (v: ProductVariantsType) => {
 
 const resetCheckout = () => {
   Object.assign(selectedVariant, {
+    id: defaultVariant?.id,
     variant: defaultVariant?.variant,
     price: defaultVariant?.price,
     stock: defaultVariant?.stock,
