@@ -38,8 +38,20 @@ export const RegisterSchema = z
     path: ["confirm_password"],
   });
 
-  export const LoginSchema = RegisterSchema.omit({name: true, phone: true, confirm_password: true})
+export const LoginSchema = RegisterSchema.omit({
+  name: true,
+  phone: true,
+  confirm_password: true,
+});
+
+export const UserSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  username: z.string(),
+  phone: z.string(),
+})
 
 export type AddressType = z.infer<typeof AddressSchema>;
 export type RegisterType = z.infer<typeof RegisterSchema>;
 export type LoginType = z.infer<typeof LoginSchema>;
+export type UserType = z.infer<typeof UserSchema>

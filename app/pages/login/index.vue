@@ -1,13 +1,24 @@
 <script setup lang="ts">
 import { toTypedSchema } from "@vee-validate/zod";
 import { ErrorMessage, Field, Form } from "vee-validate";
+import { useLogin } from "~/composables/auth/useLogin";
 import { logoBlack } from "~/lib/image";
-import { LoginSchema } from "~/types/user";
+import { LoginSchema, type UserType } from "~/types/user";
 
+const router = useRouter();
 const validationSchema = toTypedSchema(LoginSchema);
+const { mutate, isPending, error } = useLogin();
 
 const onSubmit = (values: any) => {
-  console.log(JSON.stringify(values));
+  mutate(values, {
+    onSuccess: (data: any) => {
+      console.log(data)
+      const token = useCookie<string | null>("token");
+      token.value = data.token;
+
+        router.push("/");
+    },
+  });
 };
 </script>
 
@@ -51,7 +62,10 @@ const onSubmit = (values: any) => {
             </div>
           </Field>
         </div>
-        <UiButton type="submit">Register</UiButton>
+        <p v-if="error" class="text-red-500 text-sm mt-2">
+          {{ error.message || "Login gagal" }}
+        </p>
+        <UiButton :loading="isPending" type="submit">Register</UiButton>
         <p class="font-semibold text-muted-foreground text-center">
           Doesn’t have an account?
           <NuxtLink href="/register" class="text-foreground">Register</NuxtLink>
