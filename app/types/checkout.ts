@@ -69,11 +69,26 @@ export const CheckoutSchema = z
 export const CheckoutTableSchema = z.object({
   order_id: z.number(),
   name: z.string(),
-  status: z.enum(['pending', 'delivery', 'cancel', 'success']),
-  type: z.enum(['delivery', 'pickup']),
-  amount: z.number()
-})
+  status: z.enum(["pending", "delivery", "packaged", "cancel", "success"]),
+  type: z.enum(["delivery", "pickup"]),
+  amount: z.number(),
+});
+
+export const StatusCheckoutSchema = z
+  .object({
+    status_type: z.enum(["pending", "delivery", "packaged", "cancel", "success"]),
+    description: z.string().optional(),
+    created_at: z.string().datetime().optional(),
+  })
+  .refine(
+    (data) => data.status_type !== "cancel" || data.description?.trim() !== "",
+    {
+      message: "Description is required if status is cancel",
+      path: ["description"],
+    }
+  );
 
 export type CheckoutProductType = z.infer<typeof ProductCheckoutSchema>;
 export type CheckoutType = z.infer<typeof CheckoutSchema>;
-export type CheckoutTableType = z.infer<typeof CheckoutTableSchema>
+export type CheckoutTableType = z.infer<typeof CheckoutTableSchema>;
+export type StatusCheckoutType = z.infer<typeof StatusCheckoutSchema>;

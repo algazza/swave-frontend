@@ -57,4 +57,4 @@ export const adminNavLink = [
   },
 ];
 
-export const statusType = ["pending", "delivery", "cancel", "success"];
+export const statusType = ["pending", "packaged", "delivery", "cancel", "success"];

@@ -11,7 +11,7 @@ import {
   PickStrawberry,
 } from "./image";
 import type { CheckoutProductType, CheckoutTableType } from "~/types/checkout";
-import { Banknote, PackageOpen, ReceiptText, Truck } from "lucide-vue-next";
+import { Banknote, Package, PackageOpen, ReceiptText, Truck } from "lucide-vue-next";
 import type { AddressType } from "~/types/user";
 
 export const dummyProduct: ProductType[] = [
@@ -219,7 +219,7 @@ export const checkoutData: CheckoutTableType[] = [
   {
     order_id: 1005,
     name: "Aisyah Ramadhani",
-    status: "pending",
+    status: "packaged",
     type: "delivery",
     amount: 187500,
   },
@@ -275,7 +275,7 @@ export const checkoutData: CheckoutTableType[] = [
   {
     order_id: 1013,
     name: "Nathan Pradana",
-    status: "cancel",
+    status: "packaged",
     type: "pickup",
     amount: 98000,
   },
@@ -324,7 +324,7 @@ export const checkoutData: CheckoutTableType[] = [
   {
     order_id: 1020,
     name: "Rama Saputra",
-    status: "success",
+    status: "packaged",
     type: "delivery",
     amount: 365000,
   },
@@ -339,12 +339,18 @@ export const stepsArray = [
   },
   {
     step: 2,
+    title: "Order Packaged",
+    description: "01 Jul 20:00",
+    icon: Package,
+  },
+  {
+    step: 3,
     title: "Order Shipped",
     description: "01 Jul 20:00",
     icon: Truck,
   },
   {
-    step: 3,
+    step: 4,
     title: "Order Received",
     description: "???",
     icon: PackageOpen,

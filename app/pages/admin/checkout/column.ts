@@ -35,6 +35,8 @@ export const columns: ColumnDef<CheckoutTableType>[] = [
               ? "text-accent"
               : value === "delivery"
               ? "text-success-blue"
+              : value === "packaged"
+              ? "text-success-purple"
               : value === "success"
               ? "text-success-green"
               : "text-destructive"
