@@ -19,6 +19,25 @@ export const navLink = [
   },
 ];
 
+export const accountLink = [
+  {
+    name: "Account Setting",
+    url: "account/me"
+  },
+  {
+    name: "Transaction",
+    url: "account/transaction"
+  },
+  {
+    name: "Address",
+    url: "account/address"
+  },
+  {
+    name: "Review Product",
+    url: "account/review"
+  },
+]
+
 export const filterArray = [
   "Most Visited",
   "Best Selling",

@@ -49,6 +49,7 @@ export const UserSchema = z.object({
   name: z.string(),
   username: z.string(),
   phone: z.string(),
+  address: z.array(AddressSchema).optional()
 })
 
 export type AddressType = z.infer<typeof AddressSchema>;

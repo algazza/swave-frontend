@@ -3,10 +3,8 @@ export const useLogout = () => {
 
   return () => {
     const token = useCookie("token");
-    const user = useCookie("user");
 
-    token.value = null;
-    user.value = null;
+    token.value = null
 
     router.push("/login");
   };
