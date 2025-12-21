@@ -8,12 +8,12 @@ definePageMeta({
 });
 
 const { data: user, isLoading, isError, error } = useUsers();
-if (isError) {
+if (!isError) {
   throw error;
 }
 </script>
 <template>
-  <section class="mt-6 mb-20 mx-6 flex flex-col gap-6 min-h-screen">
+  <section class="my-10 lg:my-20 mx-4 flex flex-col gap-6 min-h-screen">
     <div class="flex items-center gap-2">
       <CircleUserRound class="size-20" />
       <div class="">

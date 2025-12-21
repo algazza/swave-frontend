@@ -14,7 +14,6 @@ const totalPrice = computed(() => {
     0
   );
 });
-
 </script>
 
 <template>
@@ -113,8 +112,14 @@ const totalPrice = computed(() => {
           <h2 class="text-xl">Subtotal</h2>
           <p class="text-sm font-bold">Rp{{ formatRupiah(totalPrice) }}</p>
         </div>
-        <UiButton :disabled="cartStore.selectedCart.length === 0">
-          <NuxtLink class="w-full" href="/checkout/88" @click="cartStore.checkoutCart(cartStore.selectedCart)"> Checkout </NuxtLink>
+        <UiButton :disabled="cartStore.selectedCart.length === 0" class="p-0">
+          <NuxtLink
+            class="w-full h-full py-2"
+            to="/checkout/88"
+            @click="cartStore.checkoutCart(cartStore.selectedCart)"
+          >
+            Checkout
+          </NuxtLink>
         </UiButton>
       </div>
     </div>

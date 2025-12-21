@@ -11,7 +11,7 @@ const cart = useCartStore();
 
 <template>
   <header
-    class="fixed w-full p-5 top-0 left-0 bg-background z-[100] md:px-10 lg:px-20 flex justify-center"
+    class="fixed w-full p-5 top-0 left-0 bg-background z-100 md:px-10 lg:px-20 flex justify-center"
   >
     <CartHeader />
     <div class="w-full max-w-[1200px]">
@@ -21,7 +21,7 @@ const cart = useCartStore();
             <Menu />
           </div>
 
-          <NuxtLink href="/">
+          <NuxtLink to="/">
             <NuxtImg :src="logoBlack" alt="Swave" class="w-[131px] md:hidden" />
           </NuxtLink>
         </div>
@@ -34,7 +34,7 @@ const cart = useCartStore();
           </li>
         </ul>
 
-        <NuxtLink href="/">
+        <NuxtLink to="/">
           <NuxtImg
             :src="logoBlack"
             alt="Swave"
@@ -44,7 +44,9 @@ const cart = useCartStore();
 
         <div class="flex gap-4 items-center lg:w-[255px] justify-end">
           <Moon />
-          <User />
+          <NuxtLink to="/account">
+            <User />
+          </NuxtLink>
           <button @click="ui.toggleCart" class="cursor-pointer relative">
             <div
               v-if="cart.cartLength > 0"

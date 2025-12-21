@@ -8,7 +8,7 @@ defineProps<{
 </script>
 
 <template>
-<NuxtLink href="1">
+  <NuxtLink to="/product/1">
     <div class="grid gap-3">
       <div class="aspect-square overflow-hidden">
         <NuxtImg
@@ -17,7 +17,7 @@ defineProps<{
           class="w-full h-full object-cover object-center overflow-hidden"
         />
       </div>
-  
+
       <div class="grid gap-1">
         <span class="text-muted-foreground font-semibold">
           {{ product.categories }}
@@ -30,5 +30,5 @@ defineProps<{
         </div>
       </div>
     </div>
-</NuxtLink>
+  </NuxtLink>
 </template>

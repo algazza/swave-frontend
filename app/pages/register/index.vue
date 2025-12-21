@@ -109,7 +109,7 @@ const onSubmit = (values: any) => {
         <UiButton :loading="isPending" type="submit">Register</UiButton>
         <p class="font-semibold text-muted-foreground text-center">
           Already Have Account?
-          <NuxtLink href="/login" class="text-foreground">Login</NuxtLink>
+          <NuxtLink to="/login" class="text-foreground">Login</NuxtLink>
         </p>
       </Form>
     </div>

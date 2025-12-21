@@ -22,19 +22,19 @@ export const navLink = [
 export const accountLink = [
   {
     name: "Account Setting",
-    url: "account/me"
+    url: "me"
   },
   {
     name: "Transaction",
-    url: "account/transaction"
+    url: "transaction"
   },
   {
     name: "Address",
-    url: "account/address"
+    url: "address"
   },
   {
     name: "Review Product",
-    url: "account/review"
+    url: "review"
   },
 ]
 
