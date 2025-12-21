@@ -65,7 +65,7 @@ const onSubmit = (values: any) => {
         <p v-if="error" class="text-red-500 text-sm mt-2">
           {{ error.message || "Login gagal" }}
         </p>
-        <UiButton :loading="isPending" type="submit">Register</UiButton>
+        <UiButton :loading="isPending" type="submit">Login</UiButton>
         <p class="font-semibold text-muted-foreground text-center">
           Doesn’t have an account?
           <NuxtLink href="/register" class="text-foreground">Register</NuxtLink>

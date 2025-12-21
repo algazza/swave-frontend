@@ -3,7 +3,14 @@ import { CircleUserRound } from "lucide-vue-next";
 import { useUsers } from "~/composables/user/useUsers";
 import { accountLink } from "~/lib/constanta";
 
+definePageMeta({
+  middleware: ["mobile-only", "auth"],
+});
+
 const { data: user, isLoading, isError, error } = useUsers();
+if (isError) {
+  throw error;
+}
 </script>
 <template>
   <section class="mt-6 mb-20 mx-6 flex flex-col gap-6 min-h-screen">

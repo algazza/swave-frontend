@@ -12,6 +12,7 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@nuxt/icon",
     "@nuxt/image",
+    "@nuxtjs/device",
     "shadcn-nuxt",
     "shadcn-nuxt",
     "@pinia/nuxt",
