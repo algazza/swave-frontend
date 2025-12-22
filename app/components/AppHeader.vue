@@ -11,18 +11,18 @@ const cart = useCartStore();
 
 <template>
   <header
-    class="fixed w-full p-5 top-0 left-0 bg-background z-100 md:px-10 lg:px-20 flex justify-center"
+    class="fixed w-full p-5 top-0 left-0 bg-background z-50 md:px-10 lg:px-20 flex justify-center"
   >
     <CartHeader />
-    <div class="w-full max-w-[1200px]">
+    <div class="w-full max-w-300">
       <nav class="flex justify-between items-center">
         <div class="flex items-center lg:hidden">
-          <div class="md:w-[104px] md:text-left cursor-pointer">
+          <div class="md:w-26 md:text-left cursor-pointer">
             <Menu />
           </div>
 
           <NuxtLink to="/">
-            <NuxtImg :src="logoBlack" alt="Swave" class="w-[131px] md:hidden" />
+            <NuxtImg :src="logoBlack" alt="Swave" class="w-32.75 md:hidden" />
           </NuxtLink>
         </div>
 
@@ -38,19 +38,19 @@ const cart = useCartStore();
           <NuxtImg
             :src="logoBlack"
             alt="Swave"
-            class="w-[131px] max-md:hidden"
+            class="w-32.75 max-md:hidden"
           />
         </NuxtLink>
 
-        <div class="flex gap-4 items-center lg:w-[255px] justify-end">
+        <div class="flex gap-4 items-center lg:w-63.75 justify-end">
           <Moon />
-          <NuxtLink to="/account">
+          <NuxtLink class="cursor-pointer" to="/account">
             <User />
           </NuxtLink>
           <button @click="ui.toggleCart" class="cursor-pointer relative">
             <div
               v-if="cart.cartLength > 0"
-              class="size-[22px] absolute -top-3 -right-3 bg-destructive text-background rounded-full text-xs flex justify-center items-center text-center font-bold"
+              class="size-5.5 absolute -top-3 -right-3 bg-destructive text-background rounded-full text-xs flex justify-center items-center text-center font-bold"
             >
               {{ cart.cartLength > 99 ? "99+" : cart.cartLength }}
             </div>
