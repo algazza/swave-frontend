@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ChevronLeft, CircleUserRound, Pen } from "lucide-vue-next";
 import { useUsers } from "~/composables/user/useUsers";
+import Account from "~/layouts/account.vue";
 
 definePageMeta({
   layout: "account",
@@ -22,9 +23,9 @@ if (!isError) {
         </NuxtLink>
         <h2 class="text-3xl">Account Setting</h2>
       </div>
-      <PopupEdit :user="user">
+      <AccountPopupEditUser :user="user">
         <Pen class="text-success-blue" />
-      </PopupEdit>
+      </AccountPopupEditUser>
     </div>
 
     <div class="flex flex-col lg:flex-row gap-5">
