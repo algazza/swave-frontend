@@ -58,7 +58,7 @@ if (!isError) {
 
       <div
         v-if="!isLoading"
-        class="grid grid-cols-[120px_minmax(380px,1fr)_1fr] gap-8 w-full"
+        class="grid grid-cols-[120px_1fr] gap-8 w-full"
       >
         <div class="grid gap-6">
           <p class="py-2">Name</p>
@@ -68,16 +68,16 @@ if (!isError) {
         </div>
 
         <div class="grid gap-6 font-bold">
-          <div class="py-2">
+          <div class="py-2 border-b">
             {{ user?.name }}
           </div>
-          <div class="py-2">
+          <div class="py-2 border-b">
             {{ user?.username }}
           </div>
-          <div class="py-2">
+          <div class="py-2 border-b">
             {{ user?.phone }}
           </div>
-          <div class="py-2">******</div>
+          <div class="py-2 border-b">******</div>
         </div>
       </div>
     </div>
