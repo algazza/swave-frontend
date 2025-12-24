@@ -15,17 +15,25 @@ if (!isError) {
 
 <template>
   <div class="flex flex-col w-full">
-    <div class="flex gap-3 items-center mb-5">
-      <NuxtLink to="/account" class="lg:hidden">
-        <ChevronLeft />
-      </NuxtLink>
-      <h2 class="text-3xl">Account Setting</h2>
+    <div class="flex justify-between items-center mb-5">
+      <div class="flex gap-3 items-center justify-center">
+        <NuxtLink to="/account" class="lg:hidden">
+          <ChevronLeft />
+        </NuxtLink>
+        <h2 class="text-3xl">Account Setting</h2>
+      </div>
+      <PopupEdit :user="user">
+        <Pen class="text-success-blue" />
+      </PopupEdit>
     </div>
 
     <div class="flex flex-col lg:flex-row gap-5">
       <div class="flex flex-col items-center lg:min-w-60 lg:max-w-60">
         <CircleUserRound class="size-32 mb-2" />
-        <div v-if="!isLoading" class="flex flex-col justify-center items-center">
+        <div
+          v-if="!isLoading"
+          class="flex flex-col justify-center items-center"
+        >
           <h3 class="text-2xl">
             {{ user?.name }}
           </h3>
@@ -50,7 +58,7 @@ if (!isError) {
 
       <div
         v-if="!isLoading"
-        class="grid grid-cols-[120px_minmax(380px,1fr)_1fr_20px] gap-8 w-full"
+        class="grid grid-cols-[120px_minmax(380px,1fr)_1fr] gap-8 w-full"
       >
         <div class="grid gap-6">
           <p class="py-2">Name</p>
@@ -70,21 +78,6 @@ if (!isError) {
             {{ user?.phone }}
           </div>
           <div class="py-2">******</div>
-        </div>
-
-        <div class="grid gap-6">
-          <div class="py-1.5 text-success-blue">
-            <Pen />
-          </div>
-          <div class="py-1.5 text-success-blue">
-            <Pen />
-          </div>
-          <div class="py-1.5 text-success-blue">
-            <Pen />
-          </div>
-          <div class="py-1.5 text-success-blue">
-            <Pen />
-          </div>
         </div>
       </div>
     </div>
