@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { CircleUserRound } from "lucide-vue-next";
+import { useLogout } from "~/composables/auth/useLogout";
 import { useUsers } from "~/composables/user/useUsers";
 import { accountLink } from "~/lib/constanta";
 
 const { data: user, isLoading, isError, error } = useUsers();
+const logout = useLogout()
 if (!isError) {
   throw error;
 }
@@ -42,7 +44,7 @@ if (!isError) {
             <UiSeparator />
 
             <div class="grid justify-start">
-              <button class="text-destructive font-semibold cursor-pointer">
+              <button class="text-destructive font-semibold cursor-pointer" @click="logout()">
                 Logout
               </button>
             </div>
