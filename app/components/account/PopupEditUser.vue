@@ -88,7 +88,7 @@ const onSubmit = (values: any) => {
         </div>
 
         <p v-if="error" class="text-red-500 text-sm mt-2">
-          {{ error.message || "Register gagal" }}
+          {{ error.message || "Edit User gagal" }}
         </p>
 
         <UiDialogFooter class="mt-6">
