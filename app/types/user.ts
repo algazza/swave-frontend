@@ -3,7 +3,9 @@ import { AddressSchema } from "./address";
 
 export const RegisterSchema = z
   .object({
-    name: z.string("This field is required"),
+    name: z
+      .string("This field is required")
+      .min(3, "character must be more than 3"),
     username: z
       .string("This field is required")
       .min(6, "character must be more than 6")
@@ -44,29 +46,28 @@ export const UserSchema = z.object({
 
 export const EditUserSchema = z
   .object({
-    name: z.string("This field is required").optional(),
+    name: z.string().min(3, "character must be more than 3").optional(),
     username: z
-      .string("This field is required")
+      .string()
       .min(6, "character must be more than 6")
       .refine((val) => val === val.toLowerCase(), {
         message: "must be lowercase",
       })
       .regex(/^[a-z0-9]+$/, {
-        message: "no spaces allowed and ",
+        message: "no spaces allowed and special characters",
       })
       .optional(),
     phone: z
-      .string("This field is required")
+      .string()
       .regex(/^\+62\d+$/, {
         message: "Number begin with +62",
       })
+      .min(12, "character must be more than 12")
+      .max(15, "character must be less than 15")
       .optional(),
-    password: z
-      .string("This field is required")
-      .min(6, "character must be more than 6")
-      .optional(),
+    password: z.string().min(6, "character must be more than 6").optional(),
     confirm_password: z
-      .string("This field is required")
+      .string()
       .min(6, "character must be more than 6")
       .optional(),
   })
@@ -78,4 +79,4 @@ export const EditUserSchema = z
 export type RegisterType = z.infer<typeof RegisterSchema>;
 export type LoginType = z.infer<typeof LoginSchema>;
 export type UserType = z.infer<typeof UserSchema>;
-export type EditUserType = z.infer<typeof EditUserSchema> 
+export type EditUserType = z.infer<typeof EditUserSchema>;
