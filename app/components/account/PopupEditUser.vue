@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { toTypedSchema } from "@vee-validate/zod";
-import { push } from "notivue";
 import { ErrorMessage, Field, Form } from "vee-validate";
 import { useEditUser } from "~/composables/user/useEditUser";
 import { EditUserSchema, type UserType } from "~/types/user";
@@ -12,7 +11,6 @@ const props = defineProps<{
 
 const validationSchema = toTypedSchema(EditUserSchema);
 const { mutate, isPending, error } = useEditUser();
-const router = useRouter();
 
 const initialValues = computed(() => ({
   name: props.user?.name ?? "",
@@ -21,12 +19,7 @@ const initialValues = computed(() => ({
 }));
 
 const onSubmit = (values: any) => {
-  mutate(values, {
-    onSuccess: () => {
-      router.go(0);
-      push.success("Success edit user");
-    },
-  });
+  mutate(values);
 };
 </script>
 

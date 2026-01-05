@@ -1,15 +1,5 @@
 import z from "zod";
-
-export const AddressSchema = z.object({
-  id: z.number(),
-  recipient: z.string(),
-  label: z.string(),
-  city: z.string(),
-  subdistrict: z.string(),
-  zip_code: z.number(),
-  address: z.string(),
-  main_address: z.boolean(),
-});
+import { AddressSchema } from "./address";
 
 export const RegisterSchema = z
   .object({
@@ -85,7 +75,6 @@ export const EditUserSchema = z
     path: ["confirm_password"],
   });
 
-export type AddressType = z.infer<typeof AddressSchema>;
 export type RegisterType = z.infer<typeof RegisterSchema>;
 export type LoginType = z.infer<typeof LoginSchema>;
 export type UserType = z.infer<typeof UserSchema>;
