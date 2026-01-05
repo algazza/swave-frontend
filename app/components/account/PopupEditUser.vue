@@ -11,6 +11,7 @@ const props = defineProps<{
 
 const validationSchema = toTypedSchema(EditUserSchema);
 const { mutate, isPending, error } = useEditUser();
+const isOpen = ref(false)
 
 const initialValues = computed(() => ({
   name: props.user?.name ?? "",
@@ -19,12 +20,16 @@ const initialValues = computed(() => ({
 }));
 
 const onSubmit = (values: any) => {
-  mutate(values);
+  mutate(values, {
+    onSuccess: () => {
+      isOpen.value = false;
+    },
+  });
 };
 </script>
 
 <template>
-  <UiDialog>
+  <UiDialog v-model:open="isOpen">
     <UiDialogTrigger class="cursor-pointer">
       <slot />
     </UiDialogTrigger>
