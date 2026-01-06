@@ -15,9 +15,13 @@ export const RegisterSchema = z
       .regex(/^[a-z0-9]+$/, {
         message: "no spaces allowed and ",
       }),
-    phone: z.string("This field is required").regex(/^\+62\d+$/, {
-      message: "Number begin with +62",
-    }),
+    phone: z
+      .string("This field is required")
+      .min(12, "character must be more than 12")
+      .max(15, "character must be less than 15")
+      .regex(/^\+62\d+$/, {
+        message: "Number begin with +62",
+      }),
     password: z
       .string("This field is required")
       .min(6, "character must be more than 6"),

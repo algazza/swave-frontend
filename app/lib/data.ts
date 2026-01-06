@@ -12,7 +12,7 @@ import {
 } from "./image";
 import type { CheckoutProductType, CheckoutTableType } from "~/types/checkout";
 import { Banknote, PackageOpen, ReceiptText, Truck } from "lucide-vue-next";
-import type { AddressType } from "~/types/user";
+import type { AddressType } from "~/types/address";
 
 export const dummyProduct: ProductType[] = [
   {
@@ -168,7 +168,7 @@ export const addressArray: AddressType[] = [
   {
     id: 3,
     recipient: "Sultan ken",
-    label: "Kos",
+    label: "Office",
     city: "Kota Semarang",
     subdistrict: "Semarang Selatan",
     zip_code: 50249,
