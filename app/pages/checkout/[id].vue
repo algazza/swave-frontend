@@ -17,7 +17,7 @@ import { cn, sumValue } from "~/lib/utils";
 import { formatRupiah } from "~/lib/utils";
 import { useCartStore } from "~/store/CartStore";
 import { CheckoutSchema, type CheckoutType } from "~/types/checkout";
-import type { AddressType } from "~/types/user";
+import type { AddressType } from "~/types/address";
 
 const router = useRouter();
 const cartStore = useCartStore();

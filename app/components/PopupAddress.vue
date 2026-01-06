@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { MapPin, Plus } from "lucide-vue-next";
-import type { AddressType } from "~/types/user";
+import type { AddressType } from "~/types/address";
 
 const emit = defineEmits<{
   (e: "change", value: AddressType): void;
