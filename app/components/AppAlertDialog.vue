@@ -24,18 +24,18 @@ const onSubmit = () => {
     </UiAlertDialogTrigger>
     <UiAlertDialogContent>
       <UiAlertDialogHeader>
-        <UiAlertDialogTitle>{{ title }}</UiAlertDialogTitle>
+        <UiAlertDialogTitle class="text-xl">{{ title }}</UiAlertDialogTitle>
         <UiAlertDialogDescription>
           {{ description }}
         </UiAlertDialogDescription>
         <p v-if="isError" class="text-destructive">{{ error }}</p>
       </UiAlertDialogHeader>
       <UiAlertDialogFooter>
-        <UiAlertDialogCancel class="btn btn-outline">
+        <UiAlertDialogCancel>
           Cancel
         </UiAlertDialogCancel>
         <UiAlertDialogAction
-          class="btn btn-destructive"
+          class="bg-destructive"
           @click="onSubmit"
           :disabled="isLoading"
         >

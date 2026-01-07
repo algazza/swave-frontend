@@ -5,10 +5,10 @@ import { useUsers } from "~/composables/user/useUsers";
 import { accountLink } from "~/lib/constanta";
 
 const { data: user, isLoading, isError, error } = useUsers();
-const logout = useLogout()
 if (!isError) {
   throw error;
 }
+const logout = useLogout();
 </script>
 
 <template>
@@ -44,9 +44,18 @@ if (!isError) {
             <UiSeparator />
 
             <div class="grid justify-start">
-              <button class="text-destructive font-semibold cursor-pointer" @click="logout()">
-                Logout
-              </button>
+              <AppAlertDialog
+                service="Logout"
+                title="Are you sure you want to logout?"
+                description="You will be logged out from your account."
+                :fnSubmit="logout"
+              >
+                <button
+                  class="text-destructive font-semibold cursor-pointer"
+                >
+                  Logout
+                </button>
+              </AppAlertDialog>
             </div>
           </div>
 

@@ -67,7 +67,7 @@ const onDelete = () => {
         :isError="isError"
         :error="error ? error.message : ''"
       >
-        <Trash2 @click="onDelete" class="text-destructive cursor-pointer" />
+        <Trash2 class="text-destructive cursor-pointer" />
       </AppAlertDialog>
     </div>
   </div>
