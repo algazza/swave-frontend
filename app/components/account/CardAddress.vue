@@ -11,12 +11,12 @@ import {
 import type { AddressType } from "~/types/address";
 import DialogEditAddress from "./DialogEditAddress.vue";
 import { useDeleteAddress } from "~/composables/address/useDeleteAddress";
-import Dialogtes from "./Dialogtes.vue";
+import Dialog from "../ui/dialog/Dialog.vue";
 
 const props = defineProps<{
   address: AddressType | undefined;
 }>();
-const { mutate, isPending, error } = useDeleteAddress();
+const { mutate, isPending, isError, error } = useDeleteAddress();
 
 const icon =
   props.address?.label === "Home"
@@ -58,7 +58,17 @@ const onDelete = () => {
       <DialogEditAddress :address="address">
         <Pen />
       </DialogEditAddress>
-      <Trash2 @click="onDelete" class="text-destructive cursor-pointer" />
+      <AppAlertDialog
+        title="Delete Address"
+        description="Are you sure you want to delete this address?"
+        service="Delete"
+        :fnSubmit="onDelete"
+        :isLoading="isPending"
+        :isError="isError"
+        :error="error ? error.message : ''"
+      >
+        <Trash2 @click="onDelete" class="text-destructive cursor-pointer" />
+      </AppAlertDialog>
     </div>
   </div>
 </template>

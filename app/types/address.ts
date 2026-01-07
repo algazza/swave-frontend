@@ -39,10 +39,6 @@ export const EditAddressSchema = z.object({
   main_address: z.boolean().optional(),
 });
 
-export const EditAddressTest = z.object({
-  recipient: z.string().min(3).optional(),
-})
-
 export type AddressType = z.infer<typeof AddressSchema>;
 export type AddAddressType = z.infer<typeof AddAddressSchema>;
 export type EditAddressType = z.infer<typeof EditAddressSchema>;

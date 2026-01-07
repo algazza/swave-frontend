@@ -70,7 +70,12 @@ const onSubmit = (values: any) => {
 
           <div>
             <Field name="label" v-slot="{ field }">
-              <UiSelect v-bind="field" name="label" placeholder="Select Label" :default-value="initialValues.label">
+              <UiSelect
+                v-bind="field"
+                name="label"
+                placeholder="Select Label"
+                :default-value="initialValues.label"
+              >
                 <UiSelectTrigger
                   class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none w-full"
                 >
@@ -93,12 +98,12 @@ const onSubmit = (values: any) => {
           <Field name="city" v-slot="{ field }">
             <div>
               <UiInput
-              v-bind="field"
-              name="city"
-              placeholder="City"
-              disabled
-              class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none"
-              :default-value="initialValues.city"
+                v-bind="field"
+                name="city"
+                placeholder="City"
+                disabled
+                class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none"
+                :default-value="initialValues.city"
               />
               <ErrorMessage class="text-destructive" name="city" />
             </div>
@@ -107,12 +112,12 @@ const onSubmit = (values: any) => {
           <Field name="subdistrict" v-slot="{ field }">
             <div>
               <UiInput
-              v-bind="field"
-              name="subdistrict"
-              placeholder="Subdistrict"
-              disabled
-              class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none"
-              :default-value="initialValues.subdistrict"
+                v-bind="field"
+                name="subdistrict"
+                placeholder="Subdistrict"
+                disabled
+                class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none"
+                :default-value="initialValues.subdistrict"
               />
               <ErrorMessage class="text-destructive" name="subdistrict" />
             </div>
@@ -152,6 +157,9 @@ const onSubmit = (values: any) => {
           <Field name="main_address" v-slot="{ field }">
             <div class="flex gap-2 items-center">
               <UiCheckbox
+                @update:model-value="(v: boolean | 'indeterminate') => {
+                  field.onChange(v)
+                }"
                 v-model="field.value"
                 class="border border-foreground"
                 label="Set as Main Address"
