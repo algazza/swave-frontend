@@ -69,11 +69,30 @@ export const CheckoutSchema = z
 export const CheckoutTableSchema = z.object({
   order_id: z.number(),
   name: z.string(),
-  status: z.enum(['pending', 'delivery', 'cancel', 'success']),
-  type: z.enum(['delivery', 'pickup']),
-  amount: z.number()
-})
+  status: z.enum(["pending", "processing", "delivery", "cancel", "success"]),
+  type: z.enum(["delivery", "pickup"]),
+  amount: z.number(),
+});
+
+export const ProductHistoryCheckoutSchema = z.object({
+  name: z.string(),
+  image_path: z.string(),
+  category: z.string(),
+  variant: z.string(),
+  variant_price: z.number(),
+  quantity: z.number(),
+  total_price: z.number(),
+});
+
+export const CheckoutHistoryArray = z.object({
+  id: z.number(),
+  order_id: z.string(),
+  created_at: z.string(),
+  status: z.enum(["pending", "processing", "delivery", "cancel", "success"]),
+  products: z.array(ProductHistoryCheckoutSchema),
+});
 
 export type CheckoutProductType = z.infer<typeof ProductCheckoutSchema>;
 export type CheckoutType = z.infer<typeof CheckoutSchema>;
-export type CheckoutTableType = z.infer<typeof CheckoutTableSchema>
+export type CheckoutTableType = z.infer<typeof CheckoutTableSchema>;
+export type CheckoutHistoryType = z.infer<typeof CheckoutHistoryArray>;
