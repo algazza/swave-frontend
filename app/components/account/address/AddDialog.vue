@@ -1,30 +1,19 @@
 <script setup lang="ts">
-import { push } from "notivue";
 import { toTypedSchema } from "@vee-validate/zod";
 import { ErrorMessage, Field, Form } from "vee-validate";
 import { useAddAddress } from "~/composables/address/useAddAddress";
-import AlertCityAddress from "./AlertCityAddress.vue";
-import { EditAddressSchema, type AddressType } from "~/types/address";
-import { useEditAddress } from "~/composables/address/useEditAddress";
+import { AddAddressSchema } from "~/types/address";
+import AlertCity from "./AlertCity.vue";
 
-const props = defineProps<{
-  address: AddressType | undefined;
-}>();
-
-const validationSchema = toTypedSchema(EditAddressSchema);
-const { mutate, isPending, error } = useEditAddress();
+const validationSchema = toTypedSchema(AddAddressSchema);
+const { mutate, isPending, error } = useAddAddress();
 const isOpen = ref(false);
 
-const initialValues = computed(() => ({
-  id: props.address?.id ?? 0,
-  recipient: props.address?.recipient ?? "",
-  label: props.address?.label ?? "Home",
+const initialValues = {
   city: "Semarang",
   subdistrict: "Jawa Tengah",
-  address: props.address?.address ?? "",
-  zip_code: String(props.address?.zip_code) ?? "",
-  main_address: props.address?.main_address ?? false,
-}));
+  main_address: false,
+};
 
 const onSubmit = (values: any) => {
   mutate(values, {
@@ -43,10 +32,10 @@ const onSubmit = (values: any) => {
 
     <UiDialogContent>
       <UiDialogHeader>
-        <UiDialogTitle>Edit Address</UiDialogTitle>
+        <UiDialogTitle>Add Address</UiDialogTitle>
       </UiDialogHeader>
 
-      <AlertCityAddress />
+      <AlertCity />
 
       <Form
         :validation-schema="validationSchema"
@@ -62,7 +51,6 @@ const onSubmit = (values: any) => {
                 name="recipient"
                 placeholder="Recipient"
                 class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none"
-                :default-value="initialValues.recipient"
               />
               <ErrorMessage class="text-destructive" name="recipient" />
             </div>
@@ -70,12 +58,7 @@ const onSubmit = (values: any) => {
 
           <div>
             <Field name="label" v-slot="{ field }">
-              <UiSelect
-                v-bind="field"
-                name="label"
-                placeholder="Select Label"
-                :default-value="initialValues.label"
-              >
+              <UiSelect v-bind="field" name="label" placeholder="Select Label">
                 <UiSelectTrigger
                   class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none w-full"
                 >
@@ -98,12 +81,12 @@ const onSubmit = (values: any) => {
           <Field name="city" v-slot="{ field }">
             <div>
               <UiInput
+                default-value="Semarang"
                 v-bind="field"
                 name="city"
                 placeholder="City"
                 disabled
                 class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none"
-                :default-value="initialValues.city"
               />
               <ErrorMessage class="text-destructive" name="city" />
             </div>
@@ -112,12 +95,12 @@ const onSubmit = (values: any) => {
           <Field name="subdistrict" v-slot="{ field }">
             <div>
               <UiInput
+                default-value="Jawa Tengah"
                 v-bind="field"
                 name="subdistrict"
                 placeholder="Subdistrict"
                 disabled
                 class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none"
-                :default-value="initialValues.subdistrict"
               />
               <ErrorMessage class="text-destructive" name="subdistrict" />
             </div>
@@ -135,7 +118,6 @@ const onSubmit = (values: any) => {
                 placeholder="Zip Code"
                 type="number"
                 class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none"
-                :default-value="initialValues.zip_code"
               />
               <ErrorMessage class="text-destructive" name="zip_code" />
             </div>
@@ -148,9 +130,20 @@ const onSubmit = (values: any) => {
                 name="address"
                 placeholder="Full Address"
                 class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none resize-none"
-                :default-value="initialValues.address"
               />
               <ErrorMessage class="text-destructive" name="address" />
+            </div>
+          </Field>
+
+          <Field name="description" v-slot="{ field }">
+            <div>
+              <UiTextarea
+                v-bind="field"
+                name="description"
+                placeholder="Description (optional)"
+                class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none resize-none"
+              />
+              <ErrorMessage class="text-destructive" name="description" />
             </div>
           </Field>
 
@@ -160,7 +153,6 @@ const onSubmit = (values: any) => {
                 @update:model-value="(v: boolean | 'indeterminate') => {
                   field.onChange(v)
                 }"
-                v-model="field.value"
                 class="border border-foreground"
                 label="Set as Main Address"
                 name="main_address"
@@ -171,7 +163,7 @@ const onSubmit = (values: any) => {
         </div>
 
         <p v-if="error" class="text-red-500 text-sm mt-2">
-          {{ error.message || "Edit Address gagal" }}
+          {{ error.message || "Add address gagal" }}
         </p>
 
         <UiDialogFooter class="mt-6">

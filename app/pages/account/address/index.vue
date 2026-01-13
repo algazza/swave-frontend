@@ -1,13 +1,6 @@
 <script setup lang="ts">
 import {
   ChevronLeft,
-  CircleUserRound,
-  Home,
-  MapPin,
-  Pen,
-  Pin,
-  Plus,
-  Trash2,
 } from "lucide-vue-next";
 import { useAddress } from "~/composables/address/useAddress";
 

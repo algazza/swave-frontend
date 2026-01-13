@@ -9,9 +9,8 @@ import {
   Trash2,
 } from "lucide-vue-next";
 import type { AddressType } from "~/types/address";
-import DialogEditAddress from "./DialogEditAddress.vue";
+import DialogEditAddress from "./EditDialog.vue";
 import { useDeleteAddress } from "~/composables/address/useDeleteAddress";
-import Dialog from "../ui/dialog/Dialog.vue";
 
 const props = defineProps<{
   address: AddressType | undefined;
