@@ -1,19 +1,10 @@
 <script setup lang="ts">
-import { formatRupiah } from "~/lib/utils";
+import { formatDate, formatRupiah } from "~/lib/utils";
 import type { CheckoutHistoryType } from "~/types/checkout";
 
 const props = defineProps<{
   data: CheckoutHistoryType;
 }>();
-
-const date = new Date(props.data.created_at);
-
-const formatted = new Intl.DateTimeFormat("en-GB", {
-  weekday: "long",
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-}).format(date);
 
 </script>
 
@@ -21,7 +12,7 @@ const formatted = new Intl.DateTimeFormat("en-GB", {
 <NuxtLink :to="`/account/transaction/${data.order_id}`">
       <div class="space-y-4 p-4 border-2 border-secondary rounded-xl">
         <div class="flex justify-between items-center">
-          <h2 class="text-2xl">{{ formatted }}</h2>
+          <h2 class="text-2xl">{{ formatDate(data.created_at) }}</h2>
           <span
             class="text-xl font-semibold capitalize"
             :class="

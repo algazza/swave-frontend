@@ -18,3 +18,14 @@ export const sumValue = <T>(
 ): number => {
   return array.reduce((sum, item) => sum + getValue(item), 0);
 };
+
+export const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+
+  return new Intl.DateTimeFormat("en-GB", {
+    weekday: "long",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+};
