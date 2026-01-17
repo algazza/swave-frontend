@@ -40,7 +40,7 @@ const props = defineProps<{
           </div>
           <div class="flex justify-between items-end w-full">
             <div class="space-y-2">
-              <div class="p-1 bg-secondary w-fit">
+              <div class="p-1 bg-secondary w-fit text-xs">
                 {{ product.category
                 }}{{
                   product.variant !== product.category

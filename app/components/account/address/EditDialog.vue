@@ -145,7 +145,7 @@ const onSubmit = (values: any) => {
                 v-bind="field"
                 name="address"
                 placeholder="Full Address"
-                class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none resize-none"
+                class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none resize-none break-all"
                 :default-value="initialValues.address"
               />
               <ErrorMessage class="text-destructive" name="address" />
