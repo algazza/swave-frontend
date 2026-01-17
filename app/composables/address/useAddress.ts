@@ -19,7 +19,7 @@ export const useAddress = () => {
       } catch (err) {
         const error = err as AxiosError<ErrorResponse>;
         throw new Error(
-          error.response?.data?.message || "Gagal mendapatkan user"
+          error.response?.data?.message || "Gagal mendapatkan address"
         );
       }
     },

@@ -25,13 +25,13 @@ if (isError.value) {
           </NuxtLink>
           <h2 class="text-3xl">Address</h2>
         </div>
-        <AccountDialogAddress>
+        <AccountAddressAddDialog>
           <div
             class="text-background bg-foreground py-2 px-5 flex items-center justify-center rounded-xl font-semibold"
           >
             + Add New Address
           </div>
-        </AccountDialogAddress>
+        </AccountAddressAddDialog>
       </div>
 
       <div class="flex gap-2 flex-col" v-if="isLoading">
@@ -40,7 +40,7 @@ if (isError.value) {
         <UiSkeleton class="w-full h-32" />
       </div>
       <div class="flex gap-2 flex-col" v-if="address && address.length > 0">
-        <AccountCardAddress
+        <AccountAddressCardItem
           v-for="addr in address"
           :address="addr"
           :key="addr.id"
