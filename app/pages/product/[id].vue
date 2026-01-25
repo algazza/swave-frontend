@@ -1,15 +1,40 @@
 <script setup lang="ts">
 import { Star } from "lucide-vue-next";
 import Autoplay from "embla-carousel-autoplay";
-import { dummyProduct, productData } from "~/lib/data";
-import { formatRupiah } from "~/lib/utils";
+import { dummyProduct } from "~/lib/data";
+import { formatRupiah, isLocalImagePath } from "~/lib/utils";
 import { useCartStore } from "~/store/CartStore";
 import type { CheckoutProductType } from "~/types/checkout";
 import type { ProductVariantsType } from "~/types/product";
+import { useOneProducts } from "~/composables/product/useOneProduct";
+import { useRecProduct } from "~/composables/product/useRecProduct";
 
-const DataProduct = productData;
-const defaultVariant = DataProduct.variants[0];
+const API_URL = useRuntimeConfig().public.API_URL;
+const paramId = useRoute().params.id as string;
 
+const {
+  data: DataProduct,
+  isPending: isProductPending,
+  isError: isProductError,
+  error: productError,
+} = useOneProducts(paramId);
+
+const {
+  data: RecProducts,
+  isPending: isRecPending,
+  isError: isRecError,
+  error: recError,
+} = useRecProduct(paramId);
+
+if (isProductError.value) {
+  throw productError;
+} else if (isRecError.value) {
+  throw recError;
+}
+
+console.log(DataProduct.value?.product_images[0]?.image_path)
+
+const defaultVariant = DataProduct.value?.variant[0];
 const cartStore = useCartStore();
 
 const currentImg = ref(0);
@@ -23,23 +48,26 @@ const selectedVariant = reactive<ProductVariantsType>({
   stock: defaultVariant?.stock || 0,
 });
 
-const checkout = computed<CheckoutProductType>(() => ({
-  id: Date.now() + Math.floor(Math.random() * 1000),
-  price: selectedVariant.price * quantity.value,
-  quantity: quantity.value,
-  variant: {
-    id: selectedVariant.id,
-    variant: selectedVariant.variant,
-    price: selectedVariant.price,
-    stock: selectedVariant.stock,
-  },
-  product: {
-    id: DataProduct.id,
-    name: DataProduct.name,
-    product_image: DataProduct.product_image[0]!,
-    categories: DataProduct.categories,
-  },
-}));
+const checkout = computed<CheckoutProductType>(() => {
+  return {
+    id: Date.now() + Math.floor(Math.random() * 1000),
+    price: selectedVariant.price * quantity.value,
+    quantity: quantity.value,
+    variant: {
+      id: selectedVariant.id,
+      variant: selectedVariant.variant,
+      price: selectedVariant.price,
+      stock: selectedVariant.stock,
+    },
+    product: {
+      id: DataProduct.value?.id!,
+      name: DataProduct.value?.name!,
+      product_images: DataProduct.value?.product_images[0]?.image_path!,
+      category: DataProduct.value?.category!,
+      sold: DataProduct.value?.sold!,
+    },
+  };
+});
 
 const onInitApi = (api: any) => {
   emblaApi.value = api;
@@ -71,39 +99,35 @@ const resetCheckout = () => {
 
 const handleCart = () => {
   cartStore.addToCart(checkout.value);
-  push.success(`${productData.name} has added to your cart`);
+  push.success(`${DataProduct.value?.name} has added to your cart`);
   resetCheckout();
 };
 </script>
 
 <template>
   <section class="flex flex-col gap-5">
-    <section class="grid lg:grid-cols-3 gap-8 py-5 justify-center items-center">
+    <section
+      class="lg:grid lg:grid-cols-3 space-y-8 space-x-8 py-5 justify-center items-center w-full flex-1"
+    >
       <div class="grid gap-5 max-lg:hidden">
         <div class="grid gap-2">
-          <h1 class="text-3xl">{{ DataProduct.name }}</h1>
+          <h1 class="text-3xl">{{ DataProduct?.name }}</h1>
           <p class="">
             Rp{{
               formatRupiah(
-                selectedVariant.price > 0
-                  ? selectedVariant.price
-                  : DataProduct.price
+                selectedVariant.price > 0 ? selectedVariant.price : 0,
               )
             }}
           </p>
           <div class="flex gap-5 items-center">
             <span
               >Stok:
-              {{
-                selectedVariant.stock > 0
-                  ? selectedVariant.stock
-                  : DataProduct.stock
-              }}</span
+              {{ selectedVariant.stock > 0 ? selectedVariant.stock : 0 }}</span
             >
-            <span>Sold: {{ DataProduct.sold }}</span>
+            <span>Sold: {{ DataProduct?.sold }}</span>
             <div class="flex gap-2 items-center">
               <Star class="text-accent" />
-              <span>{{ DataProduct.star }}</span>
+              <span>{{ DataProduct?.star }}</span>
             </div>
           </div>
         </div>
@@ -112,11 +136,11 @@ const handleCart = () => {
           <h2 class="text-2xl font-normal">variant</h2>
           <div class="flex items-center flex-wrap gap-3">
             <div
-              v-for="v in DataProduct.variants"
+              v-for="v in DataProduct?.variant"
               :key="v.variant"
               class="px-4 py-2 rounded-xl cursor-pointer"
               :class="
-                selectedVariant.variant === v.variant
+                selectedVariant.id === v.id
                   ? 'bg-foreground text-background'
                   : 'bg-secondary'
               "
@@ -154,7 +178,7 @@ const handleCart = () => {
 
       <div class="grid justify-center">
         <UiCarousel
-          class="relative w-full max-w-[360px]"
+          class="relative w-full max-w-90"
           :opts="{
             align: 'start',
             loop: true,
@@ -163,7 +187,7 @@ const handleCart = () => {
         >
           <UiCarouselContent>
             <UiCarouselItem
-              v-for="(img, index) in DataProduct.product_image"
+              v-for="(img, index) in DataProduct?.product_images"
               :key="index"
             >
               <div
@@ -171,9 +195,13 @@ const handleCart = () => {
                 :class="index === 0 ? 'm-16' : ''"
               >
                 <NuxtImg
-                  :src="img"
+                  :src="
+                    isLocalImagePath(img.image_path)
+                      ? `${API_URL}/${img.image_path}`
+                      : img.image_path
+                  "
                   alt="Pick"
-                  class="w-full h-full object-cover object-center"
+                  class="w-full h-full object-contain object-center"
                 />
               </div>
             </UiCarouselItem>
@@ -181,7 +209,7 @@ const handleCart = () => {
         </UiCarousel>
         <div class="flex gap-3 items-center justify-center">
           <button
-            v-for="(img, i) in DataProduct.product_image"
+            v-for="(img, i) in DataProduct?.product_images"
             :key="i"
             @click="goTo(i)"
             class="w-3 h-3 rounded-full transition-all mt-4"
@@ -192,29 +220,23 @@ const handleCart = () => {
 
       <div class="grid gap-5 lg:hidden">
         <div class="grid gap-2">
-          <h1 class="text-3xl">{{ DataProduct.name }}</h1>
+          <h1 class="text-3xl">{{ DataProduct?.name }}</h1>
           <p class="">
             Rp{{
               formatRupiah(
-                selectedVariant.price > 0
-                  ? selectedVariant.price
-                  : DataProduct.price
+                selectedVariant.price > 0 ? selectedVariant.price : 0,
               )
             }}
           </p>
           <div class="flex gap-5 items-center">
             <span
               >Stok:
-              {{
-                selectedVariant.stock > 0
-                  ? selectedVariant.stock
-                  : DataProduct.stock
-              }}</span
+              {{ selectedVariant.stock > 0 ? selectedVariant.stock : 0 }}</span
             >
-            <span>Sold: {{ DataProduct.sold }}</span>
+            <span>Sold: {{ DataProduct?.sold }}</span>
             <div class="flex gap-2 items-center">
               <Star class="text-accent" />
-              <span>{{ DataProduct.star }}</span>
+              <span>{{ DataProduct?.star }}</span>
             </div>
           </div>
         </div>
@@ -223,7 +245,7 @@ const handleCart = () => {
           <h2 class="text-2xl font-normal">variant</h2>
           <div class="flex items-center flex-wrap gap-3">
             <div
-              v-for="v in DataProduct.variants"
+              v-for="v in DataProduct?.variant"
               :key="v.variant"
               class="px-4 py-2 rounded-xl cursor-pointer"
               :class="
@@ -265,7 +287,7 @@ const handleCart = () => {
 
       <div class="grid gap-5">
         <p class="">
-          {{ DataProduct.description }}
+          {{ DataProduct?.description }}
         </p>
         <div>
           <h2 class="text-3xl">Review</h2>
@@ -283,7 +305,7 @@ const handleCart = () => {
           >
             <UiCarouselContent>
               <UiCarouselItem
-                v-for="review in DataProduct.reviews"
+                v-for="review in DataProduct?.review"
                 :key="review.name"
               >
                 <div class="p-4 border border-foreground grid gap-2 max-w-full">
@@ -308,17 +330,17 @@ const handleCart = () => {
 
     <section class="py-10">
       <h1 class="text-4xl mb-6 text-center">Related Products</h1>
-      <div class="text-end">
+      <div class="text-end mb-3">
         <NuxtLink
           to="/product"
-          class="mb-3 text-base font-semibold text-muted-foreground"
+          class="text-base font-semibold text-muted-foreground"
         >
           See More
         </NuxtLink>
       </div>
 
       <div class="grid grid-cols-2 gap-y-6 gap-x-2 md:grid-cols-4">
-        <CardProduct v-for="product in dummyProduct" :product="product" />
+        <CardProduct v-for="product in RecProducts" :product="product" />
       </div>
     </section>
   </section>

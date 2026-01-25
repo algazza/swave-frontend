@@ -29,3 +29,7 @@ export const formatDate = (dateString: string) => {
     year: "numeric",
   }).format(date);
 };
+
+export const isLocalImagePath = (value: string) => {
+  return value.startsWith("images/");
+};

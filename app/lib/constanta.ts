@@ -39,7 +39,6 @@ export const accountLink = [
 ]
 
 export const filterArray = [
-  "Most Visited",
   "Best Selling",
   "Average Rating",
   "A - Z",

@@ -23,7 +23,7 @@ const totalPrice = computed(() => {
     @click.self="ui.toggleCart"
   >
     <div
-      class="flex flex-col justify-between bg-background px-5 py-6 max-w-[420px] h-dvh"
+      class="flex flex-col justify-between bg-background px-5 py-6 max-w-105 h-dvh"
     >
       <div class="grid gap-8">
         <div class="flex justify-between items-center">
@@ -51,7 +51,7 @@ const totalPrice = computed(() => {
                 />
                 <div class="size-20 aspect-square">
                   <NuxtImg
-                    :src="check.product.product_image"
+                    :src="check.product.product_images"
                     :alt="check.product.name"
                     class="w-full h-full object-cover object-center outline-hidden"
                   />
@@ -59,9 +59,9 @@ const totalPrice = computed(() => {
 
                 <div class="grid gap-2">
                   <div class="p-1 bg-secondary w-fit">
-                    {{ check.product.categories
+                    {{ check.product.category
                     }}{{
-                      check.variant.variant !== check.product.categories
+                      check.variant.variant !== check.product.category
                         ? `, ${check.variant.variant}`
                         : ""
                     }}

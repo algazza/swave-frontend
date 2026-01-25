@@ -17,18 +17,27 @@ export const ProductSchema = z.object({
   id: z.number(),
   name: z.string(),
   price: z.number(),
-  product_image: z.string().url(),
-  categories: z.string(),
+  product_images: z.string().url(),
+  category: z.string(),
   star: z.number(),
+  sold: z.number(),
 });
 
-export const ProductDetailSchema = ProductSchema.extend({
+export const ProductImageSchema = z.object({
+  id: z.number(),
+  image_path: z.string().url(),
+});
+
+export const ProductDetailSchema = z.object({
+  id: z.number(),
+  name: z.string(),
   description: z.string(),
-  product_image: z.array(z.string().url()),
-  stock: z.number(),
   sold: z.number(),
-  variants: z.array(ProductVariantSchema),
-  reviews: z.array(ProductReview),
+  category: z.string(),
+  variant: z.array(ProductVariantSchema),
+  product_images: z.array(ProductImageSchema),
+  review: z.array(ProductReview),
+  star: z.number(),
 });
 
 export type ProductType = z.infer<typeof ProductSchema>;
