@@ -208,7 +208,7 @@ const filteredProducts = computed<ProductType[]>(() => {
       </div>
 
       <div
-        v-if="filteredProducts.length > 0"
+        v-else-if="filteredProducts.length > 0"
         class="grid grid-cols-2 gap-y-6 gap-x-2 md:grid-cols-3"
       >
         <CardProduct
@@ -216,6 +216,7 @@ const filteredProducts = computed<ProductType[]>(() => {
           :key="product.id"
           :product="product"
         />
+        
       </div>
       <p v-else class="text-center mt-5">Product not found.</p>
     </div>

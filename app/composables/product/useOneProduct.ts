@@ -6,7 +6,7 @@ import type { ProductDetailType } from "~/types/product";
 export const useOneProducts = (id: string) => {
   const { $api } = useNuxtApp();
   return useQuery<ProductDetailType, Error>({
-    queryKey: ["products"],
+    queryKey: ["products-detail", id],
     queryFn: async () => {
       try {
         const res = await $api.get(`product/${id}`);
