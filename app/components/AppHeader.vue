@@ -7,6 +7,7 @@ import { useUiStore } from "~/store/UiStore";
 
 const ui = useUiStore();
 const cart = useCartStore();
+const token = useCookie("token");
 </script>
 
 <template>
@@ -35,14 +36,20 @@ const cart = useCartStore();
         </ul>
 
         <NuxtLink to="/">
-          <NuxtImg
-            :src="logoBlack"
-            alt="Swave"
-            class="w-32.75 max-md:hidden"
-          />
+          <NuxtImg :src="logoBlack" alt="Swave" class="w-32.75 max-md:hidden" />
         </NuxtLink>
 
-        <div class="flex gap-4 items-center lg:w-63.75 justify-end">
+        <div
+          v-if="!token"
+          class="flex gap-4 items-center lg:w-63.75 justify-end"
+        >
+          <Moon />
+          <NuxtLink to="/login">
+            <UiButton>Login</UiButton>
+          </NuxtLink>
+        </div>
+
+        <div v-else class="flex gap-4 items-center lg:w-63.75 justify-end">
           <Moon />
           <NuxtLink class="cursor-pointer" to="/account">
             <User />
