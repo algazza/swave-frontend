@@ -95,27 +95,29 @@ const filteredProducts = computed<ProductType[]>(() => {
         </UiSelect>
       </div>
 
-      <div class="border border-border px-3 py-2 space-y-2">
+      <template v-if="isCategoriesPending">
+        <UiSkeleton class="w-full h-100" />
+      </template>
+      <div
+        v-else-if="(categories?.length || 0) > 1"
+        class="border border-border px-3 py-2 space-y-2"
+      >
         <h2 class="text-2xl mb-3">Category</h2>
-        <template v-if="isCategoriesPending">
-          <UiSkeleton v-for="i in 5" :key="i" class="w-full h-9" />
-        </template>
-        <template v-else>
-          <label
-            v-for="category in categories || []"
-            :key="category.category"
-            class="flex items-center justify-between w-full py-2 px-4 rounded-xl cursor-pointer bg-secondary gap-3"
-          >
-            <div class="flex items-center gap-3">
-              <UiCheckbox
-                :model-value="selectedCategories.includes(category.category)"
-                @update:model-value="toggleCategory(category.category)"
-              />
-              <span>{{ category.category }}</span>
-            </div>
-            <span>({{ category.count }})</span>
-          </label>
-        </template>
+        <label
+          v-for="category in categories || []"
+          :key="category.category"
+          class="flex items-center justify-between w-full py-2 px-4 rounded-xl cursor-pointer bg-secondary gap-3"
+        >
+          <div class="flex items-center gap-3">
+            <UiCheckbox
+              class="border-foreground cursor-pointer"
+              :model-value="selectedCategories.includes(category.category)"
+              @update:model-value="toggleCategory(category.category)"
+            />
+            <span>{{ category.category }}</span>
+          </div>
+          <span>({{ category.count }})</span>
+        </label>
       </div>
     </div>
 
@@ -156,29 +158,32 @@ const filteredProducts = computed<ProductType[]>(() => {
                 </UiSelect>
               </div>
 
-              <div class="border border-border px-3 py-2 space-y-2">
+              <template v-if="isCategoriesPending">
+                <UiSkeleton class="w-full h-100" />
+              </template>
+
+              <div
+                v-if="(categories?.length || 0) > 1"
+                class="border border-border px-3 py-2 space-y-2"
+              >
                 <h2 class="text-2xl mb-3">Category</h2>
-                <template v-if="isCategoriesPending">
-                  <UiSkeleton v-for="i in 5" :key="i" class="w-full h-9" />
-                </template>
-                <template v-else>
-                  <label
-                    v-for="category in categories || []"
-                    :key="category.category"
-                    class="flex items-center justify-between w-full py-2 px-4 rounded-xl cursor-pointer bg-secondary gap-3"
-                  >
-                    <div class="flex items-center gap-3">
-                      <UiCheckbox
-                        :model-value="
-                          selectedCategories.includes(category.category)
-                        "
-                        @update:model-value="toggleCategory(category.category)"
-                      />
-                      <span>{{ category.category }}</span>
-                    </div>
-                    <span>({{ category.count }})</span>
-                  </label>
-                </template>
+
+                <label
+                  v-for="category in categories || []"
+                  :key="category.category"
+                  class="flex items-center justify-between w-full py-2 px-4 rounded-xl cursor-pointer bg-secondary gap-3"
+                >
+                  <div class="flex items-center gap-3">
+                    <UiCheckbox
+                      :model-value="
+                        selectedCategories.includes(category.category)
+                      "
+                      @update:model-value="toggleCategory(category.category)"
+                    />
+                    <span>{{ category.category }}</span>
+                  </div>
+                  <span>({{ category.count }})</span>
+                </label>
               </div>
             </div>
           </UiSheetContent>
@@ -216,7 +221,6 @@ const filteredProducts = computed<ProductType[]>(() => {
           :key="product.id"
           :product="product"
         />
-        
       </div>
       <p v-else class="text-center mt-5">Product not found.</p>
     </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Star } from "lucide-vue-next";
+import { Star, StarOff } from "lucide-vue-next";
 import Autoplay from "embla-carousel-autoplay";
 import { formatRupiah, isLocalImagePath } from "~/lib/utils";
 import { useCartStore } from "~/store/CartStore";
@@ -212,7 +212,9 @@ const handleCart = () => {
       </div>
 
       <template v-if="isProductPending">
-        <UiSkeleton class="w-90 h-90" />
+        <div class="grid justify-center">
+          <UiSkeleton class="w-90 h-90" />
+        </div>
       </template>
       <template v-else>
         <div class="grid justify-center">
@@ -358,7 +360,9 @@ const handleCart = () => {
           <template v-if="isProductPending">
             <UiSkeleton class="w-full h-32" />
           </template>
-          <template v-else>
+          <template
+            v-else-if="DataProduct?.review && DataProduct.review.length > 0"
+          >
             <UiCarousel
               class="relative"
               :opts="{
@@ -394,6 +398,14 @@ const handleCart = () => {
                 </UiCarouselItem>
               </UiCarouselContent>
             </UiCarousel>
+          </template>
+          <template v-else>
+            <div
+              class="py-8 border border-muted-foreground grid gap-2 max-w-full text-center text-muted-foreground"
+            >
+              <StarOff class="mx-auto" />
+              No reviews yet.
+            </div>
           </template>
         </div>
       </div>
