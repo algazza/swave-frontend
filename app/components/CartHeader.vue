@@ -2,126 +2,124 @@
 import { Trash2, X } from "lucide-vue-next";
 import { formatRupiah } from "~/lib/utils";
 import { useCartStore } from "~/store/CartStore";
-import { useUiStore } from "~/store/UiStore";
 import type { CheckoutProductType } from "~/types/checkout";
 
-const ui = useUiStore();
 const cartStore = useCartStore();
 
 const totalPrice = computed(() => {
   return cartStore.selectedCart.reduce(
     (total, item) => total + item.variant.price * (item.quantity || 0),
-    0
+    0,
   );
 });
 </script>
 
 <template>
-  <section
-    v-if="ui.isCartOpen"
-    class="z-101 bg-foreground/20 w-full h-dvh fixed top-0 right-0"
-    @click.self="ui.toggleCart"
-  >
-    <div
-      class="flex flex-col justify-between bg-background px-5 py-6 max-w-105 h-dvh"
-    >
-      <div class="grid gap-8">
-        <div class="flex justify-between items-center">
-          <h1 class="text-3xl">Shopping Cart</h1>
-          <button @click="ui.toggleCart" class="cursor-pointer">
-            <X />
-          </button>
-        </div>
+  <UiSheet>
+    <UiSheetTrigger class="cursor-pointer relative">
+      <slot/>
+    </UiSheetTrigger>
+    <UiSheetContent>
+      <UiSheetHeader>
+        <UiSheetTitle class="text-3xl">Shopping Cart</UiSheetTitle>
+      </UiSheetHeader>
 
-        <div
-          class="flex flex-col gap-6 overflow-y-auto h-[calc(100dvh-260px)] px-2"
-        >
-          <template v-if="cartStore.cart.length > 0">
-            <div
-              v-for="check in cartStore.cart"
-              class="flex justify-between gap-2"
-            >
-              <div class="flex gap-2 md:gap-6 justify-center items-center">
-                <UiCheckbox
-                  class="border-2 border-foreground"
-                  :model-value="
-                    cartStore.selectedCart.some((item: CheckoutProductType) => item.id === check.id)
-                  "
-                  @update:model-value="cartStore.orderCart(check)"
+      <div
+        class="flex flex-col gap-6 overflow-y-auto h-[calc(100dvh-260px)] px-2"
+      >
+        <template v-if="cartStore.cart.length > 0">
+          <div
+            v-for="check in cartStore.cart"
+            class="flex justify-between gap-2"
+          >
+            <div class="flex gap-2 md:gap-6 justify-center items-center">
+              <UiCheckbox
+                class="border-2 border-foreground"
+                :model-value="
+                  cartStore.selectedCart.some(
+                    (item: CheckoutProductType) => item.id === check.id,
+                  )
+                "
+                @update:model-value="cartStore.orderCart(check)"
+              />
+              <div class="size-20 aspect-square">
+                <NuxtImg
+                  :src="check.product.product_images"
+                  :alt="check.product.name"
+                  class="w-full h-full object-cover object-center outline-hidden"
                 />
-                <div class="size-20 aspect-square">
-                  <NuxtImg
-                    :src="check.product.product_images"
-                    :alt="check.product.name"
-                    class="w-full h-full object-cover object-center outline-hidden"
-                  />
-                </div>
-
-                <div class="grid gap-2">
-                  <div class="p-1 bg-secondary w-fit">
-                    {{ check.product.category
-                    }}{{
-                      check.variant.variant !== check.product.category
-                        ? `, ${check.variant.variant}`
-                        : ""
-                    }}
-                  </div>
-
-                  <div class="grid">
-                    <h3 class="text-lg truncate">{{ check.product.name }}</h3>
-                    <p>Rp{{ formatRupiah(check.variant.price) }}</p>
-                  </div>
-
-                  <UiNumberField
-                    class="border border-foreground max-w-28"
-                    :model-value="check.quantity"
-                    :min="1"
-                    :max="check.variant.stock"
-                    @update:model-value="
-                      (val: number) => cartStore.updateCart(check.id, { quantity: val, price: val*check.variant.price })
-                    "
-                  >
-                    <UiNumberFieldContent>
-                      <UiNumberFieldDecrement />
-                      <UiNumberFieldInput class="text-sm rounded-none" />
-                      <UiNumberFieldIncrement />
-                    </UiNumberFieldContent>
-                  </UiNumberField>
-                </div>
               </div>
 
-              <div class="flex justify-center items-center">
-                <button @click="cartStore.removeCart(check.id)" class="h-fit">
-                  <Trash2 class="text-destructive cursor-pointer" />
-                </button>
+              <div class="grid gap-2">
+                <div class="p-1 bg-secondary w-fit">
+                  {{ check.product.category
+                  }}{{
+                    check.variant.variant !== check.product.category
+                      ? `, ${check.variant.variant}`
+                      : ""
+                  }}
+                </div>
+
+                <div class="grid">
+                  <h3 class="text-lg truncate">{{ check.product.name }}</h3>
+                  <p>Rp{{ formatRupiah(check.variant.price) }}</p>
+                </div>
+
+                <UiNumberField
+                  class="border border-foreground max-w-28"
+                  :model-value="check.quantity"
+                  :min="1"
+                  :max="check.variant.stock"
+                  @update:model-value="
+                    (val: number) =>
+                      cartStore.updateCart(check.id, {
+                        quantity: val,
+                        price: val * check.variant.price,
+                      })
+                  "
+                >
+                  <UiNumberFieldContent>
+                    <UiNumberFieldDecrement />
+                    <UiNumberFieldInput class="text-sm rounded-none" />
+                    <UiNumberFieldIncrement />
+                  </UiNumberFieldContent>
+                </UiNumberField>
               </div>
             </div>
-          </template>
 
-          <h3
-            v-else
-            class="flex justify-center text-muted-foreground text-xl mt-4"
-          >
-            Your cart is empty.
-          </h3>
-        </div>
+            <div class="flex justify-center items-center">
+              <button @click="cartStore.removeCart(check.id)" class="h-fit">
+                <Trash2 class="text-destructive cursor-pointer" />
+              </button>
+            </div>
+          </div>
+        </template>
+
+        <h3
+          v-else
+          class="flex justify-center text-muted-foreground text-xl mt-4"
+        >
+          Your cart is empty.
+        </h3>
       </div>
 
-      <div class="bg-secondary grid gap-2 p-2 rounded-xl">
-        <div class="flex justify-between items-center">
-          <h2 class="text-xl">Subtotal</h2>
-          <p class="text-sm font-bold">Rp{{ formatRupiah(totalPrice) }}</p>
+      <UiSheetFooter>
+        <div class="bg-secondary grid gap-2 p-2 rounded-xl">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl">Subtotal</h2>
+            <p class="text-sm font-bold">Rp{{ formatRupiah(totalPrice) }}</p>
+          </div>
+          <UiButton :disabled="cartStore.selectedCart.length === 0" class="p-0">
+            <NuxtLink
+              class="w-full h-full py-2"
+              to="/checkout/88"
+              @click="cartStore.checkoutCart(cartStore.selectedCart)"
+            >
+              Checkout
+            </NuxtLink>
+          </UiButton>
         </div>
-        <UiButton :disabled="cartStore.selectedCart.length === 0" class="p-0">
-          <NuxtLink
-            class="w-full h-full py-2"
-            to="/checkout/88"
-            @click="cartStore.checkoutCart(cartStore.selectedCart)"
-          >
-            Checkout
-          </NuxtLink>
-        </UiButton>
-      </div>
-    </div>
-  </section>
+      </UiSheetFooter>
+    </UiSheetContent>
+  </UiSheet>
 </template>

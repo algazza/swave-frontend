@@ -3,9 +3,7 @@ import { Menu, Moon, ShoppingCart, User } from "lucide-vue-next";
 import { navLink } from "~/lib/constanta";
 import { logoBlack } from "~/lib/image";
 import { useCartStore } from "~/store/CartStore";
-import { useUiStore } from "~/store/UiStore";
 
-const ui = useUiStore();
 const cart = useCartStore();
 const token = useCookie("token");
 </script>
@@ -54,7 +52,7 @@ const token = useCookie("token");
           <NuxtLink class="cursor-pointer" to="/account">
             <User />
           </NuxtLink>
-          <button @click="ui.toggleCart" class="cursor-pointer relative">
+          <CartHeader>
             <div
               v-if="cart.cartLength > 0"
               class="size-5.5 absolute -top-3 -right-3 bg-destructive text-background rounded-full text-xs flex justify-center items-center text-center font-bold"
@@ -62,7 +60,7 @@ const token = useCookie("token");
               {{ cart.cartLength > 99 ? "99+" : cart.cartLength }}
             </div>
             <ShoppingCart />
-          </button>
+          </CartHeader>
         </div>
       </nav>
     </div>
