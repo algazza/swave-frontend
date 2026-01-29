@@ -23,8 +23,8 @@ export const ProductCheckoutSchema = z.object({
   id: z.number(),
   quantity: z.number(),
   price: z.number(),
+  product: ProductSchema.omit({ star: true, price: true, sold: true }),
   variant: ProductVariantSchema,
-  product: ProductSchema.omit({ star: true, price: true }),
 });
 
 export const CheckoutSchema = z

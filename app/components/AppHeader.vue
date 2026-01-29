@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Menu, Moon, ShoppingCart, User } from "lucide-vue-next";
+import { useCartCount } from "~/composables/cart/useCartCount";
 import { navLink } from "~/lib/constanta";
 import { logoBlack } from "~/lib/image";
 import { useCartStore } from "~/store/CartStore";
 
+const { data, isLoading } = useCartCount();
 const cart = useCartStore();
 const token = useCookie("token");
 </script>
@@ -54,10 +56,10 @@ const token = useCookie("token");
           </NuxtLink>
           <CartHeader>
             <div
-              v-if="cart.cartLength > 0"
+              v-if="!isLoading && (data || 0) > 0"
               class="size-5.5 absolute -top-3 -right-3 bg-destructive text-background rounded-full text-xs flex justify-center items-center text-center font-bold"
             >
-              {{ cart.cartLength > 99 ? "99+" : cart.cartLength }}
+              {{ (data || 0) > 99 ? "99+" : data }}
             </div>
             <ShoppingCart />
           </CartHeader>

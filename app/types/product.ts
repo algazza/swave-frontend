@@ -3,8 +3,8 @@ import z from "zod";
 export const ProductVariantSchema = z.object({
   id: z.number(),
   variant: z.string(),
-  stock: z.number(),
   price: z.number(),
+  stock: z.number(),
 });
 
 export const ProductReview = z.object({
@@ -17,7 +17,7 @@ export const ProductSchema = z.object({
   id: z.number(),
   name: z.string(),
   price: z.number(),
-  product_images: z.string().url(),
+  product_images: z.string(),
   category: z.string(),
   star: z.number(),
   sold: z.number(),

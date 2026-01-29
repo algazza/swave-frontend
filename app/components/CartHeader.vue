@@ -1,10 +1,39 @@
 <script setup lang="ts">
 import { Trash2, X } from "lucide-vue-next";
+import { useCart } from "~/composables/cart/useCart";
+import { useDeleteCart } from "~/composables/cart/useDeleteCart";
+import { useEditCart } from "~/composables/cart/useEditCart";
 import { formatRupiah } from "~/lib/utils";
 import { useCartStore } from "~/store/CartStore";
 import type { CheckoutProductType } from "~/types/checkout";
 
 const cartStore = useCartStore();
+const {
+  data: cart,
+  isLoading: isLoadingCart,
+  error: errorCart,
+  isError,
+} = useCart();
+const {
+  updateQuantity,
+  isPending: isPendingEdit,
+  error: errorEdit,
+} = useEditCart();
+const {
+  mutate,
+  isPending: isPendingDelete,
+  error: errorDelete,
+} = useDeleteCart();
+
+if (isError.value) {
+  throw errorCart;
+}
+
+watch(cart, (val) => {
+  if (val) {
+    cartStore.cart = val;
+  }
+});
 
 const totalPrice = computed(() => {
   return cartStore.selectedCart.reduce(
@@ -17,7 +46,7 @@ const totalPrice = computed(() => {
 <template>
   <UiSheet>
     <UiSheetTrigger class="cursor-pointer relative">
-      <slot/>
+      <slot />
     </UiSheetTrigger>
     <UiSheetContent>
       <UiSheetHeader>
@@ -25,12 +54,16 @@ const totalPrice = computed(() => {
       </UiSheetHeader>
 
       <div
-        class="flex flex-col gap-6 overflow-y-auto h-[calc(100dvh-260px)] px-2"
+        class="flex flex-col gap-6 overflow-y-auto h-[calc(100dvh-260px)] px-4"
       >
-        <template v-if="cartStore.cart.length > 0">
-          <div
+        <template v-if="isLoadingCart">
+          <UiSkeleton class="w-full h-28" />
+        </template>
+
+        <template v-if="(cartStore.cart?.length || 0) > 0">
+          <label
             v-for="check in cartStore.cart"
-            class="flex justify-between gap-2"
+            class="flex justify-between gap-2 cursor-pointer"
           >
             <div class="flex gap-2 md:gap-6 justify-center items-center">
               <UiCheckbox
@@ -71,28 +104,33 @@ const totalPrice = computed(() => {
                   :min="1"
                   :max="check.variant.stock"
                   @update:model-value="
-                    (val: number) =>
+                    (val: number) => {
+                      const currentQty = cartStore.getQuantity(check.id);
                       cartStore.updateCart(check.id, {
                         quantity: val,
                         price: val * check.variant.price,
-                      })
+                      });
+                      if (val !== currentQty) {
+                        updateQuantity(check.id, val);
+                      }
+                    }
                   "
                 >
                   <UiNumberFieldContent>
-                    <UiNumberFieldDecrement />
+                    <UiNumberFieldDecrement class="cursor-pointer" />
                     <UiNumberFieldInput class="text-sm rounded-none" />
-                    <UiNumberFieldIncrement />
+                    <UiNumberFieldIncrement class="cursor-pointer" />
                   </UiNumberFieldContent>
                 </UiNumberField>
               </div>
             </div>
 
             <div class="flex justify-center items-center">
-              <button @click="cartStore.removeCart(check.id)" class="h-fit">
+              <button @click="mutate(check.id)" class="h-fit">
                 <Trash2 class="text-destructive cursor-pointer" />
               </button>
             </div>
-          </div>
+          </label>
         </template>
 
         <h3
@@ -113,7 +151,10 @@ const totalPrice = computed(() => {
             <NuxtLink
               class="w-full h-full py-2"
               to="/checkout/88"
-              @click="cartStore.checkoutCart(cartStore.selectedCart)"
+              @click="
+                cartStore.checkoutCart(cartStore.selectedCart);
+                cartStore.clearOrder();
+              "
             >
               Checkout
             </NuxtLink>

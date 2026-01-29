@@ -7,6 +7,7 @@ import type { CheckoutProductType } from "~/types/checkout";
 import type { ProductVariantsType } from "~/types/product";
 import { useOneProducts } from "~/composables/product/useOneProduct";
 import { useRecProduct } from "~/composables/product/useRecProduct";
+import { useAddCart } from "~/composables/cart/useAddCart";
 
 const API_URL = useRuntimeConfig().public.API_URL;
 const route = useRoute();
@@ -28,6 +29,12 @@ const {
   isError: isRecError,
   error: recError,
 } = useRecProduct(paramId.value);
+
+const {
+  mutate,
+  isPending: isAddCartPending,
+  error: addCartError,
+} = useAddCart();
 
 if (isProductError.value) {
   throw productError;
@@ -115,8 +122,13 @@ const resetCheckout = () => {
 };
 
 const handleCart = () => {
-  cartStore.addToCart(checkout.value);
-  push.success(`${DataProduct.value?.name} has added to your cart`);
+  // cartStore.addToCart(checkout.value);
+  mutate({
+    product_id: DataProduct.value?.id!,
+    variant_id: selectedVariant.id,
+    quantity: quantity.value,
+  });
+  // push.success(`${DataProduct.value?.2name} has added to your cart`);
   resetCheckout();
 };
 </script>
@@ -204,11 +216,14 @@ const handleCart = () => {
           <UiButton
             @click="!token ? router.push('/login') : handleCart()"
             class="flex-1 bg-foreground text-background px-2 rounded-lg"
-            :disabled="quantity === 0 ? true : false"
+            :disabled="quantity === 0 ? true : false || isAddCartPending"
           >
             Add to cart
           </UiButton>
         </div>
+        <p v-if="addCartError" class="text-red-500 text-sm mt-2">
+          {{ addCartError.message || "Add address gagal" }}
+        </p>
       </div>
 
       <template v-if="isProductPending">
@@ -338,11 +353,14 @@ const handleCart = () => {
           <UiButton
             @click="!token ? router.push('/login') : handleCart()"
             class="flex-1 bg-foreground text-background px-2 rounded-lg"
-            :disabled="quantity === 0 ? true : false"
+            :disabled="quantity === 0 ? true : false || isAddCartPending"
           >
             Add to cart
           </UiButton>
         </div>
+        <p v-if="addCartError" class="text-red-500 text-sm mt-2">
+          {{ addCartError.message || "Add cart gagal" }}
+        </p>
       </div>
 
       <div class="grid gap-5">
