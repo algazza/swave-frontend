@@ -19,8 +19,9 @@ const initialValues = computed(() => ({
   label: props.address?.label ?? "Home",
   city: "Semarang",
   subdistrict: "Jawa Tengah",
-  address: props.address?.address ?? "",
   zip_code: String(props.address?.zip_code) ?? "",
+  address: props.address?.address ?? "",
+  description: props.address?.description ?? "",
   main_address: props.address?.main_address ?? false,
 }));
 
@@ -147,17 +148,32 @@ const onSubmit = (values: any) => {
                 placeholder="Full Address"
                 class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none resize-none break-all"
                 :default-value="initialValues.address"
+                />
+                <ErrorMessage class="text-destructive" name="address" />
+            </div>
+          </Field>
+
+          <Field name="description" v-slot="{ field }">
+            <div>
+              <UiTextarea
+                v-bind="field"
+                name="description"
+                placeholder="Description (optional)"
+                class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none resize-none break-all"
+                :default-value="initialValues.description"
               />
-              <ErrorMessage class="text-destructive" name="address" />
+              <ErrorMessage class="text-destructive" name="description" />
             </div>
           </Field>
 
           <Field name="main_address" v-slot="{ field }">
             <div class="flex gap-2 items-center">
               <UiCheckbox
-                @update:model-value="(v: boolean | 'indeterminate') => {
-                  field.onChange(v)
-                }"
+                @update:model-value="
+                  (v: boolean | 'indeterminate') => {
+                    field.onChange(v);
+                  }
+                "
                 v-model="field.value"
                 class="border border-foreground"
                 label="Set as Main Address"

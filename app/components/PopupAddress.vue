@@ -6,11 +6,11 @@ const emit = defineEmits<{
   (e: "change", value: AddressType): void;
 }>();
 
-const open = ref(false)
+const open = ref(false);
 const props = defineProps<{
-  mainAddress: AddressType | undefined
-  addressArray: AddressType[]
-}>()
+  mainAddress: AddressType | undefined;
+  addressArray: AddressType[] | undefined;
+}>();
 
 const address = ref<AddressType | undefined>(props.mainAddress);
 const selectAddress = (item: AddressType) => {
@@ -20,13 +20,13 @@ const selectAddress = (item: AddressType) => {
 const saveAddress = () => {
   if (!address.value) return;
   emit("change", address.value);
-  open.value = false
+  open.value = false;
 };
 </script>
 
 <template>
   <UiDialog v-model:open="open">
-    <UiDialogTrigger as-child>
+    <UiDialogTrigger as-child class="cursor-pointer">
       <slot />
     </UiDialogTrigger>
     <UiDialogContent>
@@ -36,7 +36,7 @@ const saveAddress = () => {
       <div class="grid gap-2">
         <div
           v-for="addr in addressArray"
-          class="flex gap-4 border-2 border-secondary rounded-md p-3 items-center duration-300"
+          class="flex gap-4 border-2 border-secondary rounded-md p-3 items-center duration-300 cursor-pointer"
           :class="addr.id === address?.id ? 'bg-secondary' : ''"
           @click="selectAddress(addr)"
         >
@@ -63,12 +63,15 @@ const saveAddress = () => {
             </p>
           </div>
         </div>
-        <div
-          class="border-2 border-secondary rounded-md p-2 items-center font-bold flex gap-2 justify-center text-muted-foreground hover:bg-secondary duration-300 cursor-pointer"
-        >
-          <Plus />
-          <span>Add Address</span>
-        </div>
+
+        <AccountAddressAddDialog>
+          <div
+            class="border-2 border-secondary rounded-md p-2 items-center font-bold flex gap-2 justify-center text-muted-foreground hover:bg-secondary duration-300 cursor-pointer"
+          >
+            <Plus />
+            <span>Add Address</span>
+          </div>
+        </AccountAddressAddDialog>
       </div>
       <UiDialogFooter>
         <UiDialogClose as-child>

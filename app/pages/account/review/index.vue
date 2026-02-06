@@ -42,7 +42,16 @@ if (isErrorUnreview.value) {
       <UiSkeleton v-for="i in 2" class="h-44 w-full mb-6" />
     </div>
 
-    <div class="space-y-2">
+    <p
+      class="text-center text-muted-foreground mt-2"
+      v-if="
+        review && unreview && review?.length === 0 && unreview?.length === 0
+      "
+    >
+      No checkout found.
+    </p>
+
+    <div v-else class="space-y-2">
       <AccountReviewCardItem
         v-for="item in review"
         :item="item"
@@ -73,14 +82,5 @@ if (isErrorUnreview.value) {
         :key="data.id"
       />
     </div>
-
-    <p
-      class="text-center text-muted-foreground"
-      v-if="
-        review && unreview && review?.length === 0 && unreview?.length === 0
-      "
-    >
-      No checkout found.
-    </p>
   </div>
 </template>

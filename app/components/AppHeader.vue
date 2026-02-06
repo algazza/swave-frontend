@@ -3,16 +3,14 @@ import { Menu, Moon, ShoppingCart, User } from "lucide-vue-next";
 import { useCartCount } from "~/composables/cart/useCartCount";
 import { navLink } from "~/lib/constanta";
 import { logoBlack } from "~/lib/image";
-import { useCartStore } from "~/store/CartStore";
 
 const { data, isLoading } = useCartCount();
-const cart = useCartStore();
 const token = useCookie("token");
 </script>
 
 <template>
   <header
-    class="fixed w-full p-5 top-0 left-0 bg-background z-50 md:px-10 lg:px-20 flex justify-center"
+    class="fixed w-full p-5 top-0 left-0 bg-background z-2 md:px-10 lg:px-20 flex justify-center"
   >
     <CartHeader />
     <div class="w-full max-w-300">

@@ -2,8 +2,6 @@
 import { Star, StarOff } from "lucide-vue-next";
 import Autoplay from "embla-carousel-autoplay";
 import { formatRupiah, isLocalImagePath } from "~/lib/utils";
-import { useCartStore } from "~/store/CartStore";
-import type { CheckoutProductType } from "~/types/checkout";
 import type { ProductVariantsType } from "~/types/product";
 import { useOneProducts } from "~/composables/product/useOneProduct";
 import { useRecProduct } from "~/composables/product/useRecProduct";
@@ -43,8 +41,6 @@ if (isProductError.value) {
 }
 const defaultVariant = computed(() => DataProduct.value?.variant?.[0]);
 
-const cartStore = useCartStore();
-
 const currentImg = ref(0);
 const emblaApi = ref<any>(null);
 
@@ -69,27 +65,6 @@ watch(
     }
   },
 );
-
-const checkout = computed<CheckoutProductType>(() => {
-  return {
-    id: Date.now() + Math.floor(Math.random() * 1000),
-    price: selectedVariant.price * quantity.value,
-    quantity: quantity.value,
-    variant: {
-      id: selectedVariant.id,
-      variant: selectedVariant.variant,
-      price: selectedVariant.price,
-      stock: selectedVariant.stock,
-    },
-    product: {
-      id: DataProduct.value?.id!,
-      name: DataProduct.value?.name!,
-      product_images: DataProduct.value?.product_images[0]?.image_path!,
-      category: DataProduct.value?.category!,
-      sold: DataProduct.value?.sold!,
-    },
-  };
-});
 
 const onInitApi = (api: any) => {
   emblaApi.value = api;
@@ -122,13 +97,11 @@ const resetCheckout = () => {
 };
 
 const handleCart = () => {
-  // cartStore.addToCart(checkout.value);
   mutate({
     product_id: DataProduct.value?.id!,
     variant_id: selectedVariant.id,
     quantity: quantity.value,
   });
-  // push.success(`${DataProduct.value?.2name} has added to your cart`);
   resetCheckout();
 };
 </script>

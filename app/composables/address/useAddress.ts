@@ -19,7 +19,30 @@ export const useAddress = () => {
       } catch (err) {
         const error = err as AxiosError<ErrorResponse>;
         throw new Error(
-          error.response?.data?.message || "Gagal mendapatkan address"
+          error.response?.data?.message || "Gagal mendapatkan address",
+        );
+      }
+    },
+  });
+};
+
+export const useAddressDistance = (addressId: number) => {
+  const { $api } = useNuxtApp();
+  return useQuery<number, Error>({
+    queryKey: ["address-distance", addressId],
+    queryFn: async () => {
+      try {
+        const token = useCookie("token");
+        const res = await $api.get(`account/address/distance/${addressId}`, {
+          headers: {
+            Authorization: `${token.value}`,
+          },
+        });
+        return res.data.data.distance as number;
+      } catch (err) {
+        const error = err as AxiosError<ErrorResponse>;
+        throw new Error(
+          error.response?.data?.message || "Gagal mendapatkan jarak address",
         );
       }
     },

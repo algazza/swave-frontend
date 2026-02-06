@@ -13,9 +13,6 @@ export const useCartStore = defineStore("counter", {
     checkoutProduct: [],
   }),
   getters: {
-    cartLength(): number {
-      return this.cart.length;
-    },
     getQuantity: (state) => {
       return (id: number): number => {
         const item = state.cart.find((product) => product.id === id);
@@ -24,26 +21,6 @@ export const useCartStore = defineStore("counter", {
     },
   },
   actions: {
-    addToCart(product: CheckoutProductType) {
-      const existingIndex = this.cart.findIndex(
-        (item) =>
-          item.product.id === product.product.id &&
-          item.variant.id === product.variant.id,
-      );
-
-      if (existingIndex === -1) {
-        this.cart.unshift(product);
-        return;
-      }
-
-      const existing = this.cart[existingIndex] as CheckoutProductType;
-
-      const maxStock = existing.variant.stock;
-      const newQuantity = existing.quantity + product.quantity;
-
-      this.cart[existingIndex]!.quantity =
-        newQuantity > maxStock ? maxStock : newQuantity;
-    },
     updateCart(id: number, updatedProduct: Partial<CheckoutProductType>) {
       this.cart = this.cart.map((item) =>
         item.id === id ? { ...item, ...updatedProduct } : item,
@@ -51,14 +28,6 @@ export const useCartStore = defineStore("counter", {
       this.selectedCart = this.selectedCart.map((item) =>
         item.id === id ? { ...item, ...updatedProduct } : item,
       );
-    },
-    removeCart(id: number) {
-      this.cart = this.cart.filter((c) => {
-        return c.id !== id;
-      });
-      this.selectedCart = this.selectedCart.filter((c) => {
-        return c.id !== id;
-      });
     },
     orderCart(product: CheckoutProductType) {
       const isSelected = this.selectedCart.some(

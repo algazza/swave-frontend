@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Trash2, X } from "lucide-vue-next";
+import { Trash2 } from "lucide-vue-next";
 import { useCart } from "~/composables/cart/useCart";
 import { useDeleteCart } from "~/composables/cart/useDeleteCart";
 import { useEditCart } from "~/composables/cart/useEditCart";
@@ -98,37 +98,57 @@ const totalPrice = computed(() => {
                   <p>Rp{{ formatRupiah(check.variant.price) }}</p>
                 </div>
 
-                <UiNumberField
-                  class="border border-foreground max-w-28"
-                  :model-value="check.quantity"
-                  :min="1"
-                  :max="check.variant.stock"
-                  @update:model-value="
-                    (val: number) => {
-                      const currentQty = cartStore.getQuantity(check.id);
-                      cartStore.updateCart(check.id, {
-                        quantity: val,
-                        price: val * check.variant.price,
-                      });
-                      if (val !== currentQty) {
-                        updateQuantity(check.id, val);
+                <div class="grid gap-1">
+                  <UiNumberField
+                    class="border border-foreground max-w-28"
+                    :model-value="check.quantity"
+                    :min="1"
+                    :max="check.variant.stock"
+                    :disabled="isPendingEdit"
+                    @update:model-value="
+                      (val: number) => {
+                        const currentQty = cartStore.getQuantity(check.id);
+                        cartStore.updateCart(check.id, {
+                          quantity: val,
+                          price: val * check.variant.price,
+                        });
+                        if (val !== currentQty) {
+                          updateQuantity(check.id, val);
+                        }
                       }
-                    }
-                  "
-                >
-                  <UiNumberFieldContent>
-                    <UiNumberFieldDecrement class="cursor-pointer" />
-                    <UiNumberFieldInput class="text-sm rounded-none" />
-                    <UiNumberFieldIncrement class="cursor-pointer" />
-                  </UiNumberFieldContent>
-                </UiNumberField>
+                    "
+                  >
+                    <UiNumberFieldContent>
+                      <UiNumberFieldDecrement class="cursor-pointer" />
+                      <UiNumberFieldInput class="text-sm rounded-none" />
+                      <UiNumberFieldIncrement class="cursor-pointer" />
+                    </UiNumberFieldContent>
+                  </UiNumberField>
+                  <p v-if="errorEdit" class="text-xs text-destructive">
+                    Failed to update quantity
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div class="flex justify-center items-center">
-              <button @click="mutate(check.id)" class="h-fit">
-                <Trash2 class="text-destructive cursor-pointer" />
+            <div class="flex justify-center items-center gap-2">
+              <button
+                @click="mutate(check.id)"
+                :disabled="isPendingDelete"
+                class="h-fit disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Trash2
+                  :class="[
+                    isPendingDelete
+                      ? 'text-muted-foreground'
+                      : 'text-destructive',
+                    'cursor-pointer',
+                  ]"
+                />
               </button>
+              <p v-if="errorDelete" class="text-xs text-destructive">
+                Failed to delete
+              </p>
             </div>
           </label>
         </template>
@@ -150,7 +170,7 @@ const totalPrice = computed(() => {
           <UiButton :disabled="cartStore.selectedCart.length === 0" class="p-0">
             <NuxtLink
               class="w-full h-full py-2"
-              to="/checkout/88"
+              to="/checkout"
               @click="
                 cartStore.checkoutCart(cartStore.selectedCart);
                 cartStore.clearOrder();
