@@ -6,7 +6,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       API_URL: process.env.API_URL,
-    }
+      MIDTRANS_CLIENT_KEY: process.env.MIDTRANS_CLIENT_KEY,
+    },
   },
   modules: [
     "@nuxt/eslint",
@@ -34,8 +35,8 @@ export default defineNuxtConfig({
     },
   },
   notivue: {
-    enqueue: false, 
-    limit: 1, 
+    enqueue: false,
+    limit: 1,
   },
   components: true,
 });

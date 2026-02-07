@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/vue-query";
 import type { AxiosError } from "axios";
+import type { Ref, ComputedRef } from "vue";
 import type { AddressType } from "~/types/address";
 import type { ErrorResponse } from "~/types/error";
 
@@ -26,18 +27,23 @@ export const useAddress = () => {
   });
 };
 
-export const useAddressDistance = (addressId: number) => {
+export const useAddressDistance = (
+  addressId: Ref<number> | ComputedRef<number>,
+) => {
   const { $api } = useNuxtApp();
   return useQuery<number, Error>({
     queryKey: ["address-distance", addressId],
     queryFn: async () => {
       try {
         const token = useCookie("token");
-        const res = await $api.get(`account/address/distance/${addressId}`, {
-          headers: {
-            Authorization: `${token.value}`,
+        const res = await $api.get(
+          `account/address/distance/${unref(addressId)}`,
+          {
+            headers: {
+              Authorization: `${token.value}`,
+            },
           },
-        });
+        );
         return res.data.data.distance as number;
       } catch (err) {
         const error = err as AxiosError<ErrorResponse>;
@@ -46,5 +52,6 @@ export const useAddressDistance = (addressId: number) => {
         );
       }
     },
+    enabled: computed(() => !!unref(addressId)),
   });
 };

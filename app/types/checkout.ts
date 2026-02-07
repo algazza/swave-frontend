@@ -15,7 +15,7 @@ export const DeliverySchema = z.object({
 
 export const CheckoutProductIdSchema = z.object({
   quantity: z.number(),
-  product_variant_id: z.number(),
+  variant_id: z.number(),
   product_id: z.number(),
 });
 
@@ -32,7 +32,7 @@ export const CheckoutSchema = z
     description: z.string().optional(),
     gift_card: z.boolean(),
     gift_description: z.string().optional(),
-    deliveries: DeliverySchema,
+    delivery: DeliverySchema,
     product_checkout: z.array(CheckoutProductIdSchema),
   })
   .superRefine((val, ctx) => {
@@ -47,20 +47,20 @@ export const CheckoutSchema = z
       });
     }
 
-    if (val.deliveries.delivery_type === "pickup") {
-      if (!val.deliveries.pickup_date) {
+    if (val.delivery.delivery_type === "pickup") {
+      if (!val.delivery.pickup_date) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "This field is required",
-          path: ["deliveries", "pickup_date"],
+          path: ["delivery", "pickup_date"],
         });
       }
 
-      if (!val.deliveries.pickup_hour) {
+      if (!val.delivery.pickup_hour) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "This field is required",
-          path: ["deliveries", "pickup_hour"],
+          path: ["delivery", "pickup_hour"],
         });
       }
     }

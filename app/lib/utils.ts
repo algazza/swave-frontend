@@ -1,6 +1,8 @@
+import { getLocalTimeZone } from "@internationalized/date";
 import type { Updater } from "@tanstack/vue-table";
 import type { ClassValue } from "clsx";
 import { clsx } from "clsx";
+import type { DateValue } from "reka-ui";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -32,4 +34,16 @@ export const formatDate = (dateString: string) => {
 
 export const isLocalImagePath = (value: string) => {
   return value.startsWith("images/");
+};
+
+export const formatToDDMMYYYY = (dateValue: DateValue | undefined) => {
+  if (!dateValue) return "";
+
+  const jsDate = dateValue.toDate(getLocalTimeZone());
+
+  const day = String(jsDate.getDate()).padStart(2, "0");
+  const month = String(jsDate.getMonth() + 1).padStart(2, "0");
+  const year = jsDate.getFullYear();
+
+  return `${year}-${month}-${day}`;
 };

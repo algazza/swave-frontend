@@ -111,7 +111,7 @@ const filteredData = computed(() => {
       <UiSkeleton class="w-full h-49" />
     </div>
 
-    <div class="space-y-6 mt-6">
+    <div class="grid mt-6">
       <AccountTransactionHistoryCard
         v-for="item in filteredData"
         :key="item.id"
