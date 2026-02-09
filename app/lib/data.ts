@@ -11,7 +11,14 @@ import {
   PickStrawberry,
 } from "./image";
 import type { CheckoutProductType, CheckoutTableType } from "~/types/checkout";
-import { Banknote, PackageOpen, ReceiptText, Truck } from "lucide-vue-next";
+import {
+  Banknote,
+  Package,
+  PackageOpen,
+  ReceiptText,
+  Truck,
+  X,
+} from "lucide-vue-next";
 import type { AddressType } from "~/types/address";
 
 export const dummyProduct: ProductType[] = [
@@ -330,6 +337,75 @@ export const checkoutData: CheckoutTableType[] = [
   },
 ];
 
+// Status mapping configuration
+const statusStepMap = {
+  pending: { step: 1, title: "Order Placed", icon: ReceiptText },
+  processing: { step: 2, title: "Order Processed", icon: Package },
+  delivery: { step: 3, title: "Order Shipped", icon: Truck },
+  success: { step: 4, title: "Order Received", icon: PackageOpen },
+  cancel: { step: 5, title: "Order Cancelled", icon: X },
+};
+
+
+export function processOrderStatus(
+  statusResponse: Array<{
+    order_status: string;
+    description: string | null;
+    created_at: string;
+  }>,
+) {
+  // Check if cancel status exists
+  const hasCancellation = statusResponse.some(
+    (s) => s.order_status === "cancel",
+  );
+
+  if (hasCancellation) {
+    // If cancelled, return only steps up to and including cancel
+    const result = [];
+    for (const status of statusResponse) {
+      const statusKey = status.order_status as keyof typeof statusStepMap;
+      const stepConfig = statusStepMap[statusKey];
+
+      if (stepConfig) {
+        result.push({
+          step: statusKey === "cancel" ? 4 : stepConfig.step, // Treat cancel as step 4
+          title: stepConfig.title,
+          description: status.description || status.created_at,
+          icon: stepConfig.icon,
+        });
+      }
+
+      // Stop adding steps after cancel
+      if (status.order_status === "cancel") {
+        break;
+      }
+    }
+    return result;
+  } else {
+    // If no cancellation, always return 4 steps with ??? for incomplete ones
+    const processedStatuses = new Set(
+      statusResponse.map((s) => s.order_status),
+    );
+    const allSteps = ["pending", "processing", "delivery", "success"];
+
+    return allSteps.map((statusKey, index) => {
+      const stepConfig = statusStepMap[statusKey as keyof typeof statusStepMap];
+      const statusData = statusResponse.find(
+        (s) => s.order_status === statusKey,
+      );
+
+      return {
+        step: stepConfig.step,
+        title: stepConfig.title,
+        description: statusData
+          ? statusData.description || statusData.created_at
+          : "???",
+        icon: stepConfig.icon,
+      };
+    });
+  }
+}
+
 export const stepsArray = [
   {
     step: 1,
@@ -339,14 +415,18 @@ export const stepsArray = [
   },
   {
     step: 2,
-    title: "Order Shipped",
+    title: "Order Processed",
     description: "01 Jul 20:00",
-    icon: Truck,
+    icon: Package,
   },
   {
     step: 3,
+    title: "Order Shipped",
+    icon: Truck,
+  },
+  {
+    step: 4,
     title: "Order Received",
-    description: "???",
     icon: PackageOpen,
   },
 ];

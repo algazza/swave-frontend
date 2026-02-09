@@ -1,3 +1,4 @@
+w
 <script setup lang="ts">
 import { Moon, User } from "lucide-vue-next";
 import { logoBlack } from "~/lib/image";
@@ -15,7 +16,9 @@ import { logoBlack } from "~/lib/image";
           </NuxtLink>
           <div class="flex gap-4 items-center justify-end">
             <Moon />
-            <User />
+            <NuxtLink class="cursor-pointer" to="/account">
+              <User />
+            </NuxtLink>
           </div>
         </div>
       </div>

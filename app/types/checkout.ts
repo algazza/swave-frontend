@@ -1,5 +1,6 @@
 import z from "zod";
 import { ProductSchema, ProductVariantSchema } from "./product";
+import { AddressSchema } from "./address";
 
 export const DeliverySchema = z.object({
   delivery_type: z.enum(["pickup", "delivery"], "This field is required"),
@@ -92,7 +93,52 @@ export const CheckoutHistoryArray = z.object({
   products: z.array(ProductHistoryCheckoutSchema),
 });
 
+export const DeliveryDetailSchema = z.object({
+  delivery_type: z.enum(["pickup", "delivery"]),
+  pickup_date: z.string().nullable(),
+  pickup_hour: z.string().nullable(),
+  delivery_price: z.number(),
+  address: AddressSchema,
+});
+
+export const StatusHistorySchema = z.object({
+  order_status: z.enum([
+    "pending",
+    "processing",
+    "delivery",
+    "cancel",
+    "success",
+  ]),
+  description: z.string().nullable(),
+  created_at: z.string(),
+});
+
+export const ProductCheckoutDetailSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  image_path: z.string(),
+  category: z.string(),
+  variant: z.string(),
+  variant_price: z.number(),
+  quantity: z.number(),
+  total_price: z.number(),
+});
+
+export const CheckoutHistoryDetailSchema = z.object({
+  order_id: z.string(),
+  total_price: z.number(),
+  estimation: z.string().nullable(),
+  description: z.string().nullable(),
+  gift_card: z.boolean(),
+  gift_description: z.string().nullable(),
+  created_at: z.string(),
+  delivery: DeliveryDetailSchema,
+  status: z.array(StatusHistorySchema),
+  product_checkout: z.array(ProductCheckoutDetailSchema),
+});
+
 export type CheckoutProductType = z.infer<typeof ProductCheckoutSchema>;
 export type CheckoutType = z.infer<typeof CheckoutSchema>;
 export type CheckoutTableType = z.infer<typeof CheckoutTableSchema>;
 export type CheckoutHistoryType = z.infer<typeof CheckoutHistoryArray>;
+export type CheckoutHistoryDetailType = z.infer<typeof CheckoutHistoryDetailSchema>;

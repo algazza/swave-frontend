@@ -9,7 +9,7 @@ import type { DateValue } from "@internationalized/date";
 import { Field, Form, ErrorMessage } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 
-import { ChevronLeft, Clock, Home, MapPin } from "lucide-vue-next";
+import { Building2, ChevronLeft, Clock, Home, Hotel, MapPin, School } from "lucide-vue-next";
 import { CalendarIcon } from "lucide-vue-next";
 
 import { cn, formatToDDMMYYYY, sumValue } from "~/lib/utils";
@@ -126,6 +126,15 @@ const onInput = (e: Event, field: any) => {
   field.onChange(formatted);
 };
 
+const icon =
+  address.value?.label === "Home"
+    ? Home
+    : address.value?.label === "Office"
+    ? Building2
+    : address.value?.label === "Apartment"
+    ? Hotel
+    : School;
+
 const goBack = () => {
   cartStore.clearCheckout();
   router.back();
@@ -181,7 +190,7 @@ const onSubmit = async (values: any) => {
               <div
                 class="p-1 bg-secondary rounded-md flex items-center justify-center gap-2"
               >
-                <Home />
+              <component :is="icon" />
                 <span class="font-semibold">
                   {{ address?.label }}
                 </span>
@@ -205,9 +214,11 @@ const onSubmit = async (values: any) => {
             <p class="text-muted-foreground">
               No Address available. Please add an address
             </p>
-            <UiButton class="bg-foreground text-background"
-              >+ Add Address</UiButton
-            >
+            <AccountAddressAddDialog>
+              <UiButton class="bg-foreground text-background"
+                >+ Add Address</UiButton
+              >
+            </AccountAddressAddDialog>
           </template>
         </section>
 
