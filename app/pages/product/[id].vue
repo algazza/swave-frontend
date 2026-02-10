@@ -12,21 +12,21 @@ const route = useRoute();
 const router = useRouter();
 const token = useCookie("token");
 
-const paramId = computed(() => route.params.id as string);
+const paramSlug = computed(() => route.params.slug as string);
 
 const {
   data: DataProduct,
   isPending: isProductPending,
   isError: isProductError,
   error: productError,
-} = useOneProducts(paramId.value);
+} = useOneProducts(paramSlug);
 
 const {
   data: RecProducts,
   isPending: isRecPending,
   isError: isRecError,
   error: recError,
-} = useRecProduct(paramId.value);
+} = useRecProduct(paramSlug);
 
 const {
   mutate,

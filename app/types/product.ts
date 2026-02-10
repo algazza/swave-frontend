@@ -15,6 +15,7 @@ export const ProductReview = z.object({
 
 export const ProductSchema = z.object({
   id: z.number(),
+  slug: z.string(),
   name: z.string(),
   price: z.number(),
   product_images: z.string(),
@@ -30,6 +31,7 @@ export const ProductImageSchema = z.object({
 
 export const ProductDetailSchema = z.object({
   id: z.number(),
+  slug: z.string(),
   name: z.string(),
   description: z.string(),
   sold: z.number(),

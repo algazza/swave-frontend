@@ -3,13 +3,13 @@ import type { AxiosError } from "axios";
 import type { ErrorResponse } from "~/types/error";
 import type { ProductType } from "~/types/product";
 
-export const useRecProduct = (id: string) => {
+export const useRecProduct = (slug: Ref<string>) => {
   const { $api } = useNuxtApp();
   return useQuery<ProductType[], Error>({
-    queryKey: ["rec-products"],
+    queryKey: ["rec-products", slug],
     queryFn: async () => {
       try {
-        const res = await $api.get(`product/recommended/${id}`);
+        const res = await $api.get(`product/recommended/${slug.value}`);
         return res.data.data as ProductType[];
       } catch (err) {
         const error = err as AxiosError<ErrorResponse>;
