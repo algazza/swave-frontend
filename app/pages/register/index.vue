@@ -48,7 +48,8 @@ const onSubmit = (values: any) => {
                 v-bind="field"
                 name="name"
                 placeholder="Name"
-                class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none placeholder:"
+                class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none"
+                :disabled="isPending"
               />
               <ErrorMessage class="text-destructive" name="name" />
             </div>
@@ -60,7 +61,8 @@ const onSubmit = (values: any) => {
                 v-bind="field"
                 name="username"
                 placeholder="Username"
-                class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none placeholder:"
+                class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none"
+                :disabled="isPending"
               />
               <ErrorMessage class="text-destructive" name="username" />
             </div>
@@ -72,7 +74,8 @@ const onSubmit = (values: any) => {
                 v-bind="field"
                 name="phone"
                 placeholder="Phone"
-                class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none placeholder:"
+                class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none"
+                :disabled="isPending"
               />
               <ErrorMessage class="text-destructive" name="phone" />
             </div>
@@ -86,7 +89,8 @@ const onSubmit = (values: any) => {
                   name="password"
                   placeholder="Password"
                   :type="showPassword ? 'text' : 'password'"
-                  class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none placeholder: pr-10"
+                  class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none pr-10"
+                  :disabled="isPending"
                 />
                 <button
                   type="button"
@@ -112,12 +116,15 @@ const onSubmit = (values: any) => {
                   name="confirm_password"
                   placeholder="Confirm Password"
                   :type="showConfirmPassword ? 'text' : 'password'"
-                  class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none placeholder:"
+                  class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none"
+                  :disabled="isPending"
                 />
                 <button
                   type="button"
                   class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
-                  :aria-label="showConfirmPassword ? 'Hide password' : 'Show password'"
+                  :aria-label="
+                    showConfirmPassword ? 'Hide password' : 'Show password'
+                  "
                   @click="showConfirmPassword = !showConfirmPassword"
                 >
                   <component

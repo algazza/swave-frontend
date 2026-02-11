@@ -269,7 +269,7 @@ const onSubmit = async (values: any) => {
 
           <div>
             <Field name="delivery.delivery_type" v-slot="{ field }">
-              <UiSelect v-model="deliveryType" v-bind="field">
+              <UiSelect v-model="deliveryType" v-bind="field" :disabled="isPendingCheckout">
                 <UiSelectTrigger
                   class="border-2 border-foreground text-foreground w-full"
                 >
@@ -320,6 +320,7 @@ const onSubmit = async (values: any) => {
                     <UiButton
                       id="gift_card"
                       variant="outline"
+                      :disabled="isPendingCheckout"
                       :class="
                         cn(
                           'w-full justify-start text-left font-normal flex-1 border-2 border-foreground',
@@ -368,6 +369,7 @@ const onSubmit = async (values: any) => {
                       @input="(e: Event) => onInput(e, field)"
                       placeholder="hh:mm"
                       maxlength="5"
+                      :disabled="isPendingCheckout"
                     />
                   </UiInputGroup>
                 </div>
@@ -387,6 +389,7 @@ const onSubmit = async (values: any) => {
               v-bind="field"
               placeholder="I smell like teen spirit..."
               class="border-2 border-secondary resize-none"
+              :disabled="isPendingCheckout"
             />
           </Field>
 
@@ -396,6 +399,7 @@ const onSubmit = async (values: any) => {
                 id="gift_card"
                 class="border-2 border-foreground"
                 v-model="checkbox"
+                :disabled="isPendingCheckout"
                 @update:model-value="
                   (v: boolean | 'indeterminate') => {
                     field.onChange(v);
@@ -413,6 +417,7 @@ const onSubmit = async (values: any) => {
                 v-bind="field"
                 placeholder="Dear God.."
                 class="border-2 border-secondary resize-none"
+                :disabled="isPendingCheckout"
               />
             </Field>
             <ErrorMessage

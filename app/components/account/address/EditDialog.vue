@@ -62,6 +62,7 @@ const onSubmit = (values: any) => {
                 placeholder="Recipient"
                 class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none"
                 :default-value="initialValues.recipient"
+                :disabled="isPending"
               />
               <ErrorMessage class="text-destructive" name="recipient" />
             </div>
@@ -74,6 +75,7 @@ const onSubmit = (values: any) => {
                 name="label"
                 placeholder="Select Label"
                 :default-value="initialValues.label"
+                :disabled="isPending"
               >
                 <UiSelectTrigger
                   class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none w-full"
@@ -135,6 +137,7 @@ const onSubmit = (values: any) => {
                 type="number"
                 class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none"
                 :default-value="initialValues.zip_code"
+                :disabled="isPending"
               />
               <ErrorMessage class="text-destructive" name="zip_code" />
             </div>
@@ -148,8 +151,9 @@ const onSubmit = (values: any) => {
                 placeholder="Full Address"
                 class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none resize-none break-all"
                 :default-value="initialValues.address"
-                />
-                <ErrorMessage class="text-destructive" name="address" />
+                :disabled="isPending"
+              />
+              <ErrorMessage class="text-destructive" name="address" />
             </div>
           </Field>
 
@@ -161,6 +165,7 @@ const onSubmit = (values: any) => {
                 placeholder="Description (optional)"
                 class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none resize-none break-all"
                 :default-value="initialValues.description"
+                :disabled="isPending"
               />
               <ErrorMessage class="text-destructive" name="description" />
             </div>
@@ -178,6 +183,7 @@ const onSubmit = (values: any) => {
                 class="border border-foreground"
                 label="Set as Main Address"
                 name="main_address"
+                :disabled="isPending"
               />
               <UiLabel>Main Address</UiLabel>
             </div>

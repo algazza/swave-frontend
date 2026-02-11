@@ -1,4 +1,3 @@
-w
 <script setup lang="ts">
 import { Moon, User } from "lucide-vue-next";
 import { logoBlack } from "~/lib/image";

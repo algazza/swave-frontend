@@ -49,7 +49,8 @@ const onSubmit = (values: any) => {
                 v-bind="field"
                 name="username"
                 placeholder="Username"
-                class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none placeholder:"
+                class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none"
+                :disabled="isPending"
               />
               <ErrorMessage class="text-destructive" name="username" />
             </div>
@@ -63,7 +64,8 @@ const onSubmit = (values: any) => {
                   name="password"
                   placeholder="Password"
                   :type="showPassword ? 'text' : 'password'"
-                  class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none placeholder: pr-10"
+                  class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none pr-10"
+                  :disabled="isPending"
                 />
                 <button
                   type="button"

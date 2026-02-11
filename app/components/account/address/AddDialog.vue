@@ -51,6 +51,7 @@ const onSubmit = (values: any) => {
                 name="recipient"
                 placeholder="Recipient"
                 class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none"
+                :disabled="isPending"
               />
               <ErrorMessage class="text-destructive" name="recipient" />
             </div>
@@ -58,7 +59,7 @@ const onSubmit = (values: any) => {
 
           <div>
             <Field name="label" v-slot="{ field }">
-              <UiSelect v-bind="field" name="label" placeholder="Select Label">
+              <UiSelect v-bind="field" name="label" placeholder="Select Label" :disabled="isPending">
                 <UiSelectTrigger
                   class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none w-full"
                 >
@@ -118,6 +119,7 @@ const onSubmit = (values: any) => {
                 placeholder="Zip Code"
                 type="number"
                 class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none"
+                :disabled="isPending"
               />
               <ErrorMessage class="text-destructive" name="zip_code" />
             </div>
@@ -130,6 +132,7 @@ const onSubmit = (values: any) => {
                 name="address"
                 placeholder="Full Address"
                 class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none resize-none break-all"
+                :disabled="isPending"
               />
               <ErrorMessage class="text-destructive" name="address" />
             </div>
@@ -142,6 +145,7 @@ const onSubmit = (values: any) => {
                 name="description"
                 placeholder="Description (optional)"
                 class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none resize-none break-all"
+                :disabled="isPending"
               />
               <ErrorMessage class="text-destructive" name="description" />
             </div>
@@ -156,6 +160,7 @@ const onSubmit = (values: any) => {
                 class="border border-foreground"
                 label="Set as Main Address"
                 name="main_address"
+                :disabled="isPending"
               />
               <UiLabel>Main Address</UiLabel>
             </div>

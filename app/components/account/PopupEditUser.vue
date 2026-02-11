@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const validationSchema = toTypedSchema(EditUserSchema);
 const { mutate, isPending, error } = useEditUser();
-const isOpen = ref(false)
+const isOpen = ref(false);
 
 const initialValues = computed(() => ({
   name: props.user?.name ?? "",
@@ -53,6 +53,7 @@ const onSubmit = (values: any) => {
                 name="name"
                 placeholder="Name"
                 :default-value="initialValues.name"
+                :disabled="isPending"
               />
               <ErrorMessage class="text-destructive" name="name" />
             </div>
@@ -66,6 +67,7 @@ const onSubmit = (values: any) => {
                 name="username"
                 placeholder="Username"
                 :default-value="initialValues.username"
+                :disabled="isPending"
               />
               <ErrorMessage class="text-destructive" name="username" />
             </div>
@@ -79,6 +81,7 @@ const onSubmit = (values: any) => {
                 name="phone"
                 placeholder="Phone"
                 :default-value="initialValues.phone"
+                :disabled="isPending"
               />
               <ErrorMessage class="text-destructive" name="phone" />
             </div>
