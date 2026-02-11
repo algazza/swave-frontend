@@ -10,7 +10,16 @@ import {
   PickJagoan,
   PickStrawberry,
 } from "./image";
-import type { CheckoutProductType } from "~/types/checkout";
+import type { CheckoutProductType, CheckoutTableType } from "~/types/checkout";
+import {
+  Banknote,
+  Package,
+  PackageOpen,
+  ReceiptText,
+  Truck,
+  X,
+} from "lucide-vue-next";
+import type { AddressType } from "~/types/address";
 
 export const dummyProduct: ProductType[] = [
   {
@@ -150,4 +159,317 @@ export const addressSingle = {
   zip_code: 50249,
   address: "Jl. Pandanaran 2 No.12",
   main_address: true,
+};
+
+export const addressArray: AddressType[] = [
+  {
+    id: 2,
+    recipient: "Sultan ken",
+    label: "Home",
+    city: "Kota Semarang",
+    subdistrict: "Semarang Selatan",
+    zip_code: 50249,
+    address: "Jl. Pandanaran 2 No.12",
+    main_address: true,
+  },
+  {
+    id: 3,
+    recipient: "Sultan ken",
+    label: "Office",
+    city: "Kota Semarang",
+    subdistrict: "Semarang Selatan",
+    zip_code: 50249,
+    address: "Jl. Pandanaran 2 No.12",
+    main_address: false,
+  },
+  {
+    id: 4,
+    recipient: "Sultan ken",
+    label: "Home",
+    city: "Kota Semarang",
+    subdistrict: "Semarang Selatan",
+    zip_code: 50249,
+    address: "Jl. Pandanaran 2 No.12",
+    main_address: false,
+  },
+];
+
+export const checkoutData: CheckoutTableType[] = [
+  {
+    order_id: 1001,
+    name: "Ghaza Fadhil",
+    status: "pending",
+    type: "delivery",
+    amount: 150000,
+  },
+  {
+    order_id: 1002,
+    name: "Wahid Kurnia",
+    status: "delivery",
+    type: "delivery",
+    amount: 275000,
+  },
+  {
+    order_id: 1003,
+    name: "Nathan Pradana",
+    status: "cancel",
+    type: "pickup",
+    amount: 98000,
+  },
+  {
+    order_id: 1004,
+    name: "Maheswara Putra",
+    status: "success",
+    type: "pickup",
+    amount: 320000,
+  },
+  {
+    order_id: 1005,
+    name: "Aisyah Ramadhani",
+    status: "pending",
+    type: "delivery",
+    amount: 187500,
+  },
+  {
+    order_id: 1006,
+    name: "Budi Santoso",
+    status: "success",
+    type: "delivery",
+    amount: 420000,
+  },
+  {
+    order_id: 1007,
+    name: "Ratna Sari",
+    status: "cancel",
+    type: "pickup",
+    amount: 67000,
+  },
+  {
+    order_id: 1008,
+    name: "Hendra Wijaya",
+    status: "delivery",
+    type: "delivery",
+    amount: 258000,
+  },
+  {
+    order_id: 1009,
+    name: "Indah Permata",
+    status: "pending",
+    type: "pickup",
+    amount: 134000,
+  },
+  {
+    order_id: 1010,
+    name: "Rama Saputra",
+    status: "success",
+    type: "delivery",
+    amount: 365000,
+  },
+  {
+    order_id: 1011,
+    name: "Ghaza Fadhil",
+    status: "pending",
+    type: "delivery",
+    amount: 150000,
+  },
+  {
+    order_id: 1012,
+    name: "Wahid Kurnia",
+    status: "delivery",
+    type: "delivery",
+    amount: 275000,
+  },
+  {
+    order_id: 1013,
+    name: "Nathan Pradana",
+    status: "cancel",
+    type: "pickup",
+    amount: 98000,
+  },
+  {
+    order_id: 1014,
+    name: "Maheswara Putra",
+    status: "success",
+    type: "pickup",
+    amount: 320000,
+  },
+  {
+    order_id: 1015,
+    name: "Aisyah Ramadhani",
+    status: "pending",
+    type: "delivery",
+    amount: 187500,
+  },
+  {
+    order_id: 1016,
+    name: "Budi Santoso",
+    status: "success",
+    type: "delivery",
+    amount: 420000,
+  },
+  {
+    order_id: 1017,
+    name: "Ratna Sari",
+    status: "cancel",
+    type: "pickup",
+    amount: 67000,
+  },
+  {
+    order_id: 1018,
+    name: "Hendra Wijaya",
+    status: "delivery",
+    type: "delivery",
+    amount: 258000,
+  },
+  {
+    order_id: 1019,
+    name: "Indah Permata",
+    status: "pending",
+    type: "pickup",
+    amount: 134000,
+  },
+  {
+    order_id: 1020,
+    name: "Rama Saputra",
+    status: "success",
+    type: "delivery",
+    amount: 365000,
+  },
+];
+
+// Status mapping configuration
+const statusStepMap = {
+  pending: { step: 1, title: "Order Placed", icon: ReceiptText },
+  processing: { step: 2, title: "Order Processed", icon: Package },
+  delivery: { step: 3, title: "Order Shipped", icon: Truck },
+  success: { step: 4, title: "Order Received", icon: PackageOpen },
+  cancel: { step: 5, title: "Order Cancelled", icon: X },
+};
+
+
+export function processOrderStatus(
+  statusResponse: Array<{
+    order_status: string;
+    description: string | null;
+    created_at: string;
+  }>,
+) {
+  // Check if cancel status exists
+  const hasCancellation = statusResponse.some(
+    (s) => s.order_status === "cancel",
+  );
+
+  if (hasCancellation) {
+    // If cancelled, return only steps up to and including cancel
+    const result = [];
+    for (const status of statusResponse) {
+      const statusKey = status.order_status as keyof typeof statusStepMap;
+      const stepConfig = statusStepMap[statusKey];
+
+      if (stepConfig) {
+        result.push({
+          step: statusKey === "cancel" ? 4 : stepConfig.step, // Treat cancel as step 4
+          title: stepConfig.title,
+          description: status.description || status.created_at,
+          icon: stepConfig.icon,
+        });
+      }
+
+      // Stop adding steps after cancel
+      if (status.order_status === "cancel") {
+        break;
+      }
+    }
+    return result;
+  } else {
+    // If no cancellation, always return 4 steps with ??? for incomplete ones
+    const processedStatuses = new Set(
+      statusResponse.map((s) => s.order_status),
+    );
+    const allSteps = ["pending", "processing", "delivery", "success"];
+
+    return allSteps.map((statusKey, index) => {
+      const stepConfig = statusStepMap[statusKey as keyof typeof statusStepMap];
+      const statusData = statusResponse.find(
+        (s) => s.order_status === statusKey,
+      );
+
+      return {
+        step: stepConfig.step,
+        title: stepConfig.title,
+        description: statusData
+          ? statusData.description || statusData.created_at
+          : "???",
+        icon: stepConfig.icon,
+      };
+    });
+  }
+}
+
+export const stepsArray = [
+  {
+    step: 1,
+    title: "Order Placed",
+    description: "01 Jul 20:00",
+    icon: ReceiptText,
+  },
+  {
+    step: 2,
+    title: "Order Processed",
+    description: "01 Jul 20:00",
+    icon: Package,
+  },
+  {
+    step: 3,
+    title: "Order Shipped",
+    icon: Truck,
+  },
+  {
+    step: 4,
+    title: "Order Received",
+    icon: PackageOpen,
+  },
+];
+
+export const checkoutDetail = {
+  order_id: 1202102,
+  total_price: 30000,
+  estimation: "02/01/2025",
+  description: "Minta tolong kalo ketemu dia tampar aja mas",
+  gift_card: true,
+  gift_description: "Hai maniez",
+  delivery: {
+    delivery_type: "pickup",
+    pickup_date: "09/12/2025",
+    pickup_hour: "12:08",
+    delivery_price: 10000,
+    address: {
+      recipient: "Sultan",
+      label: "rumah",
+      city: "Semarang",
+      subdistrict: "Semarang Barat",
+      zip_code: 50123,
+      address: "deket rats game",
+    },
+  },
+  status: [
+    {
+      status_type: "pending",
+      created_at: "02/01/2025",
+    },
+    {
+      status_type: "delivery",
+      created_at: "03/01/2025",
+    },
+    {
+      status_type: "pending",
+      created_at: "01/01/2025",
+    },
+  ],
+  user: {
+    id: 3,
+    username: "jonathan1212",
+    name: "jonathan iatsa",
+    phone: "+627893",
+  },
 };

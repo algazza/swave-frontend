@@ -12,7 +12,10 @@ import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
     <AdminSidebar />
     <SidebarInset>
       <main class="overflow-hidden">
-        <slot />
+        <div>
+          <AdminSiteHeader />
+          <slot />
+        </div>
       </main>
     </SidebarInset>
   </SidebarProvider>

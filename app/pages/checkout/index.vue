@@ -9,20 +9,37 @@ import type { DateValue } from "@internationalized/date";
 import { Field, Form, ErrorMessage } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 
-import { ChevronLeft, Clock, Home, MapPin } from "lucide-vue-next";
+import { Building2, ChevronLeft, Clock, Home, Hotel, MapPin, School } from "lucide-vue-next";
 import { CalendarIcon } from "lucide-vue-next";
 
-import { addressSingle } from "~/lib/data";
-import { cn } from "~/lib/utils";
+import { cn, formatToDDMMYYYY, sumValue } from "~/lib/utils";
 import { formatRupiah } from "~/lib/utils";
 import { useCartStore } from "~/store/CartStore";
 import { CheckoutSchema, type CheckoutType } from "~/types/checkout";
-import type { AddressType } from "~/types/user";
+import type { AddressType } from "~/types/address";
+import {
+  useAddress,
+  useAddressDistance,
+} from "~/composables/address/useAddress";
+import { useCheckout } from "~/composables/checkout/useCheckout";
+import { useMidtrans } from "~/composables/checkout/useMidtrans";
 
 const router = useRouter();
 const cartStore = useCartStore();
 const schema = toTypedSchema(CheckoutSchema);
+if (cartStore.checkoutProduct.length === 0) {
+  router.push("/product");
+}
+const { pay } = useMidtrans();
 
+const { data: addressArray, isLoading, isError, error } = useAddress();
+if (isError.value) {
+  throw error;
+}
+
+const mainAddress = (addressArray?.value || []).find(
+  (item) => item.main_address === true,
+);
 const df = new DateFormatter("id-ID", {
   dateStyle: "long",
 });
@@ -30,44 +47,58 @@ const zone = getLocalTimeZone();
 const minDate = now(zone)
   .add({ days: 4 })
   .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-const date = ref<DateValue>();
-const time = ref("");
 
+const date = ref<DateValue | undefined>();
+const time = ref("");
+const address = ref<AddressType | undefined>(
+  mainAddress || addressArray.value?.[0],
+);
 const deliveryType = ref("");
 const checkbox = ref(true);
 
-const address: AddressType = addressSingle;
-const deliveryCost = 20000;
+const handleChangeAddress = (newAddress: AddressType) => {
+  address.value = newAddress;
+};
+
+const addressId = computed(() => address.value?.id || 704090);
+const {
+  data: deliveryCost,
+  isLoading: isDistanceLoading,
+  isError: isDistanceError,
+  error: distanceError,
+} = useAddressDistance(addressId);
+
+if (isDistanceError.value) {
+  throw distanceError;
+}
 
 const initialData = {
-  deliveries: {
+  delivery: {
     delivery_type: "",
     pickup_date: "",
     pickup_hour: "",
-    address_id: address.id,
+    address_id: address.value?.id,
   },
   product_checkout: cartStore.checkoutProduct.map((item) => ({
     quantity: item.quantity,
     product_id: item.product.id,
-    product_variant_id: item.variant.id,
+    variant_id: item.variant.id,
   })),
   gift_card: true,
   gift_description: "",
 };
 
-const totalProduct = cartStore.checkoutProduct.reduce(
-  (sum, item) => sum + item.quantity,
-  0
+const totalProduct = sumValue(
+  cartStore.checkoutProduct,
+  (item) => item.quantity,
 );
-const totalQuantity = cartStore.checkoutProduct.reduce(
-  (sum, item) => sum + item.price,
-  0
-);
+const totalQuantity = sumValue(cartStore.checkoutProduct, (item) => item.price);
 
-const totalPrice = cartStore.checkoutProduct.reduce(
-  (total, item) => total + item.variant.price * (item.quantity || 0),
-  0
-);
+const {
+  mutateAsync,
+  isPending: isPendingCheckout,
+  error: errorCheckout,
+} = useCheckout();
 
 const onInput = (e: Event, field: any) => {
   let val = (e.target as HTMLInputElement).value.replace(/\D/g, "");
@@ -75,38 +106,50 @@ const onInput = (e: Event, field: any) => {
   if (val.length >= 3) val = val.slice(0, 2) + ":" + val.slice(2, 4);
   else if (val.length > 2) val = val.slice(0, 2) + ":" + val.slice(2);
 
-  const [h, m] = val.split(":").map(Number);
-  if ((h ?? 0) > 23)
-    val = "23:" + (m ? String(m).padStart(2, "0").slice(0, 2) : "");
-  if ((m ?? 0) > 59)
-    val = (String(h).padStart(2, "0").slice(0, 2) || "00") + ":59";
+  if (val.length < 5) {
+    time.value = val;
+    field.onChange(val);
+    return;
+  }
 
-  const formatted = val.slice(0, 5);
+  let [h, m] = val.split(":").map(Number);
+
+  if ((h ?? 0) < 8) h = 8;
+  if ((h ?? 0) > 20) h = 20;
+
+  if ((m ?? 0) > 59) m = 59;
+
+  const formatted =
+    String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
 
   time.value = formatted;
-
   field.onChange(formatted);
 };
 
-const formatToDDMMYYYY = (dateValue: DateValue | undefined) => {
-  if (!dateValue) return "";
-
-  const jsDate = dateValue.toDate(getLocalTimeZone());
-
-  const day = String(jsDate.getDate()).padStart(2, "0");
-  const month = String(jsDate.getMonth() + 1).padStart(2, "0");
-  const year = jsDate.getFullYear();
-
-  return `${year}-${month}-${day}`;
-};
+const icon =
+  address.value?.label === "Home"
+    ? Home
+    : address.value?.label === "Office"
+    ? Building2
+    : address.value?.label === "Apartment"
+    ? Hotel
+    : School;
 
 const goBack = () => {
   cartStore.clearCheckout();
   router.back();
 };
 
-const onSubmit = (values: any) => {
-  console.log(JSON.stringify(values, null, 2));
+const onSubmit = async (values: any) => {
+  try {
+    console.log(JSON.stringify(values, null, 2));
+    const res = await mutateAsync(values);
+
+    await pay(res.snap_token);
+    router.push(`/account/transaction/${res.order_id}`);
+  } catch (err) {
+    console.log(err);
+  }
 };
 </script>
 
@@ -129,39 +172,54 @@ const onSubmit = (values: any) => {
         <section class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
           <div class="flex justify-between items-center">
             <span class="text-2xl font-semibold">Address</span>
-            <span v-if="address" class="font-bold underline">Change</span>
+            <PopupAddress
+              :mainAddress="mainAddress"
+              :addressArray="addressArray"
+              @change="handleChangeAddress"
+            >
+              <span v-if="!isLoading && address" class="font-bold underline"
+                >Change</span
+              >
+            </PopupAddress>
           </div>
-          <div v-if="address" class="grid gap-1">
+          <template v-if="isLoading">
+            <UiSkeleton class="w-full h-30" />
+          </template>
+          <div v-else-if="addressArray" class="grid gap-1">
             <div class="flex justify-start items-center gap-2">
               <div
                 class="p-1 bg-secondary rounded-md flex items-center justify-center gap-2"
               >
-                <Home />
+              <component :is="icon" />
                 <span class="font-semibold">
-                  {{ address.label }}
+                  {{ address?.label }}
                 </span>
               </div>
               <div
-                v-if="address.main_address === true"
+                v-if="address?.main_address === true"
                 class="p-1 border border-foreground rounded-md flex items-center justify-center gap-2"
               >
                 <MapPin />
                 <span class="font-semibold">Main Address</span>
               </div>
             </div>
-            <p class="text-lg font-semibold">{{ address.recipient }}</p>
+            <p class="text-lg font-semibold">{{ address?.recipient }}</p>
             <p>
-              {{ address.address }}, {{ address.subdistrict }},
-              {{ address.city }}, {{ address.zip_code }}
+              {{ address?.address }}, {{ address?.subdistrict }},
+              {{ address?.city }}, {{ address?.zip_code }}
             </p>
           </div>
 
-          <p v-else class="text-muted-foreground">
-            No Address available. Please add an address
-          </p>
-          <UiButton v-if="!address" class="bg-foreground text-background"
-            >+ Add Address</UiButton
-          >
+          <template v-else>
+            <p class="text-muted-foreground">
+              No Address available. Please add an address
+            </p>
+            <AccountAddressAddDialog>
+              <UiButton class="bg-foreground text-background"
+                >+ Add Address</UiButton
+              >
+            </AccountAddressAddDialog>
+          </template>
         </section>
 
         <section class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
@@ -171,7 +229,7 @@ const onSubmit = (values: any) => {
             <div class="flex gap-5">
               <div class="size-20 aspect-square overflow-hidden">
                 <NuxtImg
-                  :src="check.product.product_image"
+                  :src="check.product.product_images"
                   :alt="check.product.name"
                   class="w-full h-full object-cover object-center outline-hidden"
                 />
@@ -180,9 +238,9 @@ const onSubmit = (values: any) => {
               <div class="w-full flex justify-between items-end">
                 <div class="grid">
                   <div class="p-1 bg-secondary w-fit">
-                    {{ check.product.categories
+                    {{ check.product.category
                     }}{{
-                      check.variant.variant !== check.product.categories
+                      check.variant.variant !== check.product.category
                         ? `, ${check.variant.variant}`
                         : ""
                     }}
@@ -210,7 +268,7 @@ const onSubmit = (values: any) => {
           <p class="text-2xl font-semibold">Delivery</p>
 
           <div>
-            <Field name="deliveries.delivery_type" v-slot="{ field }">
+            <Field name="delivery.delivery_type" v-slot="{ field }">
               <UiSelect v-model="deliveryType" v-bind="field">
                 <UiSelectTrigger
                   class="border-2 border-foreground text-foreground w-full"
@@ -226,7 +284,9 @@ const onSubmit = (values: any) => {
                       <span>Pick Up at SMK 8 Semarang </span>
                       <span class="text-muted-foreground">(Rp 0)</span>
                     </UiSelectItem>
+                    <UiSkeleton v-if="isDistanceLoading" class="w-full h-8" />
                     <UiSelectItem
+                      v-else-if="deliveryCost"
                       value="delivery"
                       class="flex gap-2 font-semibold"
                     >
@@ -241,7 +301,7 @@ const onSubmit = (values: any) => {
             </Field>
             <ErrorMessage
               class="text-destructive text-sm"
-              name="deliveries.delivery_type"
+              name="delivery.delivery_type"
             />
           </div>
 
@@ -249,21 +309,21 @@ const onSubmit = (values: any) => {
             Pick Date and Time
           </p>
           <div
-                id="gift_card"
+            id="gift_card"
             v-if="deliveryType === 'pickup'"
             class="flex gap-3 w-full items-start"
           >
             <div class="w-full">
-              <Field name="deliveries.pickup_date" v-slot="{ field }">
+              <Field name="delivery.pickup_date" v-slot="{ field }">
                 <UiPopover>
                   <UiPopoverTrigger as-child>
                     <UiButton
-                id="gift_card"
+                      id="gift_card"
                       variant="outline"
                       :class="
                         cn(
                           'w-full justify-start text-left font-normal flex-1 border-2 border-foreground',
-                          !date && 'text-muted-foreground'
+                          !date && 'text-muted-foreground',
                         )
                       "
                     >
@@ -280,22 +340,24 @@ const onSubmit = (values: any) => {
                     <UiCalendar
                       :min-value="minDate"
                       v-model="date"
-                      @update:modelValue="(v: DateValue | undefined) => {
+                      @update:modelValue="
+                        (v: DateValue | undefined) => {
                           field.onChange(formatToDDMMYYYY(v));
-                      }"
+                        }
+                      "
                     />
                   </UiPopoverContent>
                 </UiPopover>
 
                 <ErrorMessage
                   class="text-destructive text-sm"
-                  name="deliveries.pickup_date"
+                  name="delivery.pickup_date"
                 />
               </Field>
             </div>
 
             <div class="w-full">
-              <Field name="deliveries.pickup_hour" v-slot="{ field }">
+              <Field name="delivery.pickup_hour" v-slot="{ field }">
                 <div class="flex gap-2 items-center flex-1">
                   <UiInputGroup class="border-2 border-foreground px-2">
                     <UIInputGroupAddon>
@@ -311,7 +373,7 @@ const onSubmit = (values: any) => {
                 </div>
                 <ErrorMessage
                   class="text-destructive text-sm"
-                  name="deliveries.pickup_hour"
+                  name="delivery.pickup_hour"
                 />
               </Field>
             </div>
@@ -334,9 +396,11 @@ const onSubmit = (values: any) => {
                 id="gift_card"
                 class="border-2 border-foreground"
                 v-model="checkbox"
-                @update:model-value="(v: boolean | 'indeterminate') => {
-                  field.onChange(v)
-                }"
+                @update:model-value="
+                  (v: boolean | 'indeterminate') => {
+                    field.onChange(v);
+                  }
+                "
               />
             </Field>
             <UiLabel for="gift-card" class="text-sm">Gift Card</UiLabel>
@@ -365,18 +429,36 @@ const onSubmit = (values: any) => {
               <p>Total Price ({{ totalProduct }} product)</p>
               <p class="font-bold">Rp{{ formatRupiah(totalQuantity) }}</p>
             </div>
-            <div class="flex justify-between">
+            <div
+              v-if="deliveryType === 'delivery'"
+              class="flex justify-between"
+            >
               <p>Total Delivery Cost</p>
-              <p class="font-bold">Rp{{ formatRupiah(deliveryCost) }}</p>
-            </div>
-            <div class="content-[''] h-px w-full bg-foreground" />
-            <div class="flex justify-between text-xl">
-              <p>Total Payment</p>
-              <p class="font-bold">
-                Rp{{ formatRupiah(totalPrice + deliveryCost) }}
+              <UiSkeleton v-if="isDistanceLoading" class="w-30 h-6" />
+              <p v-else-if="deliveryCost" class="font-bold">
+                Rp{{ formatRupiah(deliveryCost) }}
               </p>
             </div>
-            <UiButton class="w-full">Chose Payment</UiButton>
+            <div class="content-[''] h-px w-full bg-foreground" />
+            <div class="flex justify-between text-lg md:text-xl">
+              <p>Total Payment</p>
+              <UiSkeleton v-if="isDistanceLoading" class="w-36 h-8" />
+              <p
+                v-else-if="deliveryCost && deliveryType === 'delivery'"
+                class="font-bold"
+              >
+                Rp{{ formatRupiah(totalQuantity + deliveryCost) }}
+              </p>
+              <p v-else class="font-bold">
+                Rp{{ formatRupiah(totalQuantity) }}
+              </p>
+            </div>
+            <UiButton :loading="isPendingCheckout" class="w-full"
+              >Chose Payment</UiButton
+            >
+            <p v-if="errorCheckout" class="text-red-500 text-sm mt-2">
+              {{ errorCheckout.message || "Add address gagal" }}
+            </p>
           </div>
         </section>
       </div>

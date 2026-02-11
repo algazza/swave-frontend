@@ -11,7 +11,7 @@ import { adminNavLink } from "~/lib/constanta";
           <UiSidebarMenu>
             <UiSidebarMenuItem v-for="item in adminNavLink" :key="item.title">
               <UiSidebarMenuButton as-child>
-                <NuxtLink :href="item.url">
+                <NuxtLink :to="item.url">
                   <component :is="item.icon" />
                   <span>{{ item.title }}</span>
                 </NuxtLink>

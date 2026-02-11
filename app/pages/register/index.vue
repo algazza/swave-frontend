@@ -1,14 +1,27 @@
 <script setup lang="ts">
 import { toTypedSchema } from "@vee-validate/zod";
+import { Eye, EyeOff } from "lucide-vue-next";
 import { ErrorMessage, Field, Form } from "vee-validate";
+import { useRegister } from "~/composables/auth/useRegister";
 import { logoBlack } from "~/lib/image";
-import { RegisterSchema } from "~/types/user";
+import { RegisterSchema, type UserType } from "~/types/user";
 
+const router = useRouter();
 const validationSchema = toTypedSchema(RegisterSchema);
+const { mutate, isPending, error } = useRegister();
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
 
 const onSubmit = (values: any) => {
-  const {confirm_password, ...payload} = values
-  console.log(JSON.stringify(payload));
+  const { confirm_password, ...payload } = values;
+  mutate(payload, {
+    onSuccess: (data: any) => {
+      const token = useCookie<string | null>("token");
+      token.value = data.token;
+
+      router.push("/");
+    },
+  });
 };
 </script>
 
@@ -67,34 +80,63 @@ const onSubmit = (values: any) => {
 
           <Field name="password" v-slot="{ field }">
             <div>
-              <UiInput
-                v-bind="field"
-                name="password"
-                placeholder="Password"
-                type="password"
-                class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none placeholder:"
-              />
+              <div class="relative">
+                <UiInput
+                  v-bind="field"
+                  name="password"
+                  placeholder="Password"
+                  :type="showPassword ? 'text' : 'password'"
+                  class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none placeholder: pr-10"
+                />
+                <button
+                  type="button"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                  :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                  @click="showPassword = !showPassword"
+                >
+                  <component
+                    :is="showPassword ? EyeOff : Eye"
+                    class="h-4 w-4"
+                  />
+                </button>
+              </div>
               <ErrorMessage class="text-destructive" name="password" />
             </div>
           </Field>
 
           <Field name="confirm_password" v-slot="{ field }">
             <div>
-              <UiInput
-                v-bind="field"
-                name="confirm_password"
-                placeholder="Confirm Password"
-                type="password"
-                class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none placeholder:"
-              />
+              <div class="relative">
+                <UiInput
+                  v-bind="field"
+                  name="confirm_password"
+                  placeholder="Confirm Password"
+                  :type="showConfirmPassword ? 'text' : 'password'"
+                  class="focus-visible:outline-0 focus-visible:ring-0 border-0 border-b border-secondary rounded-none shadow-none placeholder:"
+                />
+                <button
+                  type="button"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                  :aria-label="showConfirmPassword ? 'Hide password' : 'Show password'"
+                  @click="showConfirmPassword = !showConfirmPassword"
+                >
+                  <component
+                    :is="showConfirmPassword ? EyeOff : Eye"
+                    class="h-4 w-4"
+                  />
+                </button>
+              </div>
               <ErrorMessage class="text-destructive" name="confirm_password" />
             </div>
           </Field>
         </div>
-        <UiButton type="submit">Register</UiButton>
+        <p v-if="error" class="text-red-500 text-sm mt-2">
+          {{ error.message || "Register gagal" }}
+        </p>
+        <UiButton :loading="isPending" type="submit">Register</UiButton>
         <p class="font-semibold text-muted-foreground text-center">
           Already Have Account?
-          <NuxtLink href="/login" class="text-foreground">Login</NuxtLink>
+          <NuxtLink to="/login" class="text-foreground">Login</NuxtLink>
         </p>
       </Form>
     </div>

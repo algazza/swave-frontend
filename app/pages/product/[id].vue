@@ -1,45 +1,70 @@
 <script setup lang="ts">
-import { Star } from "lucide-vue-next";
+import { Star, StarOff } from "lucide-vue-next";
 import Autoplay from "embla-carousel-autoplay";
-import { dummyProduct, productData } from "~/lib/data";
-import { formatRupiah } from "~/lib/utils";
-import { useCartStore } from "~/store/CartStore";
-import type { CheckoutProductType } from "~/types/checkout";
+import { formatRupiah, isLocalImagePath } from "~/lib/utils";
 import type { ProductVariantsType } from "~/types/product";
+import { useOneProducts } from "~/composables/product/useOneProduct";
+import { useRecProduct } from "~/composables/product/useRecProduct";
+import { useAddCart } from "~/composables/cart/useAddCart";
 
-const DataProduct = productData;
-const defaultVariant = DataProduct.variants[0];
+const API_URL = useRuntimeConfig().public.API_URL;
+const route = useRoute();
+const router = useRouter();
+const token = useCookie("token");
 
-const cartStore = useCartStore();
+const paramSlug = computed(() => route.params.slug as string);
+
+const {
+  data: DataProduct,
+  isPending: isProductPending,
+  isError: isProductError,
+  error: productError,
+} = useOneProducts(paramSlug);
+
+const {
+  data: RecProducts,
+  isPending: isRecPending,
+  isError: isRecError,
+  error: recError,
+} = useRecProduct(paramSlug);
+
+const {
+  mutate,
+  isPending: isAddCartPending,
+  error: addCartError,
+} = useAddCart();
+
+if (isProductError.value) {
+  throw productError;
+} else if (isRecError.value) {
+  throw recError;
+}
+const defaultVariant = computed(() => DataProduct.value?.variant?.[0]);
 
 const currentImg = ref(0);
 const emblaApi = ref<any>(null);
 
 const quantity = ref<number>(0);
 const selectedVariant = reactive<ProductVariantsType>({
-  id: defaultVariant?.id || 0,
-  variant: defaultVariant?.variant || "",
-  price: defaultVariant?.price || 0,
-  stock: defaultVariant?.stock || 0,
+  id: defaultVariant.value?.id || 0,
+  variant: defaultVariant.value?.variant || "",
+  price: defaultVariant.value?.price || 0,
+  stock: defaultVariant.value?.stock || 0,
 });
 
-const checkout = computed<CheckoutProductType>(() => ({
-  id: Date.now() + Math.floor(Math.random() * 1000),
-  price: selectedVariant.price * quantity.value,
-  quantity: quantity.value,
-  variant: {
-    id: selectedVariant.id,
-    variant: selectedVariant.variant,
-    price: selectedVariant.price,
-    stock: selectedVariant.stock,
+watch(
+  () => defaultVariant.value,
+  (newVariant) => {
+    if (newVariant) {
+      Object.assign(selectedVariant, {
+        id: newVariant.id,
+        variant: newVariant.variant,
+        price: newVariant.price,
+        stock: newVariant.stock,
+      });
+    }
   },
-  product: {
-    id: DataProduct.id,
-    name: DataProduct.name,
-    product_image: DataProduct.product_image[0]!,
-    categories: DataProduct.categories,
-  },
-}));
+);
 
 const onInitApi = (api: any) => {
   emblaApi.value = api;
@@ -59,182 +84,91 @@ const setVariant = (v: ProductVariantsType) => {
 };
 
 const resetCheckout = () => {
-  Object.assign(selectedVariant, {
-    variant: defaultVariant?.variant,
-    price: defaultVariant?.price,
-    stock: defaultVariant?.stock,
-  });
+  if (defaultVariant.value) {
+    Object.assign(selectedVariant, {
+      id: defaultVariant.value.id,
+      variant: defaultVariant.value.variant,
+      price: defaultVariant.value.price,
+      stock: defaultVariant.value.stock,
+    });
+  }
 
   quantity.value = 0;
 };
 
 const handleCart = () => {
-  cartStore.addToCart(checkout.value);
-  push.success(`${productData.name} has added to your cart`);
+  mutate({
+    product_id: DataProduct.value?.id!,
+    variant_id: selectedVariant.id,
+    quantity: quantity.value,
+  });
   resetCheckout();
 };
 </script>
 
 <template>
   <section class="flex flex-col gap-5">
-    <section class="grid lg:grid-cols-3 gap-8 py-5 justify-center items-center">
+    <section
+      class="lg:grid lg:grid-cols-3 space-y-8 space-x-8 py-5 justify-center items-center w-full flex-1"
+    >
       <div class="grid gap-5 max-lg:hidden">
-        <div class="grid gap-2">
-          <h1 class="text-3xl">{{ DataProduct.name }}</h1>
-          <p class="">
-            Rp{{
-              formatRupiah(
-                selectedVariant.price > 0
-                  ? selectedVariant.price
-                  : DataProduct.price
-              )
-            }}
-          </p>
-          <div class="flex gap-5 items-center">
-            <span
-              >Stok:
-              {{
-                selectedVariant.stock > 0
-                  ? selectedVariant.stock
-                  : DataProduct.stock
-              }}</span
-            >
-            <span>Sold: {{ DataProduct.sold }}</span>
-            <div class="flex gap-2 items-center">
-              <Star class="text-accent" />
-              <span>{{ DataProduct.star }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid gap-2">
-          <h2 class="text-2xl font-normal">variant</h2>
-          <div class="flex items-center flex-wrap gap-3">
-            <div
-              v-for="v in DataProduct.variants"
-              :key="v.variant"
-              class="px-4 py-2 rounded-xl cursor-pointer"
-              :class="
-                selectedVariant.variant === v.variant
-                  ? 'bg-foreground text-background'
-                  : 'bg-secondary'
-              "
-              @click="setVariant(v)"
-            >
-              {{ v.variant }}
-            </div>
-          </div>
-        </div>
-
-        <div class="flex gap-5 w-full">
-          <UiNumberField
-            v-model="quantity"
-            class="border border-foreground max-w-28"
-            :default-value="0"
-            :min="0"
-            :max="selectedVariant.stock"
-          >
-            <UiNumberFieldContent>
-              <UiNumberFieldDecrement />
-              <UiNumberFieldInput class="text-sm rounded-none" />
-              <UiNumberFieldIncrement />
-            </UiNumberFieldContent>
-          </UiNumberField>
-
-          <UiButton
-            @click="handleCart()"
-            class="flex-1 bg-foreground text-background px-2 rounded-lg"
-            :disabled="quantity === 0 ? true : false"
-          >
-            Add to cart
-          </UiButton>
-        </div>
-      </div>
-
-      <div class="grid justify-center">
-        <UiCarousel
-          class="relative w-full max-w-[360px]"
-          :opts="{
-            align: 'start',
-            loop: true,
-          }"
-          @init-api="onInitApi"
-        >
-          <UiCarouselContent>
-            <UiCarouselItem
-              v-for="(img, index) in DataProduct.product_image"
-              :key="index"
-            >
-              <div
-                class="aspect-square relative"
-                :class="index === 0 ? 'm-16' : ''"
+        <template v-if="isProductPending">
+          <UiSkeleton class="w-full h-28" />
+        </template>
+        <template v-else>
+          <div class="grid gap-2">
+            <h1 class="text-3xl">{{ DataProduct?.name }}</h1>
+            <p class="">
+              Rp{{
+                formatRupiah(
+                  selectedVariant.price > 0 ? selectedVariant.price : 0,
+                )
+              }}
+            </p>
+            <div class="flex gap-5 items-center">
+              <span
+                >Stok:
+                {{
+                  selectedVariant.stock > 0 ? selectedVariant.stock : 0
+                }}</span
               >
-                <NuxtImg
-                  :src="img"
-                  alt="Pick"
-                  class="w-full h-full object-cover object-center"
-                />
+              <span>Sold: {{ DataProduct?.sold }}</span>
+              <div class="flex gap-2 items-center">
+                <Star class="text-accent" />
+                <span>{{ DataProduct?.star }}</span>
               </div>
-            </UiCarouselItem>
-          </UiCarouselContent>
-        </UiCarousel>
-        <div class="flex gap-3 items-center justify-center">
-          <button
-            v-for="(img, i) in DataProduct.product_image"
-            :key="i"
-            @click="goTo(i)"
-            class="w-3 h-3 rounded-full transition-all mt-4"
-            :class="i === currentImg ? 'bg-foreground' : 'bg-secondary'"
-          />
-        </div>
-      </div>
-
-      <div class="grid gap-5 lg:hidden">
-        <div class="grid gap-2">
-          <h1 class="text-3xl">{{ DataProduct.name }}</h1>
-          <p class="">
-            Rp{{
-              formatRupiah(
-                selectedVariant.price > 0
-                  ? selectedVariant.price
-                  : DataProduct.price
-              )
-            }}
-          </p>
-          <div class="flex gap-5 items-center">
-            <span
-              >Stok:
-              {{
-                selectedVariant.stock > 0
-                  ? selectedVariant.stock
-                  : DataProduct.stock
-              }}</span
-            >
-            <span>Sold: {{ DataProduct.sold }}</span>
-            <div class="flex gap-2 items-center">
-              <Star class="text-accent" />
-              <span>{{ DataProduct.star }}</span>
             </div>
           </div>
-        </div>
+        </template>
 
         <div class="grid gap-2">
           <h2 class="text-2xl font-normal">variant</h2>
-          <div class="flex items-center flex-wrap gap-3">
-            <div
-              v-for="v in DataProduct.variants"
-              :key="v.variant"
-              class="px-4 py-2 rounded-xl cursor-pointer"
-              :class="
-                selectedVariant.variant === v.variant
-                  ? 'bg-foreground text-background'
-                  : 'bg-secondary'
-              "
-              @click="setVariant(v)"
-            >
-              {{ v.variant }}
+          <template v-if="isProductPending">
+            <div class="flex items-center flex-wrap gap-3">
+              <UiSkeleton
+                class="w-20 h-9 max-lg:hidden"
+                v-for="i in 3"
+                :key="i"
+              />
             </div>
-          </div>
+          </template>
+          <template v-else>
+            <div class="flex items-center flex-wrap gap-3">
+              <div
+                v-for="v in DataProduct?.variant"
+                :key="v.variant"
+                class="px-4 py-2 rounded-xl cursor-pointer"
+                :class="
+                  selectedVariant.id === v.id
+                    ? 'bg-foreground text-background'
+                    : 'bg-secondary'
+                "
+                @click="setVariant(v)"
+              >
+                {{ v.variant }}
+              </div>
+            </div>
+          </template>
         </div>
 
         <div class="flex gap-5 w-full">
@@ -253,72 +187,243 @@ const handleCart = () => {
           </UiNumberField>
 
           <UiButton
-            @click="handleCart()"
+            @click="!token ? router.push('/login') : handleCart()"
             class="flex-1 bg-foreground text-background px-2 rounded-lg"
-            :disabled="quantity === 0 ? true : false"
+            :disabled="quantity === 0 ? true : false || isAddCartPending"
           >
             Add to cart
           </UiButton>
         </div>
+        <p v-if="addCartError" class="text-red-500 text-sm mt-2">
+          {{ addCartError.message || "Add address gagal" }}
+        </p>
       </div>
 
-      <div class="grid gap-5">
-        <p class="">
-          {{ DataProduct.description }}
-        </p>
-        <div>
-          <h2 class="text-3xl">Review</h2>
+      <template v-if="isProductPending">
+        <div class="grid justify-center">
+          <UiSkeleton class="w-90 h-90" />
+        </div>
+      </template>
+      <template v-else>
+        <div class="grid justify-center">
           <UiCarousel
-            class="relative"
+            class="relative w-full max-w-90"
             :opts="{
               align: 'start',
               loop: true,
             }"
-            :plugins="[
-              Autoplay({
-                delay: 2000,
-              }),
-            ]"
+            @init-api="onInitApi"
           >
             <UiCarouselContent>
               <UiCarouselItem
-                v-for="review in DataProduct.reviews"
-                :key="review.name"
+                v-for="(img, index) in DataProduct?.product_images"
+                :key="index"
               >
-                <div class="p-4 border border-foreground grid gap-2 max-w-full">
-                  <h3 class="text-2xl">{{ review.name }}</h3>
-                  <div class="flex items-center">
-                    <Star
-                      v-for="i in 5"
-                      :key="i"
-                      :class="
-                        review.star >= i ? 'text-accent' : 'text-secondary'
-                      "
-                    />
-                  </div>
-                  <p class="text-base">”{{ review.description }}”</p>
+                <div
+                  class="aspect-square relative"
+                  :class="index === 0 ? 'm-16' : ''"
+                >
+                  <NuxtImg
+                    :src="
+                      isLocalImagePath(img.image_path)
+                        ? `${API_URL}/${img.image_path}`
+                        : img.image_path
+                    "
+                    alt="Pick"
+                    class="w-full h-full object-contain object-center"
+                  />
                 </div>
               </UiCarouselItem>
             </UiCarouselContent>
           </UiCarousel>
+          <div class="flex gap-3 items-center justify-center">
+            <button
+              v-for="(img, i) in DataProduct?.product_images"
+              :key="i"
+              @click="goTo(i)"
+              class="w-3 h-3 rounded-full transition-all mt-4"
+              :class="i === currentImg ? 'bg-foreground' : 'bg-secondary'"
+            />
+          </div>
+        </div>
+      </template>
+
+      <div class="grid gap-5 lg:hidden">
+        <template v-if="isProductPending">
+          <UiSkeleton class="w-full h-24" />
+        </template>
+        <template v-else>
+          <div class="grid gap-2">
+            <h1 class="text-3xl">{{ DataProduct?.name }}</h1>
+            <p class="">
+              Rp{{
+                formatRupiah(
+                  selectedVariant.price > 0 ? selectedVariant.price : 0,
+                )
+              }}
+            </p>
+            <div class="flex gap-5 items-center">
+              <span
+                >Stok:
+                {{
+                  selectedVariant.stock > 0 ? selectedVariant.stock : 0
+                }}</span
+              >
+              <span>Sold: {{ DataProduct?.sold }}</span>
+              <div class="flex gap-2 items-center">
+                <Star class="text-accent" />
+                <span>{{ DataProduct?.star }}</span>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <div class="grid gap-2">
+          <h2 class="text-2xl font-normal">variant</h2>
+          <template v-if="isProductPending">
+            <div class="flex items-center flex-wrap gap-3">
+              <UiSkeleton
+                class="w-20 h-9 max-lg:hidden"
+                v-for="i in 3"
+                :key="i"
+              />
+            </div>
+          </template>
+          <template v-else>
+            <div class="flex items-center flex-wrap gap-3">
+              <div
+                v-for="v in DataProduct?.variant"
+                :key="v.variant"
+                class="px-4 py-2 rounded-xl cursor-pointer"
+                :class="
+                  selectedVariant.variant === v.variant
+                    ? 'bg-foreground text-background'
+                    : 'bg-secondary'
+                "
+                @click="setVariant(v)"
+              >
+                {{ v.variant }}
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <div class="flex gap-5 w-full">
+          <UiNumberField
+            v-model="quantity"
+            class="border border-foreground max-w-28"
+            :default-value="0"
+            :min="0"
+            :max="selectedVariant.stock"
+          >
+            <UiNumberFieldContent>
+              <UiNumberFieldDecrement />
+              <UiNumberFieldInput class="text-sm rounded-none" />
+              <UiNumberFieldIncrement />
+            </UiNumberFieldContent>
+          </UiNumberField>
+
+          <UiButton
+            @click="!token ? router.push('/login') : handleCart()"
+            class="flex-1 bg-foreground text-background px-2 rounded-lg"
+            :disabled="quantity === 0 ? true : false || isAddCartPending"
+          >
+            Add to cart
+          </UiButton>
+        </div>
+        <p v-if="addCartError" class="text-red-500 text-sm mt-2">
+          {{ addCartError.message || "Add cart gagal" }}
+        </p>
+      </div>
+
+      <div class="grid gap-5">
+        <template v-if="isProductPending">
+          <UiSkeleton class="w-full h-40" />
+        </template>
+        <template v-else>
+          <p class="">
+            {{ DataProduct?.description }}
+          </p>
+        </template>
+
+        <div>
+          <h2 class="text-3xl">Review</h2>
+          <template v-if="isProductPending">
+            <UiSkeleton class="w-full h-32" />
+          </template>
+          <template
+            v-else-if="DataProduct?.review && DataProduct.review.length > 0"
+          >
+            <UiCarousel
+              class="relative"
+              :opts="{
+                align: 'start',
+                loop: true,
+              }"
+              :plugins="[
+                Autoplay({
+                  delay: 2000,
+                }),
+              ]"
+            >
+              <UiCarouselContent>
+                <UiCarouselItem
+                  v-for="review in DataProduct?.review"
+                  :key="review.name"
+                >
+                  <div
+                    class="p-4 border border-foreground grid gap-2 max-w-full"
+                  >
+                    <h3 class="text-2xl">{{ review.name }}</h3>
+                    <div class="flex items-center">
+                      <Star
+                        v-for="i in 5"
+                        :key="i"
+                        :class="
+                          review.star >= i ? 'text-accent' : 'text-secondary'
+                        "
+                      />
+                    </div>
+                    <p class="text-base">”{{ review.description }}”</p>
+                  </div>
+                </UiCarouselItem>
+              </UiCarouselContent>
+            </UiCarousel>
+          </template>
+          <template v-else>
+            <div
+              class="py-8 border border-muted-foreground grid gap-2 max-w-full text-center text-muted-foreground"
+            >
+              <StarOff class="mx-auto" />
+              No reviews yet.
+            </div>
+          </template>
         </div>
       </div>
     </section>
 
     <section class="py-10">
       <h1 class="text-4xl mb-6 text-center">Related Products</h1>
-      <div class="text-end">
+      <div class="text-end mb-3">
         <NuxtLink
           to="/product"
-          class="mb-3 text-base font-semibold text-muted-foreground"
+          class="text-base font-semibold text-muted-foreground"
         >
           See More
         </NuxtLink>
       </div>
 
-      <div class="grid grid-cols-2 gap-y-6 gap-x-2 md:grid-cols-4">
-        <CardProduct v-for="product in dummyProduct" :product="product" />
-      </div>
+      <template v-if="isRecPending">
+        <div class="grid grid-cols-2 gap-y-6 gap-x-2 md:grid-cols-3">
+          <UiSkeleton v-for="i in 4" :key="i" class="w-full h-80" />
+        </div>
+      </template>
+
+      <template v-else>
+        <div class="grid grid-cols-2 gap-y-6 gap-x-2 md:grid-cols-4">
+          <CardProduct v-for="product in RecProducts" :product="product" />
+        </div>
+      </template>
     </section>
   </section>
 </template>

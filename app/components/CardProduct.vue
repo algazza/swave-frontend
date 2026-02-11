@@ -1,32 +1,44 @@
 <script setup lang="ts">
 import { Star } from "lucide-vue-next";
+import { formatRupiah, isLocalImagePath } from "~/lib/utils";
 import type { ProductType } from "~/types/product";
 
-defineProps<{
+const props = defineProps<{
   product: ProductType;
 }>();
+
+const API_URL = useRuntimeConfig().public.API_URL;
 </script>
 
 <template>
-  <div class="grid gap-3">
+  <NuxtLink :to="`/product/${product.id}`" class="grid gap-3 w-full">
     <div class="aspect-square overflow-hidden">
       <NuxtImg
-        :src="product.product_image"
+        :src="
+          isLocalImagePath(product.product_images)
+            ? `${API_URL}/${product.product_images}`
+            : product.product_images
+        "
         :alt="product.name"
-        class="w-full h-full object-cover object-center overflow-hidden"
+        class="w-full h-full object-contain object-center overflow-hidden"
       />
     </div>
 
-    <div class="grid gap-1">
+    <div class="grid gap-1 ">
       <span class="text-muted-foreground font-semibold">
-        {{ product.categories }}
+        {{ product.category }}
       </span>
       <h2 class="font-ramabhadra text-base">{{ product.name }}</h2>
-      <span class="">Rp{{ product.price }}</span>
-      <div class="flex gap-2 items-center">
-        <Star class="text-accent" />
-        <span class="font-semibold">{{ product.star }}</span>
+      <span class="font-semibold"
+        >Rp{{ formatRupiah(product.price || 0) }}</span
+      >
+      <div class="flex justify-between items-center">
+        <div class="flex gap-2 items-center font-semibold">
+          <Star class="text-accent" />
+          <span>{{ product.star }}</span>
+        </div>
+        <span class="">{{ product.sold }} sold</span>
       </div>
     </div>
-  </div>
+  </NuxtLink>
 </template>
