@@ -2,8 +2,9 @@
 import { toTypedSchema } from "@vee-validate/zod";
 import { ErrorMessage, Field, Form } from "vee-validate";
 import { useLogin } from "~/composables/auth/useLogin";
+import { isAdmin } from "~/lib/admin";
 import { logoBlack } from "~/lib/image";
-import { LoginSchema, type UserType } from "~/types/user";
+import { LoginSchema } from "~/types/user";
 
 const router = useRouter();
 const validationSchema = toTypedSchema(LoginSchema);
@@ -12,11 +13,14 @@ const { mutate, isPending, error } = useLogin();
 const onSubmit = (values: any) => {
   mutate(values, {
     onSuccess: (data: any) => {
-      console.log(data)
       const token = useCookie<string | null>("token");
       token.value = data.token;
 
+      if (isAdmin(token.value)) {
+        router.push("/admin");
+      } else {
         router.push("/");
+      }
     },
   });
 };
