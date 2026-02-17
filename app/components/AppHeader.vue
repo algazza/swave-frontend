@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Menu, Moon, ShoppingCart, User } from "lucide-vue-next";
 import { useCartCount } from "~/composables/cart/useCartCount";
+import { isAdmin } from "~/lib/admin";
 import { navLink } from "~/lib/constanta";
 import { logoBlack } from "~/lib/image";
 
@@ -61,6 +62,13 @@ const token = useCookie("token");
             </div>
             <ShoppingCart />
           </CartHeader>
+          <NuxtLink to="/admin"
+            ><UiButton
+              v-if="isAdmin(token)"
+              class="bg-accent hover:bg-accent/90"
+              >Admin</UiButton
+            ></NuxtLink
+          >
         </div>
       </nav>
     </div>

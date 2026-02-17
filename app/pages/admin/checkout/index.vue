@@ -3,7 +3,8 @@ import { checkoutData } from '~/lib/data';
 import { columns } from './column';
 
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: ['auth', 'admin'],
 })
 </script>
 

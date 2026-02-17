@@ -42,6 +42,14 @@ export const ProductDetailSchema = z.object({
   star: z.number(),
 });
 
+export const ProductReqSchema = z.object({
+  name: z.string('This field is required').min(1, "Product name is required"),
+  description: z.string('This field is required').min(1, "Description is required").max(190, "Description must be less than 190 characters"),
+  category: z.string('This field is required'),
+  images: z.array(z.instanceof(File)).min(1, "At least one image is required"),
+});
+
 export type ProductType = z.infer<typeof ProductSchema>;
 export type ProductDetailType = z.infer<typeof ProductDetailSchema>;
 export type ProductVariantsType = z.infer<typeof ProductVariantSchema>;
+export type ProductReqType = z.infer<typeof ProductReqSchema>;
