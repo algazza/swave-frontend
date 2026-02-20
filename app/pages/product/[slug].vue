@@ -341,7 +341,7 @@ const handleCart = () => {
           <UiSkeleton class="w-full h-40" />
         </template>
         <template v-else>
-          <p class="">
+          <p class="break-all">
             {{ DataProduct?.description }}
           </p>
         </template>

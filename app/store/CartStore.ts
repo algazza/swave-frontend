@@ -21,6 +21,19 @@ export const useCartStore = defineStore("counter", {
     },
   },
   actions: {
+    loadCheckoutFromStorage() {
+      if (process.client) {
+        const stored = localStorage.getItem("checkoutProduct");
+        if (stored) {
+          try {
+            this.checkoutProduct = JSON.parse(stored);
+          } catch (e) {
+            console.error("Failed to load checkout from storage", e);
+            localStorage.removeItem("checkoutProduct");
+          }
+        }
+      }
+    },
     updateCart(id: number, updatedProduct: Partial<CheckoutProductType>) {
       this.cart = this.cart.map((item) =>
         item.id === id ? { ...item, ...updatedProduct } : item,
@@ -46,9 +59,15 @@ export const useCartStore = defineStore("counter", {
     },
     checkoutCart(newCart: CheckoutProductType[]) {
       this.checkoutProduct = newCart;
+      if (process.client) {
+        localStorage.setItem("checkoutProduct", JSON.stringify(newCart));
+      }
     },
     clearCheckout() {
       this.checkoutProduct = [];
+      if (process.client) {
+        localStorage.removeItem("checkoutProduct");
+      }
     },
   },
 });

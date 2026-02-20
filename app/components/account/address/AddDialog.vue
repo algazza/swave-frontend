@@ -35,7 +35,7 @@ const onSubmit = (values: any) => {
         <UiDialogTitle>Add Address</UiDialogTitle>
       </UiDialogHeader>
 
-      <AlertCity /> 
+      <AlertCity />
 
       <Form
         :validation-schema="validationSchema"
@@ -126,7 +126,7 @@ const onSubmit = (values: any) => {
           <Field name="address" v-slot="{ field }">
             <div>
               <UiTextarea
-                  
+                v-bind="field"
                 name="address"
                 placeholder="Full Address"
                 class="focus-visible:outline-0 focus-visible:ring-0 rounded-md border-secondary shadow-none resize-none break-all"
@@ -150,9 +150,11 @@ const onSubmit = (values: any) => {
           <Field name="main_address" v-slot="{ field }">
             <div class="flex gap-2 items-center">
               <UiCheckbox
-                @update:model-value="(v: boolean | 'indeterminate') => {
-                  field.onChange(v)
-                }"
+                @update:model-value="
+                  (v: boolean | 'indeterminate') => {
+                    field.onChange(v);
+                  }
+                "
                 class="border border-foreground"
                 label="Set as Main Address"
                 name="main_address"
@@ -173,7 +175,7 @@ const onSubmit = (values: any) => {
           <UiButton
             type="submit"
             :loading="isPending"
-            :disabled="!meta.dirty || !meta.valid || isPending"
+            :disabled="!meta.dirty || isPending"
           >
             Save changes
           </UiButton>

@@ -9,7 +9,15 @@ import type { DateValue } from "@internationalized/date";
 import { Field, Form, ErrorMessage } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 
-import { Building2, ChevronLeft, Clock, Home, Hotel, MapPin, School } from "lucide-vue-next";
+import {
+  Building2,
+  ChevronLeft,
+  Clock,
+  Home,
+  Hotel,
+  MapPin,
+  School,
+} from "lucide-vue-next";
 import { CalendarIcon } from "lucide-vue-next";
 
 import { cn, formatToDDMMYYYY, sumValue } from "~/lib/utils";
@@ -27,19 +35,24 @@ import { useMidtrans } from "~/composables/checkout/useMidtrans";
 const router = useRouter();
 const cartStore = useCartStore();
 const schema = toTypedSchema(CheckoutSchema);
+
+// Load checkout products from localStorage if available
+cartStore.loadCheckoutFromStorage();
+
 if (cartStore.checkoutProduct.length === 0) {
   router.push("/product");
 }
 const { pay } = useMidtrans();
 
-const { data: addressArray, isLoading, isError, error } = useAddress();
+const { data: addressArray, isLoading, isError, error, refetch } = useAddress();
 if (isError.value) {
   throw error;
 }
 
-const mainAddress = (addressArray?.value || []).find(
-  (item) => item.main_address === true,
+const mainAddress = computed(() =>
+  (addressArray?.value || []).find((item) => item.main_address === true),
 );
+
 const df = new DateFormatter("id-ID", {
   dateStyle: "long",
 });
@@ -51,10 +64,23 @@ const minDate = now(zone)
 const date = ref<DateValue | undefined>();
 const time = ref("");
 const address = ref<AddressType | undefined>(
-  mainAddress || addressArray.value?.[0],
+  mainAddress.value || addressArray.value?.[0],
 );
 const deliveryType = ref("");
 const checkbox = ref(true);
+
+// Watch for changes in addressArray and update the selected address
+watch(
+  addressArray,
+  (newAddresses) => {
+    if (newAddresses && newAddresses.length > 0 && !address.value) {
+      // If no address is currently selected, select the main address or the first one
+      const main = newAddresses.find((item) => item.main_address === true);
+      address.value = main || newAddresses[0];
+    }
+  },
+  { immediate: true },
+);
 
 const handleChangeAddress = (newAddress: AddressType) => {
   address.value = newAddress;
@@ -130,10 +156,10 @@ const icon =
   address.value?.label === "Home"
     ? Home
     : address.value?.label === "Office"
-    ? Building2
-    : address.value?.label === "Apartment"
-    ? Hotel
-    : School;
+      ? Building2
+      : address.value?.label === "Apartment"
+        ? Hotel
+        : School;
 
 const goBack = () => {
   cartStore.clearCheckout();
@@ -146,6 +172,8 @@ const onSubmit = async (values: any) => {
     const res = await mutateAsync(values);
 
     await pay(res.snap_token);
+    cartStore.clearCheckout();
+
     router.push(`/account/transaction/${res.order_id}`);
   } catch (err) {
     console.log(err);
@@ -185,12 +213,12 @@ const onSubmit = async (values: any) => {
           <template v-if="isLoading">
             <UiSkeleton class="w-full h-30" />
           </template>
-          <div v-else-if="addressArray" class="grid gap-1">
+          <div v-else-if="address" class="grid gap-1">
             <div class="flex justify-start items-center gap-2">
               <div
                 class="p-1 bg-secondary rounded-md flex items-center justify-center gap-2"
               >
-              <component :is="icon" />
+                <component :is="icon" />
                 <span class="font-semibold">
                   {{ address?.label }}
                 </span>
@@ -215,7 +243,7 @@ const onSubmit = async (values: any) => {
               No Address available. Please add an address
             </p>
             <AccountAddressAddDialog>
-              <UiButton class="bg-foreground text-background"
+              <UiButton class="bg-foreground text-background w-full"
                 >+ Add Address</UiButton
               >
             </AccountAddressAddDialog>
@@ -263,7 +291,7 @@ const onSubmit = async (values: any) => {
         </section>
       </div>
 
-      <div class="grid gap-5 flex-1 lg:h-fit">
+      <div v-if="address" class="grid gap-5 flex-1 lg:h-fit">
         <section class="grid gap-4 p-4 border-2 border-secondary rounded-xl">
           <p class="text-2xl font-semibold">Delivery</p>
 
