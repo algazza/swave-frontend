@@ -11,7 +11,7 @@ const API_URL = useRuntimeConfig().public.API_URL;
 </script>
 
 <template>
-  <NuxtLink :to="`/product/${product.id}`" class="grid gap-3 w-full">
+  <NuxtLink :to="`/product/${product.slug}`" class="grid gap-3 w-full">
     <div class="aspect-square overflow-hidden">
       <NuxtImg
         :src="

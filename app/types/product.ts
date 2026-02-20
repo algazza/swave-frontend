@@ -49,7 +49,14 @@ export const ProductReqSchema = z.object({
   images: z.array(z.instanceof(File)).min(1, "At least one image is required"),
 });
 
+export const ProductEditReqSchema = z.object({
+  name: z.string().min(1, "Product name is required").optional(),
+  description: z.string().min(1, "Description is required").max(190, "Description must be less than 190 characters").optional(),
+  category: z.string().optional(),
+});
+
 export type ProductType = z.infer<typeof ProductSchema>;
 export type ProductDetailType = z.infer<typeof ProductDetailSchema>;
 export type ProductVariantsType = z.infer<typeof ProductVariantSchema>;
 export type ProductReqType = z.infer<typeof ProductReqSchema>;
+export type ProductEditReqType = z.infer<typeof ProductEditReqSchema>;

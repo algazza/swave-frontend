@@ -10,14 +10,12 @@ import {
   Trash2,
 } from "lucide-vue-next";
 import { Form, Field, ErrorMessage } from "vee-validate";
-import {
-  useUploadProduct,
-  useUploadProductVariant,
-} from "~/composables/product/useUploadProduct";
+import { useUploadProduct } from "~/composables/product/useUploadProduct";
+import { useUploadProductVariant } from "~/composables/variant/useAddVariant";
+import { useCategory } from "~/composables/category/useCategory";
 import { ProductReqSchema } from "~/types/product";
 import { variantSchema } from "~/types/variant";
 import { ref } from "vue";
-import { useCategory } from "~/composables/category/useCategory";
 
 definePageMeta({
   layout: "blank",
@@ -62,21 +60,30 @@ const handleImageUpload = async (files: FileList | null) => {
 
   isLoadingImage.value = true;
 
-  for (const file of filesToAdd) {
-    if (file.type.startsWith("image/")) {
-      images.value.push(file);
+  // Filter only image files
+  const imageFiles = filesToAdd.filter((file) =>
+    file.type.startsWith("image/"),
+  );
 
+  // Add all files to images array first
+  images.value.push(...imageFiles);
+
+  // Create promises for all FileReader operations to maintain order
+  const readerPromises = imageFiles.map((file) => {
+    return new Promise<string>((resolve) => {
       const reader = new FileReader();
       reader.onload = (e) => {
-        imagePreviews.value.push(e.target?.result as string);
+        resolve(e.target?.result as string);
       };
       reader.readAsDataURL(file);
-    }
-  }
+    });
+  });
 
-  setTimeout(() => {
-    isLoadingImage.value = false;
-  }, 300);
+  // Wait for all readers to complete and add previews in order
+  const newPreviews = await Promise.all(readerPromises);
+  imagePreviews.value.push(...newPreviews);
+
+  isLoadingImage.value = false;
 };
 
 const handleDragOver = (e: DragEvent) => {
@@ -129,17 +136,16 @@ const onSubmit = async (values: any) => {
     isUploading.value = true;
     uploadError.value = null;
 
-    // Step 1: Upload product
     const formData = new FormData();
     formData.append("name", values.name);
     formData.append("description", values.description);
     formData.append("category", values.category);
 
-    images.value.forEach((image) => {
+    const reversedImages = [...images.value].reverse();
+    reversedImages.forEach((image) => {
       formData.append("images", image);
     });
 
-    // Upload product and wait for product ID
     uploadProduct(formData, {
       onSuccess: (productData: any) => {
         const productId = productData.data?.id || productData.id;
@@ -148,7 +154,6 @@ const onSubmit = async (values: any) => {
           throw new Error("Product ID not found in response");
         }
 
-        // Step 2: Upload variants with the product ID
         const variantPayload = {
           variants: values.variants,
         };
@@ -158,7 +163,6 @@ const onSubmit = async (values: any) => {
           {
             onSuccess: () => {
               isUploading.value = false;
-              // Navigate to product list or show success message
               navigateTo("/admin/product");
             },
             onError: (error: any) => {
@@ -215,7 +219,7 @@ const onSubmit = async (values: any) => {
     <Form
       :validation-schema="validationSchema"
       @submit="onSubmit"
-      v-slot="{meta}"
+      v-slot="{ meta }"
       class="grid gap-8 lg:grid-cols-[384px_1fr] my-4"
     >
       <Field
@@ -235,7 +239,7 @@ const onSubmit = async (values: any) => {
               class="w-full h-full overflow-hidden"
             >
               <transition name="fade" mode="out-in">
-                <img
+                <NuxtImg
                   :key="currentSlide"
                   :src="imagePreviews[currentSlide]"
                   :alt="`Product image ${currentSlide + 1}`"
@@ -336,7 +340,7 @@ const onSubmit = async (values: any) => {
                 : 'border-gray-300 hover:border-gray-400'
             "
           >
-            <img
+            <NuxtImg
               :src="preview"
               :alt="`Thumbnail ${index + 1}`"
               class="w-full h-full object-center object-contain"
@@ -533,7 +537,11 @@ const onSubmit = async (values: any) => {
           {{ uploadError }}
         </p>
 
-        <UiButton :disabled="!meta.valid || !meta.dirty || isUploading" type="submit" class="w-full">
+        <UiButton
+          :disabled="!meta.valid || !meta.dirty || isUploading"
+          type="submit"
+          class="w-full"
+        >
           <Loader2 v-if="isUploading" class="w-4 h-4 mr-2 animate-spin" />
           {{ isUploading ? "Uploading..." : "Add Product" }}
         </UiButton>
