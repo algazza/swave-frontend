@@ -86,7 +86,9 @@ const filteredProducts = computed<ProductType[]>(() => {
     <div class="flex flex-col md:flex-row gap-4 mb-6">
       <!-- Search Input -->
       <div class="relative flex-1">
-        <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Search
+          class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
+        />
         <UiInput
           v-model="search"
           placeholder="Search products..."
@@ -100,7 +102,11 @@ const filteredProducts = computed<ProductType[]>(() => {
           <UiButton variant="outline" class="gap-2">
             <Filter class="w-4 h-4" />
             Filter
-            <UiBadge v-if="selectedCategories.length > 0" variant="secondary" class="ml-1">
+            <UiBadge
+              v-if="selectedCategories.length > 0"
+              variant="secondary"
+              class="ml-1"
+            >
               {{ selectedCategories.length }}
             </UiBadge>
           </UiButton>
@@ -117,7 +123,10 @@ const filteredProducts = computed<ProductType[]>(() => {
             <div v-if="isCategoriesPending" class="space-y-2">
               <UiSkeleton v-for="i in 5" :key="i" class="w-full h-10" />
             </div>
-            <div v-else-if="categories && categories.length > 0" class="space-y-2">
+            <div
+              v-else-if="categories && categories.length > 0"
+              class="space-y-2"
+            >
               <div
                 v-for="category in categories"
                 :key="category.category"
@@ -154,27 +163,30 @@ const filteredProducts = computed<ProductType[]>(() => {
       </UiSheet>
 
       <!-- Sort Dropdown -->
-        <UiSelect v-model="sortBy">
-          <UiSelectTrigger class=" border border-border cursor-pointer">
-            <UiSelectValue placeholder="Select a filter" />
-          </UiSelectTrigger>
-          <UiSelectContent class="bg-background">
-            <UiSelectGroup>
-              <UiSelectItem
-                v-for="filter in filterArray"
-                :key="filter"
-                :value="filter"
-                class="cursor-pointer"
-              >
-                {{ filter }}
-              </UiSelectItem>
-            </UiSelectGroup>
-          </UiSelectContent>
-        </UiSelect>
+      <UiSelect v-model="sortBy">
+        <UiSelectTrigger class="border border-border cursor-pointer">
+          <UiSelectValue placeholder="Select a filter" />
+        </UiSelectTrigger>
+        <UiSelectContent class="bg-background">
+          <UiSelectGroup>
+            <UiSelectItem
+              v-for="filter in filterArray"
+              :key="filter"
+              :value="filter"
+              class="cursor-pointer"
+            >
+              {{ filter }}
+            </UiSelectItem>
+          </UiSelectGroup>
+        </UiSelectContent>
+      </UiSelect>
     </div>
 
     <!-- Active Filters Display -->
-    <div v-if="search || selectedCategories.length > 0 || sortBy" class="flex flex-wrap gap-2 mb-4">
+    <div
+      v-if="search || selectedCategories.length > 0 || sortBy"
+      class="flex flex-wrap gap-2 mb-4"
+    >
       <UiBadge v-if="search" variant="secondary" class="gap-1">
         Search: "{{ search }}"
         <button @click="search = ''" class="ml-1 hover:text-destructive">
@@ -188,7 +200,10 @@ const filteredProducts = computed<ProductType[]>(() => {
         class="gap-1"
       >
         {{ cat }}
-        <button @click="toggleCategory(cat)" class="ml-1 hover:text-destructive">
+        <button
+          @click="toggleCategory(cat)"
+          class="ml-1 hover:text-destructive"
+        >
           <X class="w-3 h-3" />
         </button>
       </UiBadge>
@@ -219,14 +234,23 @@ const filteredProducts = computed<ProductType[]>(() => {
       />
     </div>
     <div v-else class="text-center mt-12 p-8">
-      <Icon name="lucide:search-x" class="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+      <Icon
+        name="lucide:search-x"
+        class="w-16 h-16 mx-auto text-muted-foreground mb-4"
+      />
       <p class="text-lg font-semibold mb-2">No products found</p>
       <p class="text-sm text-muted-foreground mb-4">
         Try adjusting your search or filter criteria
       </p>
       <UiButton
         variant="outline"
-        @click="() => { search = ''; selectedCategories = []; sortBy = ''; }"
+        @click="
+          () => {
+            search = '';
+            selectedCategories = [];
+            sortBy = '';
+          }
+        "
       >
         Clear all filters
       </UiButton>
