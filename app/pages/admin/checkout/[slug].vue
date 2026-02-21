@@ -7,14 +7,25 @@ import {
   Home,
   MapPin,
 } from "lucide-vue-next";
+import { toTypedSchema } from "@vee-validate/zod";
+import { Form, Field, ErrorMessage } from "vee-validate";
 import { useDetailCheckout } from "~/composables/checkout/useDetailCheckout";
 import { copyOrderID, formatRupiah, sumValue } from "~/lib/utils";
 import { push } from "notivue";
+import { useDetailCheckoutAdmin } from "~/composables/checkout/admin/useDetailCheckoutAdmin";
+import { useUpdateStatusCheckout } from "~/composables/checkout/admin/useUpdateStatusCheckout";
+import { UpdateStatusCheckoutSchema } from "~/types/checkout";
+import type { UpdateStatusCheckoutType } from "~/types/checkout";
+
+definePageMeta({
+  middleware: ["auth", "admin"],
+  layout: "admin",
+});
 
 const router = useRouter();
 const route = useRoute();
 const paramId = computed(() => route.params.slug as string);
-const { data, isLoading, isError, error } = useDetailCheckout(paramId);
+const { data, isLoading, isError, error } = useDetailCheckoutAdmin(paramId);
 if (isError.value) {
   throw error;
 }
@@ -22,10 +33,53 @@ if (isError.value) {
 const totalProduct = computed(() =>
   sumValue(data.value?.product_checkout ?? [], (item) => item.quantity),
 );
+
+const showUpdateForm = ref<boolean>(false);
+const validationSchema = toTypedSchema(UpdateStatusCheckoutSchema);
+
+const currentStatus = computed(
+  () => data.value?.status.at(-1)?.order_status || "",
+);
+
+const availableStatuses = computed(() => {
+  const current = currentStatus.value;
+
+  if (current === "success" || current === "cancel") {
+    return [];
+  }
+
+  const statusFlow: Record<string, string[]> = {
+    pending: ["processing", "cancel"],
+    processing: ["delivery", "cancel"],
+    delivery: ["success", "cancel"],
+  };
+
+  return statusFlow[current] || [];
+});
+
+const { mutate: updateStatus, isPending: isUpdating } =
+  useUpdateStatusCheckout(paramId);
+
+const onSubmit = (values: any) => {
+  const payload: UpdateStatusCheckoutType = {
+    order_status: values.order_status,
+    ...(values.description && { description: values.description }),
+  };
+
+  updateStatus(payload, {
+    onSuccess: () => {
+      showUpdateForm.value = false;
+    },
+  });
+};
+
+const toggleUpdateForm = () => {
+  showUpdateForm.value = !showUpdateForm.value;
+};
 </script>
 
 <template>
-  <section class="pb-20">
+  <section class="pb-20 mx-8">
     <div class="flex gap-2 py-5 items-center justify-start">
       <button @click="router.back()">
         <ChevronLeft class="size-8" />
@@ -37,11 +91,10 @@ const totalProduct = computed(() =>
     </template>
 
     <div v-else class="md:flex items-center justify-between">
-      <div class="flex items-center gap-2 md:gap-4 md:text-xl font-medium">
-        <p>Order Id: {{ data?.order_id }}</p>
-        <button @click="copyOrderID(data?.order_id!)" class="cursor-pointer">
-          <Copy class="size-5" />
-        </button>
+      <div class="flex flex-col gap-1 md:gap-2">
+        <div class="flex items-center gap-2 md:text-xl font-medium">
+          User: <span class="underline">{{ data?.user.username }}</span>
+        </div>
       </div>
       <span
         class="text-xl md:text-2xl lg:text-3xl font-semibold capitalize"
@@ -60,10 +113,105 @@ const totalProduct = computed(() =>
       >
     </div>
 
+    <section
+      v-if="!isLoading && availableStatuses.length > 0"
+      class="my-4 p-4 border-2 border-secondary rounded-xl bg-muted/30"
+    >
+      <div class="flex justify-between items-center">
+        <h3 class="text-xl font-semibold">Update Order Status</h3>
+        <UiButton
+          v-if="!showUpdateForm"
+          @click="toggleUpdateForm"
+          variant="default"
+          size="sm"
+        >
+          Update Status
+        </UiButton>
+      </div>
+
+      <Form
+        v-if="showUpdateForm"
+        :validation-schema="validationSchema"
+        @submit="onSubmit"
+        v-slot="{ meta, values }"
+        class="space-y-4 mt-3"
+      >
+        <Field name="order_status" v-slot="{ field, value }">
+          <div class="space-y-2">
+            <UiLabel for="order_status"
+              >New Status <span class="text-destructive">*</span></UiLabel
+            >
+            <UiSelect v-bind="field" :model-value="value">
+              <UiSelectTrigger class="w-full capitalize">
+                <UiSelectValue placeholder="Select Status" />
+              </UiSelectTrigger>
+              <UiSelectContent>
+                <UiSelectGroup>
+                  <UiSelectItem
+                    v-for="status in availableStatuses"
+                    :key="status"
+                    :value="status"
+                    class="capitalize"
+                  >
+                    {{ status }}
+                  </UiSelectItem>
+                </UiSelectGroup>
+              </UiSelectContent>
+            </UiSelect>
+            <ErrorMessage class="text-destructive text-sm" name="order_status" />
+          </div>
+        </Field>
+
+        <Field v-if="values.order_status === 'cancel'" name="description" v-slot="{ field }">
+          <div class="space-y-2">
+            <UiLabel for="description">
+              Description
+              <span
+                v-if="values.order_status === 'cancel'"
+                class="text-destructive"
+                >*</span
+              >
+              <span v-else class="text-muted-foreground text-sm"
+                >(Optional)</span
+              >
+            </UiLabel>
+            <UiTextarea
+              v-bind="field"
+              id="description"
+              :placeholder="
+                values.order_status === 'cancel'
+                  ? 'Please provide a reason for cancellation'
+                  : 'Add optional description'
+              "
+              class="min-h-20"
+            />
+            <ErrorMessage class="text-destructive text-sm" name="description" />
+          </div>
+        </Field>
+
+        <div class="flex gap-2 justify-end">
+          <UiButton
+            type="button"
+            @click="toggleUpdateForm"
+            variant="outline"
+            :disabled="isUpdating"
+          >
+            Cancel
+          </UiButton>
+          <UiButton type="submit" :disabled="!meta.valid || isUpdating">
+            {{ isUpdating ? "Updating..." : "Update Status" }}
+          </UiButton>
+        </div>
+      </Form>
+    </section>
+
     <template v-if="isLoading">
       <UiSkeleton class="w-full h-86 md:h-40 my-4" />
     </template>
-    <AccountTransactionStepper v-else-if="data?.status" :statusData="data?.status"/>
+    <AccountTransactionStepper
+      v-else-if="data?.status"
+      :statusData="data?.status"
+    />
 
     <div class="flex flex-col gap-5 lg:flex-row">
       <div class="grid gap-5 flex-1 lg:h-fit">

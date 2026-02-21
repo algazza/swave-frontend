@@ -21,6 +21,12 @@ export const columns: ColumnDef<CheckoutTableType>[] = [
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => h("div", row.getValue("name")),
+    filterFn: (row, columnId, filterValue) => {
+      const searchLower = String(filterValue).toLowerCase();
+      const name = String(row.getValue("name") || "").toLowerCase();
+      const orderId = String(row.getValue("order_id") || "").toLowerCase();
+      return name.includes(searchLower) || orderId.includes(searchLower);
+    },
   },
   {
     accessorKey: "status",
@@ -34,30 +40,30 @@ export const columns: ColumnDef<CheckoutTableType>[] = [
             value === "pending"
               ? "text-accent"
               : value === "delivery"
-              ? "text-success-blue"
-              : value === "success"
-              ? "text-success-green"
-              : "text-destructive"
+                ? "text-success-blue"
+                : value === "success"
+                  ? "text-success-green"
+                  : "text-destructive"
           }`,
         },
-        row.getValue("status")
+        row.getValue("status"),
       );
     },
   },
   {
-    accessorKey: "type",
+    accessorKey: "delivery",
     header: "Type",
     cell: ({ row }) =>
       h(
         "div",
         {
           class: `text-center capitalize w-fit px-3 rounded-full ${
-            row.getValue("type") === "delivery"
+            row.getValue("delivery") === "delivery"
               ? "bg-foreground text-white"
               : "border border-foreground"
           }`,
         },
-        row.getValue("type")
+        row.getValue("delivery"),
       ),
   },
   {
@@ -77,7 +83,7 @@ export const columns: ColumnDef<CheckoutTableType>[] = [
       return h(
         "div",
         { class: "relative" },
-        h(DataTableDropdown, { checkout })
+        h(DataTableDropdown, { checkout }),
       );
     },
   },

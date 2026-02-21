@@ -15,6 +15,7 @@ const props = defineProps<{
 }>();
 
 const columnFilters = ref<ColumnFiltersState>([]);
+const searchValue = ref("");
 
 const table = useVueTable({
   get data() {
@@ -34,6 +35,21 @@ const table = useVueTable({
     },
   },
 });
+
+// Watch search value and apply custom filter
+watch(searchValue, (newValue) => {
+  if (!newValue) {
+    columnFilters.value = [];
+  } else {
+    // Use the 'name' column with our custom filter function
+    columnFilters.value = [
+      {
+        id: "name",
+        value: newValue,
+      },
+    ];
+  }
+});
 </script>
 
 <template>
@@ -41,9 +57,8 @@ const table = useVueTable({
     <div class="flex items-center py-4">
       <UiInput
         class="max-w-sm"
-        placeholder="Filter emails..."
-        :model-value="table.getColumn('name')?.getFilterValue() as string"
-        @update:model-value="table.getColumn('name')?.setFilterValue($event)"
+        placeholder="Search name or order id"
+        v-model="searchValue"
       />
     </div>
     <div class="border rounded-md">

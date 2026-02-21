@@ -47,3 +47,8 @@ export const formatToDDMMYYYY = (dateValue: DateValue | undefined) => {
 
   return `${year}-${month}-${day}`;
 };
+
+export const copyOrderID = (text: string) => {
+  navigator.clipboard.writeText(text);
+  push.success("Order ID copied to clipboard");
+};

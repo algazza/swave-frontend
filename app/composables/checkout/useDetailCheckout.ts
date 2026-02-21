@@ -20,9 +20,20 @@ export const useDetailCheckout = (orderId: Ref<string>) => {
         return res.data.data as CheckoutHistoryDetailType;
       } catch (err) {
         const error = err as AxiosError<ErrorResponse>;
-        if(error.response?.status === 401) {
+        const statusCode = error.response?.status;
+
+        if (statusCode === 403 || statusCode === 404) {
+          throw createError({
+            statusCode,
+            statusMessage:
+              error.response?.data?.message ||
+              (statusCode === 403 ? "Forbidden" : "Not Found"),
+            fatal: true,
+          });
+        }
+        if (error.response?.status === 401) {
           const router = useRouter();
-          router.push('/login');
+          router.push("/login");
         }
         throw new Error(
           error.response?.data.message || "Gagal mendapatkan detail checkout",
@@ -30,6 +41,6 @@ export const useDetailCheckout = (orderId: Ref<string>) => {
       }
     },
     throwOnError: true,
-    enabled: computed(() => !!orderId.value)
+    enabled: computed(() => !!orderId.value),
   });
 };

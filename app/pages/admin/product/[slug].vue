@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { toTypedSchema } from "@vee-validate/zod";
+import { Form, Field, ErrorMessage } from "vee-validate";
 import { useOneProducts } from "~/composables/product/useOneProduct";
 import { useEditProduct } from "~/composables/product/useEditProduct";
 import {
@@ -10,7 +12,10 @@ import { useUploadProductVariant } from "~/composables/variant/useAddVariant";
 import { useEditVariant } from "~/composables/variant/useEditVariant";
 import { useDeleteVariant } from "~/composables/variant/useDeleteVariant";
 import { useCategory } from "~/composables/category/useCategory";
-import type { ProductVariantsType } from "~/types/product";
+import { ProductEditReqSchema } from "~/types/product";
+import { singleVariantSchema } from "~/types/variant";
+import type { ProductVariantsType, ProductEditReqType } from "~/types/product";
+import type { SingleVariantType } from "~/types/variant";
 import { isLocalImagePath } from "~/lib/utils";
 import { Trash2, X } from "lucide-vue-next";
 
@@ -53,23 +58,9 @@ const editingImageId = ref<number | null>(null);
 
 const MAX_IMAGES = 10;
 
-const productForm = ref({
-  name: "",
-  description: "",
-  category: "",
-});
-
-const variantForm = ref({
-  variant: "",
-  price: 0,
-  stock: 0,
-});
-
-const editVariantForm = ref({
-  variant: "",
-  price: 0,
-  stock: 0,
-});
+// Validation schemas
+const productEditValidationSchema = toTypedSchema(ProductEditReqSchema);
+const variantValidationSchema = toTypedSchema(singleVariantSchema);
 
 const editVariantOriginalName = ref("");
 
@@ -95,46 +86,27 @@ onUnmounted(() => {
   }
 });
 
-watch(
-  product,
-  (newProduct) => {
-    if (newProduct) {
-      productForm.value = {
-        name: newProduct.name,
-        description: newProduct.description,
-        category: newProduct.category,
-      };
-    }
-  },
-  { immediate: true },
-);
-
-// Handle product edit
-const handleEditProduct = async () => {
+const handleEditProduct = async (values: any) => {
   if (!product.value) return;
 
   try {
+    const payload: ProductEditReqType = {};
+    if (values.name) payload.name = values.name;
+    if (values.description) payload.description = values.description;
+    if (values.category) payload.category = values.category;
+
     const result = await editProductMutation.mutateAsync({
       productId: product.value.id,
-      payload: productForm.value,
+      payload,
     });
 
-    // Extract the new slug from response (check multiple possible locations)
     const newSlug =
       result?.data?.data?.slug || result?.data?.slug || result?.slug;
 
-    console.log("Edit result:", result);
-    console.log("New slug:", newSlug);
-    console.log("Current slug:", slug.value);
-
-    // If the slug changed, navigate to the new URL
     if (newSlug && newSlug !== slug.value) {
-      // Close the edit mode first
       isEditingProduct.value = false;
-      // Navigate to new slug and refetch will happen automatically via route change
       await router.replace(`/admin/product/${newSlug}`);
     } else {
-      // No slug change, just refetch and close edit mode
       await refetch();
       isEditingProduct.value = false;
     }
@@ -144,13 +116,6 @@ const handleEditProduct = async () => {
 };
 
 const cancelEditProduct = () => {
-  if (product.value) {
-    productForm.value = {
-      name: product.value.name,
-      description: product.value.description,
-      category: product.value.category,
-    };
-  }
   isEditingProduct.value = false;
 };
 
@@ -159,7 +124,6 @@ const handleAddImages = async () => {
 
   try {
     const formData = new FormData();
-    // Reverse images array to compensate for server reversing the order
     const reversedImages = [...newImages.value].reverse();
     reversedImages.forEach((file) => {
       formData.append("images", file);
@@ -338,7 +302,6 @@ const removeNewImage = (index: number) => {
   newImages.value = newImages.value.filter((_, i) => i !== index);
 };
 
-// Helper functions for file input clicks
 const clickAddImagesInput = () => {
   document.getElementById("new-images")?.click();
 };
@@ -368,26 +331,24 @@ const clearUpdateImagePreview = () => {
   updateImageFile.value = null;
 };
 
-// Handle variant operations
-const handleAddVariant = async () => {
+const handleAddVariant = async (values: any) => {
   if (!product.value) return;
 
   try {
+    const variantData: SingleVariantType = {
+      variant: values.variant,
+      price: values.price,
+      stock: values.stock,
+    };
+
     await addVariantMutation.mutateAsync({
       productId: product.value.id,
       payload: {
-        variants: [
-          {
-            variant: variantForm.value.variant,
-            price: variantForm.value.price,
-            stock: variantForm.value.stock,
-          },
-        ],
+        variants: [variantData],
       },
     });
 
     await refetch();
-    variantForm.value = { variant: "", price: 0, stock: 0 };
     isAddingVariant.value = false;
   } catch (err) {
     console.error("Failed to add variant:", err);
@@ -395,16 +356,11 @@ const handleAddVariant = async () => {
 };
 
 const startEditVariant = (variant: ProductVariantsType) => {
-  editVariantForm.value = {
-    variant: variant.variant,
-    price: variant.price,
-    stock: variant.stock,
-  };
   editVariantOriginalName.value = variant.variant;
   isEditingVariant.value = true;
 };
 
-const handleEditVariant = async () => {
+const handleEditVariant = async (values: any) => {
   if (!product.value) return;
 
   try {
@@ -412,9 +368,9 @@ const handleEditVariant = async () => {
       productId: product.value.id,
       variant: editVariantOriginalName.value,
       payload: {
-        name: editVariantForm.value.variant,
-        description: editVariantForm.value.price.toString(),
-        category: editVariantForm.value.stock.toString(),
+        name: values.variant,
+        description: values.price.toString(),
+        category: values.stock.toString(),
       },
     });
 
@@ -764,26 +720,6 @@ const handleDeleteVariant = async (variantName: string) => {
               <Icon name="lucide:edit" class="w-4 h-4 mr-2" />
               Edit Product
             </UiButton>
-            <div v-else class="flex gap-2">
-              <UiButton
-                variant="outline"
-                @click="cancelEditProduct"
-                :disabled="editProductMutation.isPending.value"
-              >
-                Cancel
-              </UiButton>
-              <UiButton
-                @click="handleEditProduct"
-                :disabled="editProductMutation.isPending.value"
-              >
-                <Icon
-                  v-if="editProductMutation.isPending.value"
-                  name="lucide:loader-2"
-                  class="w-4 h-4 mr-2 animate-spin"
-                />
-                Save
-              </UiButton>
-            </div>
           </div>
         </UiCardHeader>
         <UiCardContent class="space-y-4">
@@ -820,42 +756,93 @@ const handleDeleteVariant = async (variantName: string) => {
           </div>
 
           <!-- Edit Form -->
-          <div v-else class="space-y-4">
-            <div class="space-y-2">
-              <UiLabel for="name">Product Name</UiLabel>
-              <UiInput
-                id="name"
-                v-model="productForm.name"
-                placeholder="Enter product name"
-              />
+          <Form
+            v-if="isEditingProduct"
+            :validation-schema="productEditValidationSchema"
+            @submit="handleEditProduct"
+            v-slot="{ meta }"
+            :initial-values="{
+              name: product.name,
+              description: product.description,
+              category: product.category,
+            }"
+          >
+            <div class="space-y-4">
+              <Field name="name" v-slot="{ field }">
+                <div class="space-y-2">
+                  <UiLabel for="name">Product Name</UiLabel>
+                  <UiInput
+                    v-bind="field"
+                    id="name"
+                    placeholder="Enter product name"
+                  />
+                  <ErrorMessage class="text-destructive text-sm" name="name" />
+                </div>
+              </Field>
+
+              <Field name="category" v-slot="{ field, value }">
+                <div class="space-y-2">
+                  <UiLabel for="category">Category</UiLabel>
+                  <UiSelect v-bind="field" :model-value="value">
+                    <UiSelectTrigger>
+                      <UiSelectValue placeholder="Select category" />
+                    </UiSelectTrigger>
+                    <UiSelectContent>
+                      <UiSelectItem
+                        v-for="cat in categories"
+                        :key="cat.category"
+                        :value="cat.category"
+                      >
+                        {{ cat.category }}
+                      </UiSelectItem>
+                    </UiSelectContent>
+                  </UiSelect>
+                  <ErrorMessage
+                    class="text-destructive text-sm"
+                    name="category"
+                  />
+                </div>
+              </Field>
+
+              <Field name="description" v-slot="{ field }">
+                <div class="space-y-2">
+                  <UiLabel for="description">Description</UiLabel>
+                  <UiTextarea
+                    v-bind="field"
+                    id="description"
+                    placeholder="Enter product description"
+                    rows="4"
+                  />
+                  <ErrorMessage
+                    class="text-destructive text-sm"
+                    name="description"
+                  />
+                </div>
+              </Field>
+
+              <div class="flex gap-2 justify-end">
+                <UiButton
+                  type="button"
+                  variant="outline"
+                  @click="cancelEditProduct"
+                  :disabled="editProductMutation.isPending.value"
+                >
+                  Cancel
+                </UiButton>
+                <UiButton
+                  type="submit"
+                  :disabled="!meta.valid || editProductMutation.isPending.value"
+                >
+                  <Icon
+                    v-if="editProductMutation.isPending.value"
+                    name="lucide:loader-2"
+                    class="w-4 h-4 mr-2 animate-spin"
+                  />
+                  Save
+                </UiButton>
+              </div>
             </div>
-            <div class="space-y-2">
-              <UiLabel for="category">Category</UiLabel>
-              <UiSelect v-model="productForm.category">
-                <UiSelectTrigger>
-                  <UiSelectValue placeholder="Select category" />
-                </UiSelectTrigger>
-                <UiSelectContent>
-                  <UiSelectItem
-                    v-for="cat in categories"
-                    :key="cat.category"
-                    :value="cat.category"
-                  >
-                    {{ cat.category }}
-                  </UiSelectItem>
-                </UiSelectContent>
-              </UiSelect>
-            </div>
-            <div class="space-y-2">
-              <UiLabel for="description">Description</UiLabel>
-              <UiTextarea
-                id="description"
-                v-model="productForm.description"
-                placeholder="Enter product description"
-                rows="4"
-              />
-            </div>
-          </div>
+          </Form>
         </UiCardContent>
       </UiCard>
 
@@ -876,58 +863,74 @@ const handleDeleteVariant = async (variantName: string) => {
         </UiCardHeader>
         <UiCardContent class="space-y-4">
           <!-- Add Variant Form -->
-          <div
+          <Form
             v-if="isAddingVariant"
+            :validation-schema="variantValidationSchema"
+            @submit="handleAddVariant"
+            v-slot="{ meta }"
             class="border-2 border-dashed rounded-lg p-4"
           >
             <div class="space-y-4">
               <div class="grid md:grid-cols-3 gap-4">
-                <div>
-                  <UiLabel for="variant-name">Variant Name</UiLabel>
-                  <UiInput
-                    id="variant-name"
-                    v-model="variantForm.variant"
-                    placeholder="e.g., Small, Red"
-                  />
-                </div>
-                <div>
-                  <UiLabel for="variant-price">Price</UiLabel>
-                  <UiInput
-                    id="variant-price"
-                    v-model.number="variantForm.price"
-                    type="number"
-                    placeholder="0"
-                  />
-                </div>
-                <div>
-                  <UiLabel for="variant-stock">Stock</UiLabel>
-                  <UiInput
-                    id="variant-stock"
-                    v-model.number="variantForm.stock"
-                    type="number"
-                    placeholder="0"
-                  />
-                </div>
+                <Field name="variant" v-slot="{ field }">
+                  <div class="space-y-2">
+                    <UiLabel for="variant-name">Variant Name</UiLabel>
+                    <UiInput
+                      v-bind="field"
+                      id="variant-name"
+                      placeholder="e.g., Small, Red"
+                    />
+                    <ErrorMessage
+                      class="text-destructive text-sm"
+                      name="variant"
+                    />
+                  </div>
+                </Field>
+
+                <Field name="price" v-slot="{ field }">
+                  <div class="space-y-2">
+                    <UiLabel for="variant-price">Price</UiLabel>
+                    <UiInput
+                      v-bind="field"
+                      id="variant-price"
+                      type="number"
+                      placeholder="0"
+                    />
+                    <ErrorMessage
+                      class="text-destructive text-sm"
+                      name="price"
+                    />
+                  </div>
+                </Field>
+
+                <Field name="stock" v-slot="{ field }">
+                  <div class="space-y-2">
+                    <UiLabel for="variant-stock">Stock</UiLabel>
+                    <UiInput
+                      v-bind="field"
+                      id="variant-stock"
+                      type="number"
+                      placeholder="0"
+                    />
+                    <ErrorMessage
+                      class="text-destructive text-sm"
+                      name="stock"
+                    />
+                  </div>
+                </Field>
               </div>
+
               <div class="flex gap-2">
                 <UiButton
+                  type="button"
                   variant="outline"
-                  @click="
-                    () => {
-                      isAddingVariant = false;
-                      variantForm = { variant: '', price: 0, stock: 0 };
-                    }
-                  "
+                  @click="isAddingVariant = false"
                 >
                   Cancel
                 </UiButton>
                 <UiButton
-                  @click="handleAddVariant"
-                  :disabled="
-                    !variantForm.variant ||
-                    variantForm.price <= 0 ||
-                    addVariantMutation.isPending.value
-                  "
+                  type="submit"
+                  :disabled="!meta.valid || addVariantMutation.isPending.value"
                 >
                   <Icon
                     v-if="addVariantMutation.isPending.value"
@@ -938,7 +941,7 @@ const handleDeleteVariant = async (variantName: string) => {
                 </UiButton>
               </div>
             </div>
-          </div>
+          </Form>
 
           <!-- Variants Table -->
           <div v-if="product.variant.length > 0" class="border rounded-lg">
@@ -1002,54 +1005,88 @@ const handleDeleteVariant = async (variantName: string) => {
           <UiDialogHeader>
             <UiDialogTitle>Edit Variant</UiDialogTitle>
           </UiDialogHeader>
-          <div class="space-y-4">
-            <div>
-              <UiLabel for="edit-variant-name">Variant Name</UiLabel>
-              <UiInput
-                id="edit-variant-name"
-                v-model="editVariantForm.variant"
-                placeholder="e.g., Small, Red"
-              />
+          <Form
+            :validation-schema="variantValidationSchema"
+            @submit="handleEditVariant"
+            v-slot="{ meta }"
+            :initial-values="{
+              variant:
+                product?.variant.find(
+                  (v) => v.variant === editVariantOriginalName,
+                )?.variant || '',
+              price:
+                product?.variant.find(
+                  (v) => v.variant === editVariantOriginalName,
+                )?.price || 0,
+              stock:
+                product?.variant.find(
+                  (v) => v.variant === editVariantOriginalName,
+                )?.stock || 0,
+            }"
+          >
+            <div class="space-y-4">
+              <Field name="variant" v-slot="{ field }">
+                <div class="space-y-2">
+                  <UiLabel for="edit-variant-name">Variant Name</UiLabel>
+                  <UiInput
+                    v-bind="field"
+                    id="edit-variant-name"
+                    placeholder="e.g., Small, Red"
+                  />
+                  <ErrorMessage
+                    class="text-destructive text-sm"
+                    name="variant"
+                  />
+                </div>
+              </Field>
+
+              <Field name="price" v-slot="{ field }">
+                <div class="space-y-2">
+                  <UiLabel for="edit-variant-price">Price</UiLabel>
+                  <UiInput
+                    v-bind="field"
+                    id="edit-variant-price"
+                    type="number"
+                    placeholder="0"
+                  />
+                  <ErrorMessage class="text-destructive text-sm" name="price" />
+                </div>
+              </Field>
+
+              <Field name="stock" v-slot="{ field }">
+                <div class="space-y-2">
+                  <UiLabel for="edit-variant-stock">Stock</UiLabel>
+                  <UiInput
+                    v-bind="field"
+                    id="edit-variant-stock"
+                    type="number"
+                    placeholder="0"
+                  />
+                  <ErrorMessage class="text-destructive text-sm" name="stock" />
+                </div>
+              </Field>
             </div>
-            <div>
-              <UiLabel for="edit-variant-price">Price</UiLabel>
-              <UiInput
-                id="edit-variant-price"
-                v-model.number="editVariantForm.price"
-                type="number"
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <UiLabel for="edit-variant-stock">Stock</UiLabel>
-              <UiInput
-                id="edit-variant-stock"
-                v-model.number="editVariantForm.stock"
-                type="number"
-                placeholder="0"
-              />
-            </div>
-          </div>
-          <UiDialogFooter>
-            <UiButton variant="outline" @click="isEditingVariant = false">
-              Cancel
-            </UiButton>
-            <UiButton
-              @click="handleEditVariant"
-              :disabled="
-                !editVariantForm.variant ||
-                editVariantForm.price <= 0 ||
-                editVariantMutation.isPending.value
-              "
-            >
-              <Icon
-                v-if="editVariantMutation.isPending.value"
-                name="lucide:loader-2"
-                class="w-4 h-4 mr-2 animate-spin"
-              />
-              Save Changes
-            </UiButton>
-          </UiDialogFooter>
+            <UiDialogFooter>
+              <UiButton
+                type="button"
+                variant="outline"
+                @click="isEditingVariant = false"
+              >
+                Cancel
+              </UiButton>
+              <UiButton
+                type="submit"
+                :disabled="!meta.valid || editVariantMutation.isPending.value"
+              >
+                <Icon
+                  v-if="editVariantMutation.isPending.value"
+                  name="lucide:loader-2"
+                  class="w-4 h-4 mr-2 animate-spin"
+                />
+                Save Changes
+              </UiButton>
+            </UiDialogFooter>
+          </Form>
         </UiDialogContent>
       </UiDialog>
 
