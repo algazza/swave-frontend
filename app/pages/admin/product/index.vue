@@ -96,7 +96,6 @@ const filteredProducts = computed<ProductType[]>(() => {
         />
       </div>
 
-      <!-- Filter by Category -->
       <UiSheet v-model:open="isFilterSheetOpen">
         <UiSheetTrigger as-child>
           <UiButton variant="outline" class="gap-2">
@@ -119,7 +118,14 @@ const filteredProducts = computed<ProductType[]>(() => {
             </UiSheetDescription>
           </UiSheetHeader>
           <div class="mt-2 space-y-4 mx-4">
-            <h2 class="text-2xl">Categories List</h2>
+            <div class="flex justify-between">
+              <h2 class="text-2xl">Categories List</h2>
+              <AdminProductCategoryDialog>
+                <UiButton size="sm" class="w-full">
+                  + Add New Category
+                </UiButton>
+              </AdminProductCategoryDialog>
+            </div>
             <div v-if="isCategoriesPending" class="space-y-2">
               <UiSkeleton v-for="i in 5" :key="i" class="w-full h-10" />
             </div>

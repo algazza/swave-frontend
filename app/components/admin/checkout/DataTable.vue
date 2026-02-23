@@ -139,7 +139,7 @@ watch(typeFilter, (newValue) => {
   <div>
     <div class="flex items-center gap-4 py-4">
       <UiInput
-        class="max-w-sm"
+        class="w-full"
         placeholder="Search name or order id"
         v-model="searchValue"
       />

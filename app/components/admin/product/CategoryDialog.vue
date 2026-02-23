@@ -22,7 +22,7 @@ const onSubmit = (values: any) => {
     <UiDialogTrigger class="cursor-pointer">
       <slot />
     </UiDialogTrigger>
-    
+
     <UiDialogContent>
       <UiDialogHeader>
         <UiDialogTitle>Add New Category</UiDialogTitle>
@@ -44,7 +44,7 @@ const onSubmit = (values: any) => {
             <ErrorMessage class="text-destructive" name="category" />
           </div>
         </Field>
-        
+
         <p v-if="error" class="text-red-500 text-sm mt-2">
           {{ error.message || "Add Category gagal" }}
         </p>
@@ -54,9 +54,9 @@ const onSubmit = (values: any) => {
             <UiButton variant="outline"> Cancel </UiButton>
           </UiDialogClose>
           <UiButton
-          type="submit"
-          :loading="isPending"
-          :disabled="!meta.dirty || !meta.valid || isPending"
+            type="submit"
+            :loading="isPending"
+            :disabled="!meta.dirty || !meta.valid || isPending"
           >
             Add Category
           </UiButton>
