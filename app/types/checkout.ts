@@ -68,8 +68,10 @@ export const CheckoutSchema = z
   });
 
 export const CheckoutTableSchema = z.object({
+  created_at: z.string(),
   order_id: z.string(),
   name: z.string(),
+  username: z.string(),
   status: z.enum(["pending", "processing", "delivery", "cancel", "success"]),
   delivery: z.enum(["delivery", "pickup"]),
   amount: z.number(),

@@ -1,8 +1,9 @@
 import type { ColumnDef } from "@tanstack/vue-table";
 import { createReusableTemplate } from "@vueuse/core";
-import DataTableDropdown from "~/components/admin/DataTableDropdown.vue";
-import { formatRupiah } from "~/lib/utils";
+import { formatDate, formatRupiah } from "~/lib/utils";
 import type { CheckoutTableType } from "~/types/checkout";
+import DataTableDropdown from "~/components/admin/checkout/DataTableDropdown.vue";
+import { ArrowUpDown } from "lucide-vue-next";
 
 const [DefineTemplate, ReuseTemplate] = createReusableTemplate<{
   payment: {
@@ -12,6 +13,22 @@ const [DefineTemplate, ReuseTemplate] = createReusableTemplate<{
 }>();
 
 export const columns: ColumnDef<CheckoutTableType>[] = [
+  {
+    accessorKey: "created_at",
+    header: ({ column }) => {
+      return h(
+        "div",
+        {
+          class: "flex items-center gap-2 cursor-pointer",
+          onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+        },
+        [h("span", "Created At"), h(ArrowUpDown, { class: "h-4 w-4" })],
+      );
+    },
+    cell: ({ row }) => {
+      const formatted = formatDate(row.getValue("created_at"))
+      return h("div", formatted);
+    },  },
   {
     accessorKey: "order_id",
     header: "Order Id",
@@ -49,6 +66,10 @@ export const columns: ColumnDef<CheckoutTableType>[] = [
         row.getValue("status"),
       );
     },
+    filterFn: (row, columnId, filterValue) => {
+      if (!filterValue || filterValue === "all") return true;
+      return row.getValue(columnId) === filterValue;
+    },
   },
   {
     accessorKey: "delivery",
@@ -65,11 +86,23 @@ export const columns: ColumnDef<CheckoutTableType>[] = [
         },
         row.getValue("delivery"),
       ),
+    filterFn: (row, columnId, filterValue) => {
+      if (!filterValue || filterValue === "all") return true;
+      return row.getValue(columnId) === filterValue;
+    },
   },
   {
     accessorKey: "amount",
-    header: () => h("div", "Amount"),
-    cell: ({ row }) => {
+    header: ({ column }) => {
+      return h(
+        "div",
+        {
+          class: "flex items-center gap-2 cursor-pointer",
+          onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+        },
+        [h("span", "Amount"), h(ArrowUpDown, { class: "h-4 w-4" })],
+      );
+    },    cell: ({ row }) => {
       const formatted = `Rp${formatRupiah(row.getValue("amount"))}`;
       return h("div", formatted);
     },

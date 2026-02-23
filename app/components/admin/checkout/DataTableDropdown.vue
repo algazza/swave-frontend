@@ -4,6 +4,7 @@ import { copyOrderID } from "~/lib/utils";
 
 defineProps<{
   checkout: {
+    username: string;
     order_id: string;
   };
 }>();
@@ -19,15 +20,18 @@ defineProps<{
     </UiDropdownMenuTrigger>
     <UiDropdownMenuContent align="end">
       <UiDropdownMenuItem @click="copyOrderID(checkout.order_id)">
-        Copy payment ID
+        Copy order ID
       </UiDropdownMenuItem>
       <UiDropdownMenuSeparator />
-      <UiDropdownMenuItem>View customer</UiDropdownMenuItem>
-      <UiDropdownMenuItem
-        ><NuxtLink :to="`/admin/checkout/${checkout.order_id}`"
-          >View payment details</NuxtLink
-        ></UiDropdownMenuItem
+      <NuxtLink
+        :to="`/admin/checkout/${checkout.order_id}`"
+        class="w-full h-full"
       >
+        <UiDropdownMenuItem> View payment details </UiDropdownMenuItem>
+      </NuxtLink>
+      <NuxtLink :to="`/admin/user/${checkout.username}`" class="w-full h-full">
+        <UiDropdownMenuItem> View customer </UiDropdownMenuItem>
+      </NuxtLink>
     </UiDropdownMenuContent>
   </UiDropdownMenu>
 </template>
