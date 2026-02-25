@@ -75,7 +75,7 @@ const filteredProducts = computed<ProductType[]>(() => {
 <template>
   <section class="p-6">
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">Product Manager</h1>
+      <h1 class="text-2xl">Product Manager</h1>
 
       <UiButton>
         <NuxtLink to="/admin/product/add">Add Product</NuxtLink>

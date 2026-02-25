@@ -45,7 +45,6 @@ export const UserSchema = z.object({
   name: z.string(),
   username: z.string(),
   phone: z.string(),
-  address: z.array(AddressSchema).optional(),
 });
 
 export const EditUserSchema = z
@@ -80,7 +79,14 @@ export const EditUserSchema = z
     path: ["confirm_password"],
   });
 
+export const AllUserAdminSchema = z.object({
+  name: z.string(),
+  username: z.string(),
+  phone: z.string(),
+});
+
 export type RegisterType = z.infer<typeof RegisterSchema>;
 export type LoginType = z.infer<typeof LoginSchema>;
 export type UserType = z.infer<typeof UserSchema>;
 export type EditUserType = z.infer<typeof EditUserSchema>;
+export type AllUserAdminType = z.infer<typeof AllUserAdminSchema>;
