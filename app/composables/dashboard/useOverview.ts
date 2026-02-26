@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/vue-query";
+import type { AxiosError } from "axios";
+import type { ErrorResponse } from "~/types/error";
 
 export type DashboardSummary = {
   total_revenue: number;
@@ -78,8 +80,10 @@ export const useOverview = () => {
         });
         return res.data.data;
       } catch (err) {
-        throw new Error("Gagal mendapatkan data overview");
-      }
+        const error = err as AxiosError<ErrorResponse>;
+        throw new Error(
+          error.response?.data?.message || "Gagal mendapatkan checkout"
+        );      }
     },
   });
 };
