@@ -85,8 +85,41 @@ export const AllUserAdminSchema = z.object({
   phone: z.string(),
 });
 
+export const UserDetailAdminSchema = z.object({
+  name: z.string(),
+  username: z.string(),
+  phone: z.string(),
+  address: z.array(AddressSchema).optional(),
+  checkout: z.array(
+    z.object({
+      order_id: z.string(),
+      created_at: z.string(),
+      status: z.enum([
+        "pending",
+        "processing",
+        "delivery",
+        "cancel",
+        "success",
+      ]),
+      products: z.array(
+        z.object({
+          id: z.number(),
+          category: z.string(),
+          name: z.string(),
+          image_path: z.string(),
+          variant: z.string(),
+          variant_price: z.number(),
+          quantity: z.number(),
+          total_price: z.number(),
+        }),
+      ),
+    }),
+  ),
+});
+
 export type RegisterType = z.infer<typeof RegisterSchema>;
 export type LoginType = z.infer<typeof LoginSchema>;
 export type UserType = z.infer<typeof UserSchema>;
 export type EditUserType = z.infer<typeof EditUserSchema>;
 export type AllUserAdminType = z.infer<typeof AllUserAdminSchema>;
+export type UserDetailAdminType = z.infer<typeof UserDetailAdminSchema>;
