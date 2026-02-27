@@ -61,7 +61,7 @@ const orderTotalPrice = (
 <template>
   <section class="p-6 space-y-6">
     <div class="flex items-center gap-2">
-      <button @click="router.back()">
+      <button @click="router.back()" class="cursor-pointer">
         <ChevronLeft class="size-8" />
       </button>
       <h1 class="text-2xl font-semibold">User Detail</h1>

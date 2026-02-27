@@ -27,7 +27,7 @@ const totalProduct = computed(() =>
 <template>
   <section class="pb-20">
     <div class="flex gap-2 py-5 items-center justify-start">
-      <button @click="router.back()">
+      <button @click="router.back()" class="cursor-pointer">
         <ChevronLeft class="size-8" />
       </button>
       <h2 class="text-2xl">Checkout History</h2>

@@ -26,9 +26,10 @@ export const columns: ColumnDef<CheckoutTableType>[] = [
       );
     },
     cell: ({ row }) => {
-      const formatted = formatDate(row.getValue("created_at"))
+      const formatted = formatDate(row.getValue("created_at"));
       return h("div", formatted);
-    },  },
+    },
+  },
   {
     accessorKey: "order_id",
     header: "Order Id",
@@ -38,7 +39,7 @@ export const columns: ColumnDef<CheckoutTableType>[] = [
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => h("div", row.getValue("name")),
-    filterFn: (row, columnId, filterValue) => {
+    filterFn: (row, filterValue) => {
       const searchLower = String(filterValue).toLowerCase();
       const name = String(row.getValue("name") || "").toLowerCase();
       const orderId = String(row.getValue("order_id") || "").toLowerCase();
@@ -102,7 +103,8 @@ export const columns: ColumnDef<CheckoutTableType>[] = [
         },
         [h("span", "Amount"), h(ArrowUpDown, { class: "h-4 w-4" })],
       );
-    },    cell: ({ row }) => {
+    },
+    cell: ({ row }) => {
       const formatted = `Rp${formatRupiah(row.getValue("amount"))}`;
       return h("div", formatted);
     },
