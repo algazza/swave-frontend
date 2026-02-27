@@ -22,11 +22,16 @@ const lastPath = computed(() => {
         class="mx-2 data-[orientation=vertical]:h-4"
       />
       <h1 class="text-lg font-medium capitalize">
-        {{ lastPath === 'admin' ? 'dashboard' : lastPath}}
+        {{ lastPath === "admin" ? "dashboard" : lastPath }}
       </h1>
-      <div class="ml-auto flex items-center gap-2">
-        <UserStar />
-        <p>Admin</p>
+      <div class="ml-auto flex gap-6">
+        <div class="flex items-center gap-2">
+          <UserStar />
+          <p>Admin</p>
+        </div>
+        <UiButton variant="outline" size="sm">
+          <NuxtLink to="/">View Site</NuxtLink>
+        </UiButton>
       </div>
     </div>
   </header>

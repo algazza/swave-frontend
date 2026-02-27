@@ -2,14 +2,10 @@
 import { MoreHorizontal } from "lucide-vue-next";
 
 defineProps<{
-  checkout: {
-    order_id: number;
+  user: {
+    username: string;
   };
 }>();
-
-function copy(id: number) {
-  navigator.clipboard.writeText(String(id));
-}
 </script>
 
 <template>
@@ -21,12 +17,9 @@ function copy(id: number) {
       </UiButton>
     </UiDropdownMenuTrigger>
     <UiDropdownMenuContent align="end">
-      <UiDropdownMenuItem @click="copy(checkout.order_id)">
-        Copy payment ID
-      </UiDropdownMenuItem>
-      <UiDropdownMenuSeparator />
-      <UiDropdownMenuItem>View customer</UiDropdownMenuItem>
-      <UiDropdownMenuItem>View payment details</UiDropdownMenuItem>
+      <NuxtLink :to="`/admin/user/${user.username}`" class="w-full h-full">
+        <UiDropdownMenuItem> View customer </UiDropdownMenuItem>
+      </NuxtLink>
     </UiDropdownMenuContent>
   </UiDropdownMenu>
 </template>

@@ -1,4 +1,11 @@
 <script setup lang="ts">
+type ChartDataType = {
+  date: Date;
+  checkout: number;
+};
+const props = defineProps<{
+  chartData: ChartDataType[];
+}>();
 import type { ChartConfig } from "@/components/ui/chart";
 
 // import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
@@ -20,54 +27,46 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const chartData = [
-  { date: new Date("2024-04-01"), visitor: 372 },
-  { date: new Date("2024-04-02"), visitor: 277 },
-  { date: new Date("2024-04-03"), visitor: 287 },
-  { date: new Date("2024-04-04"), visitor: 502 },
-  { date: new Date("2024-04-05"), visitor: 663 },
-  { date: new Date("2024-04-06"), visitor: 641 },
-  { date: new Date("2024-04-07"), visitor: 425 },
-  { date: new Date("2024-04-08"), visitor: 729 },
-  { date: new Date("2024-04-09"), visitor: 169 },
-  { date: new Date("2024-04-10"), visitor: 451 },
-  { date: new Date("2024-04-11"), visitor: 677 },
-  { date: new Date("2024-04-12"), visitor: 502 },
-  { date: new Date("2024-04-13"), visitor: 722 },
-  { date: new Date("2024-04-14"), visitor: 357 },
-  { date: new Date("2024-04-15"), visitor: 290 },
-  { date: new Date("2024-04-16"), visitor: 328 },
-  { date: new Date("2024-04-17"), visitor: 806 },
-  { date: new Date("2024-04-18"), visitor: 774 },
-];
-type Data = (typeof chartData)[number];
+type Data = ChartDataType;
 
 const chartConfig = {
-  visitor: {
-    label: "Visitors",
+  checkout: {
+    label: "checkout",
     color: "var(--primary)",
   },
 } satisfies ChartConfig;
 
 const svgDefs = `
-  <linearGradient id="fillVisitor" x1="0" y1="0" x2="0" y2="1">
+  <linearGradient id="fillCheckout" x1="0" y1="0" x2="0" y2="1">
     <stop offset="5%" stop-color="var(--primary)" stop-opacity="0.8" />
     <stop offset="95%" stop-color="var(--primary)" stop-opacity="0.1" />
   </linearGradient>
 `;
 
-const timeRange = ref("90d");
+const timeRange = ref("30d");
+const maxCheckoutValue = computed(() => {
+  const highest = props.chartData.reduce(
+    (max, item) => Math.max(max, item.checkout),
+    0,
+  );
+  return highest > 0 ? highest + Math.ceil(highest * 0.2) : 10;
+});
+
+const referenceDate = computed(() => {
+  if (!props.chartData.length) return new Date();
+  return new Date(
+    Math.max(...props.chartData.map((item) => item.date.getTime())),
+  );
+});
+
 const filterRange = computed(() => {
-  return chartData.filter((item) => {
+  return props.chartData.filter((item) => {
     const date = new Date(item.date);
-    const referenceDate = new Date("2024-06-30");
-    let daysToSubtract = 90;
-    if (timeRange.value === "30d") {
-      daysToSubtract = 30;
-    } else if (timeRange.value === "7d") {
+    let daysToSubtract = 30;
+    if (timeRange.value === "7d") {
       daysToSubtract = 7;
     }
-    const startDate = new Date(referenceDate);
+    const startDate = new Date(referenceDate.value);
     startDate.setDate(startDate.getDate() - daysToSubtract);
     return date >= startDate;
   });
@@ -80,22 +79,17 @@ const filterRange = computed(() => {
       class="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row"
     >
       <div class="grid flex-1 gap-1">
-        <CardTitle>Area Chart - Interactive</CardTitle>
-        <CardDescription>
-          Showing total visitors for the last 3 months
-        </CardDescription>
+        <CardTitle>Sales Trend</CardTitle>
+        <CardDescription> Showing checkout totals by day </CardDescription>
       </div>
       <Select v-model="timeRange">
         <SelectTrigger
           class="hidden w-40 rounded-lg sm:ml-auto sm:flex"
           aria-label="Select a value"
         >
-          <SelectValue placeholder="Last 3 months" />
+          <SelectValue placeholder="Last 30 days" />
         </SelectTrigger>
         <SelectContent class="rounded-xl">
-          <SelectItem value="90d" class="rounded-lg">
-            Last 3 months
-          </SelectItem>
           <SelectItem value="30d" class="rounded-lg"> Last 30 days </SelectItem>
           <SelectItem value="7d" class="rounded-lg"> Last 7 days </SelectItem>
         </SelectContent>
@@ -104,26 +98,26 @@ const filterRange = computed(() => {
     <CardContent class="px-2 pt-4 sm:px-6 sm:pt-6 pb-4">
       <ChartContainer
         :config="chartConfig"
-        class="aspect-auto h-[250px] w-full"
+        class="aspect-auto h-62.5 w-full"
         :cursor="false"
       >
         <VisXYContainer
           :data="filterRange"
           :svg-defs="svgDefs"
           :margin="{ left: -40 }"
-          :y-domain="[0, 1200]"
+          :y-domain="[0, maxCheckoutValue]"
         >
           <VisArea
             :x="(d: Data) => d.date"
-            :y="[(d: Data) => d.visitor]"
-            :color="() => ['url(#fillVisitor)']"
+            :y="[(d: Data) => d.checkout]"
+            :color="() => ['url(#fillCheckout)']"
             :opacity="0.6"
           />
 
           <VisLine
             :x="(d: Data) => d.date"
-            :y="[(d: Data) => d.visitor]"
-            :color="() => [chartConfig.visitor.color]"
+            :y="[(d: Data) => d.checkout]"
+            :color="() => [chartConfig.checkout.color]"
             :line-width="1"
           />
           <VisAxis
@@ -133,13 +127,15 @@ const filterRange = computed(() => {
             :domain-line="false"
             :grid-line="false"
             :num-ticks="6"
-            :tick-format="(d: number, index: number) => {
-              const date = new Date(d)
-              return date.toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-              })
-            }"
+            :tick-format="
+              (d: number, index: number) => {
+                const date = new Date(d);
+                return date.toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                });
+              }
+            "
           />
           <VisAxis
             type="y"
@@ -159,7 +155,7 @@ const filterRange = computed(() => {
                 },
               })
             "
-            :color="() => [chartConfig.visitor.color]"
+            :color="() => [chartConfig.checkout.color]"
           />
         </VisXYContainer>
 

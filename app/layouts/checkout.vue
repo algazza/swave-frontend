@@ -6,7 +6,7 @@ import { logoBlack } from "~/lib/image";
 <template>
   <div>
     <header
-      class="fixed w-full p-5 top-0 left-0 bg-background z-100 md:px-10 lg:px-20 flex justify-center"
+      class="fixed w-full p-5 top-0 left-0 bg-background z-10 md:px-10 lg:px-20 flex justify-center"
     >
       <div class="w-full max-w-300">
         <div class="flex justify-between">

@@ -5,9 +5,10 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useVueTable,
 } from "@tanstack/vue-table";
-import { valueUpdater } from "../ui/table/utils";
+import { valueUpdater } from "../../ui/table/utils";
 
 const props = defineProps<{
   columns: ColumnDef<TData, TValue>[];
@@ -15,6 +16,8 @@ const props = defineProps<{
 }>();
 
 const columnFilters = ref<ColumnFiltersState>([]);
+const searchValue = ref("");
+const sorting = ref([]);
 
 const table = useVueTable({
   get data() {
@@ -25,12 +28,22 @@ const table = useVueTable({
   },
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
+  initialState: {
+    pagination: {
+      pageSize: 10,
+    },
+  },
   onColumnFiltersChange: (updaterOrValue) =>
     valueUpdater(updaterOrValue, columnFilters),
   getFilteredRowModel: getFilteredRowModel(),
+  onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
+  getSortedRowModel: getSortedRowModel(),
   state: {
     get columnFilters() {
       return columnFilters.value;
+    },
+    get sorting() {
+      return sorting.value;
     },
   },
 });
@@ -38,12 +51,11 @@ const table = useVueTable({
 
 <template>
   <div>
-    <div class="flex items-center py-4">
+    <div class="flex items-center gap-4 py-4">
       <UiInput
-        class="max-w-sm"
-        placeholder="Filter emails..."
-        :model-value="table.getColumn('name')?.getFilterValue() as string"
-        @update:model-value="table.getColumn('name')?.setFilterValue($event)"
+        class="w-full"
+        placeholder="Search name or username"
+        v-model="searchValue"
       />
     </div>
     <div class="border rounded-md">
@@ -95,21 +107,64 @@ const table = useVueTable({
         </UiTableBody>
       </UiTable>
     </div>
-    <div class="flex items-center justify-end py-4 space-x-2">
-      <UiButton
-        size="sm"
-        :disabled="!table.getCanPreviousPage()"
-        @click="table.previousPage()"
+    <div class="flex items-center justify-center py-4">
+      <UiPagination
+        v-slot="{ page }"
+        :total="table.getFilteredRowModel().rows.length"
+        :items-per-page="10"
+        :sibling-count="1"
+        show-edges
+        :default-page="1"
+        @update:page="(newPage) => table.setPageIndex(newPage - 1)"
       >
-        Previous
-      </UiButton>
-      <UiButton
-        size="sm"
-        :disabled="!table.getCanNextPage()"
-        @click="table.nextPage()"
-      >
-        Next
-      </UiButton>
+        <UiPaginationContent>
+          <UiPaginationFirst />
+          <UiPaginationPrevious />
+
+          <template v-if="table.getPageCount() <= 7">
+            <UiPaginationItem
+              v-for="item in table.getPageCount()"
+              :key="item"
+              :value="item"
+              :is-active="page === item"
+              as-child
+            >
+              <span>{{ item }}</span>
+            </UiPaginationItem>
+          </template>
+          <template v-else>
+            <UiPaginationItem :value="1" :is-active="page === 1" as-child>
+              <span>1</span>
+            </UiPaginationItem>
+
+            <UiPaginationEllipsis v-if="page > 3" />
+
+            <template v-for="item in [page - 1, page, page + 1]" :key="item">
+              <UiPaginationItem
+                v-if="item > 1 && item < table.getPageCount()"
+                :value="item"
+                :is-active="page === item"
+                as-child
+              >
+                <span>{{ item }}</span>
+              </UiPaginationItem>
+            </template>
+
+            <UiPaginationEllipsis v-if="page < table.getPageCount() - 2" />
+
+            <UiPaginationItem
+              :value="table.getPageCount()"
+              :is-active="page === table.getPageCount()"
+              as-child
+            >
+              <span>{{ table.getPageCount() }}</span>
+            </UiPaginationItem>
+          </template>
+
+          <UiPaginationNext />
+          <UiPaginationLast />
+        </UiPaginationContent>
+      </UiPagination>
     </div>
   </div>
 </template>

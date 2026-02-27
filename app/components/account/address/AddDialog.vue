@@ -154,9 +154,11 @@ const onSubmit = (values: any) => {
           <Field name="main_address" v-slot="{ field }">
             <div class="flex gap-2 items-center">
               <UiCheckbox
-                @update:model-value="(v: boolean | 'indeterminate') => {
-                  field.onChange(v)
-                }"
+                @update:model-value="
+                  (v: boolean | 'indeterminate') => {
+                    field.onChange(v);
+                  }
+                "
                 class="border border-foreground"
                 label="Set as Main Address"
                 name="main_address"
@@ -178,7 +180,7 @@ const onSubmit = (values: any) => {
           <UiButton
             type="submit"
             :loading="isPending"
-            :disabled="!meta.dirty || !meta.valid || isPending"
+            :disabled="!meta.dirty || isPending"
           >
             Save changes
           </UiButton>

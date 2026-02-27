@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { LogOut } from "lucide-vue-next";
+import { useLogout } from "~/composables/auth/useLogout";
 import { adminNavLink } from "~/lib/constanta";
+
+const logout = useLogout();
 </script>
 
 <template>
@@ -21,5 +25,18 @@ import { adminNavLink } from "~/lib/constanta";
         </UiSidebarGroupContent>
       </UiSidebarGroup>
     </UiSidebarContent>
+    <UiSidebarFooter>
+      <AppAlertDialog
+        service="Logout"
+        title="Are you sure you want to logout?"
+        description="You will be logged out from your account."
+        :fnSubmit="logout"
+      >
+      <UiButton variant="destructive" class="w-full font-semibold cursor-pointer">
+          <LogOut/>
+          Logout
+        </UiButton>
+      </AppAlertDialog>
+    </UiSidebarFooter>
   </UiSidebar>
 </template>

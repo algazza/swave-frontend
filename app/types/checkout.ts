@@ -68,10 +68,12 @@ export const CheckoutSchema = z
   });
 
 export const CheckoutTableSchema = z.object({
-  order_id: z.number(),
+  created_at: z.string(),
+  order_id: z.string(),
   name: z.string(),
+  username: z.string(),
   status: z.enum(["pending", "processing", "delivery", "cancel", "success"]),
-  type: z.enum(["delivery", "pickup"]),
+  delivery: z.enum(["delivery", "pickup"]),
   amount: z.number(),
 });
 
@@ -137,8 +139,45 @@ export const CheckoutHistoryDetailSchema = z.object({
   product_checkout: z.array(ProductCheckoutDetailSchema),
 });
 
+export const CheckoutDetailAdminSchema = CheckoutHistoryDetailSchema.extend({
+  user: z.object({
+    username: z.string(),
+    name: z.string(),
+  }),
+});
+
+export const UpdateStatusCheckoutSchema = z
+  .object({
+    order_status: z.enum([
+      "pending",
+      "processing",
+      "delivery",
+      "cancel",
+      "success",
+    ]),
+    description: z.string().optional(),
+  })
+  .superRefine((val, ctx) => {
+    if (
+      val.order_status === "cancel" &&
+      (!val.description || val.description.trim() === "")
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Description is required when canceling",
+        path: ["description"],
+      });
+    }
+  });
+
 export type CheckoutProductType = z.infer<typeof ProductCheckoutSchema>;
 export type CheckoutType = z.infer<typeof CheckoutSchema>;
 export type CheckoutTableType = z.infer<typeof CheckoutTableSchema>;
 export type CheckoutHistoryType = z.infer<typeof CheckoutHistoryArray>;
-export type CheckoutHistoryDetailType = z.infer<typeof CheckoutHistoryDetailSchema>;
+export type CheckoutHistoryDetailType = z.infer<
+  typeof CheckoutHistoryDetailSchema
+>;
+export type CheckoutDetailAdminType = z.infer<typeof CheckoutDetailAdminSchema>;
+export type UpdateStatusCheckoutType = z.infer<
+  typeof UpdateStatusCheckoutSchema
+>;
