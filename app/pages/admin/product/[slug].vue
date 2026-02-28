@@ -68,6 +68,17 @@ const newImages = ref<File[]>([]);
 const updateImageFile = ref<File | null>(null);
 const isDraggingAdd = ref(false);
 const isDraggingUpdate = ref(false);
+const imageVersionMap = ref<Record<number, number>>({});
+
+const resolveImageSrc = (imageId: number, imagePath: string) => {
+  const baseSrc = isLocalImagePath(imagePath)
+    ? `${API_URL}/${imagePath}`
+    : imagePath;
+  const version = imageVersionMap.value[imageId];
+
+  if (!version) return baseSrc;
+  return `${baseSrc}${baseSrc.includes("?") ? "&" : "?"}v=${version}`;
+};
 
 const newImagePreviews = computed(() => {
   return newImages.value.map((file) => URL.createObjectURL(file));
@@ -156,11 +167,14 @@ const handleUpdateImage = async (imageId: number) => {
       formData,
     });
 
+    imageVersionMap.value[imageId] = Date.now();
+
     if (updateImagePreview.value) {
       URL.revokeObjectURL(updateImagePreview.value);
     }
     updateImageFile.value = null;
     editingImageId.value = null;
+    await refetch();
   } catch (err) {
     console.error("Failed to update image:", err);
   }
@@ -204,10 +218,8 @@ const onImageFileChange = (event: Event) => {
       );
     }
 
-    // APPEND to existing images instead of replacing
     newImages.value = [...newImages.value, ...filesToAdd];
 
-    // Clear the file input so the same file can be selected again
     target.value = "";
   }
 };
@@ -249,7 +261,6 @@ const handleDropAdd = (event: DragEvent) => {
       return;
     }
 
-    // Filter only image files
     const imageFiles = Array.from(files).filter((file) =>
       file.type.startsWith("image/"),
     );
@@ -263,13 +274,11 @@ const handleDropAdd = (event: DragEvent) => {
     }
 
     if (filesToAdd.length > 0) {
-      // APPEND to existing images instead of replacing
       newImages.value = [...newImages.value, ...filesToAdd];
     }
   }
 };
 
-// Drag and drop handlers for updating image
 const handleDragOverUpdate = (event: DragEvent) => {
   event.preventDefault();
   isDraggingUpdate.value = true;
@@ -285,7 +294,6 @@ const handleDropUpdate = (event: DragEvent) => {
 
   const files = event.dataTransfer?.files;
   if (files && files[0] && files[0].type.startsWith("image/")) {
-    // Clean up old preview
     if (updateImagePreview.value) {
       URL.revokeObjectURL(updateImagePreview.value);
     }
@@ -294,7 +302,6 @@ const handleDropUpdate = (event: DragEvent) => {
 };
 
 const removeNewImage = (index: number) => {
-  // Clean up the preview URL
   const previewUrl = newImagePreviews.value[index];
   if (previewUrl) {
     URL.revokeObjectURL(previewUrl);
@@ -359,6 +366,12 @@ const startEditVariant = (variant: ProductVariantsType) => {
   editVariantOriginalName.value = variant.variant;
   isEditingVariant.value = true;
 };
+
+const selectedEditVariant = computed(() =>
+  product.value?.variant.find(
+    (variant) => variant.variant === editVariantOriginalName.value,
+  ),
+);
 
 const handleEditVariant = async (values: any) => {
   if (!product.value) return;
@@ -558,11 +571,7 @@ const handleDeleteVariant = async (variantName: string) => {
               class="relative group bg-secondary rounded-md"
             >
               <NuxtImg
-                :src="
-                  isLocalImagePath(image.image_path)
-                    ? `${API_URL}/${image.image_path}`
-                    : image.image_path
-                "
+                :src="resolveImageSrc(image.id, image.image_path)"
                 :alt="`Product image ${image.id}`"
                 class="w-full aspect-square object-center object-contain rounded-lg"
               />
@@ -611,24 +620,19 @@ const handleDeleteVariant = async (variantName: string) => {
                       <div>
                         <p class="text-sm font-medium mb-2">Current Image</p>
                         <NuxtImg
-                          :src="
-                            isLocalImagePath(image.image_path)
-                              ? `${API_URL}/${image.image_path}`
-                              : image.image_path
-                          "
+                          :src="resolveImageSrc(image.id, image.image_path)"
                           alt="Current"
                           class="w-full aspect-square object-center object-contain rounded-lg border"
                         />
                       </div>
 
-                      <!-- Preview New Image -->
                       <div v-if="updateImagePreview">
                         <p class="text-sm font-medium mb-2">Preview</p>
                         <div class="relative">
                           <img
                             :src="updateImagePreview"
                             alt="Preview"
-                            class="w-full aspect-square object-center object-cover rounded-lg border"
+                            class="w-full aspect-square object-center object-contain rounded-lg border"
                           />
                           <button
                             @click.stop="clearUpdateImagePreview"
@@ -761,6 +765,7 @@ const handleDeleteVariant = async (variantName: string) => {
             :validation-schema="productEditValidationSchema"
             @submit="handleEditProduct"
             v-slot="{ meta }"
+            :key="`edit-product-${product.id}`"
             :initial-values="{
               name: product.name,
               description: product.description,
@@ -768,11 +773,14 @@ const handleDeleteVariant = async (variantName: string) => {
             }"
           >
             <div class="space-y-4">
-              <Field name="name" v-slot="{ field }">
+              <Field name="name" v-slot="{ field, handleChange, handleBlur }">
                 <div class="space-y-2">
                   <UiLabel for="name">Product Name</UiLabel>
                   <UiInput
-                    v-bind="field"
+                    :model-value="field.value"
+                    @update:model-value="handleChange"
+                    @blur="handleBlur"
+                    :name="field.name"
                     id="name"
                     placeholder="Enter product name"
                   />
@@ -780,10 +788,14 @@ const handleDeleteVariant = async (variantName: string) => {
                 </div>
               </Field>
 
-              <Field name="category" v-slot="{ field, value }">
+              <Field name="category" v-slot="{ field, value, handleChange }">
                 <div class="space-y-2">
                   <UiLabel for="category">Category</UiLabel>
-                  <UiSelect v-bind="field" :model-value="value">
+                  <UiSelect
+                    :name="field.name"
+                    :model-value="value"
+                    @update:model-value="handleChange"
+                  >
                     <UiSelectTrigger>
                       <UiSelectValue placeholder="Select category" />
                     </UiSelectTrigger>
@@ -804,11 +816,17 @@ const handleDeleteVariant = async (variantName: string) => {
                 </div>
               </Field>
 
-              <Field name="description" v-slot="{ field }">
+              <Field
+                name="description"
+                v-slot="{ field, handleChange, handleBlur }"
+              >
                 <div class="space-y-2">
                   <UiLabel for="description">Description</UiLabel>
                   <UiTextarea
-                    v-bind="field"
+                    :model-value="field.value"
+                    @update:model-value="handleChange"
+                    @blur="handleBlur"
+                    :name="field.name"
                     id="description"
                     placeholder="Enter product description"
                     rows="4"
@@ -996,7 +1014,6 @@ const handleDeleteVariant = async (variantName: string) => {
         </UiCardContent>
       </UiCard>
 
-      <!-- Edit Variant Dialog -->
       <UiDialog
         :open="isEditingVariant"
         @update:open="(val) => (isEditingVariant = val)"
@@ -1009,27 +1026,26 @@ const handleDeleteVariant = async (variantName: string) => {
             :validation-schema="variantValidationSchema"
             @submit="handleEditVariant"
             v-slot="{ meta }"
+            class="space-y-2"
+            :key="`edit-variant-${editVariantOriginalName}`"
             :initial-values="{
-              variant:
-                product?.variant.find(
-                  (v) => v.variant === editVariantOriginalName,
-                )?.variant || '',
-              price:
-                product?.variant.find(
-                  (v) => v.variant === editVariantOriginalName,
-                )?.price || 0,
-              stock:
-                product?.variant.find(
-                  (v) => v.variant === editVariantOriginalName,
-                )?.stock || 0,
+              variant: selectedEditVariant?.variant || '',
+              price: selectedEditVariant?.price || 0,
+              stock: selectedEditVariant?.stock || 0,
             }"
           >
             <div class="space-y-4">
-              <Field name="variant" v-slot="{ field }">
+              <Field
+                name="variant"
+                v-slot="{ field, handleChange, handleBlur }"
+              >
                 <div class="space-y-2">
                   <UiLabel for="edit-variant-name">Variant Name</UiLabel>
                   <UiInput
-                    v-bind="field"
+                    :model-value="field.value"
+                    @update:model-value="handleChange"
+                    @blur="handleBlur"
+                    :name="field.name"
                     id="edit-variant-name"
                     placeholder="e.g., Small, Red"
                   />
@@ -1040,11 +1056,14 @@ const handleDeleteVariant = async (variantName: string) => {
                 </div>
               </Field>
 
-              <Field name="price" v-slot="{ field }">
+              <Field name="price" v-slot="{ field, handleChange, handleBlur }">
                 <div class="space-y-2">
                   <UiLabel for="edit-variant-price">Price</UiLabel>
                   <UiInput
-                    v-bind="field"
+                    :model-value="field.value"
+                    @update:model-value="handleChange"
+                    @blur="handleBlur"
+                    :name="field.name"
                     id="edit-variant-price"
                     type="number"
                     placeholder="0"
@@ -1053,11 +1072,14 @@ const handleDeleteVariant = async (variantName: string) => {
                 </div>
               </Field>
 
-              <Field name="stock" v-slot="{ field }">
+              <Field name="stock" v-slot="{ field, handleChange, handleBlur }">
                 <div class="space-y-2">
                   <UiLabel for="edit-variant-stock">Stock</UiLabel>
                   <UiInput
-                    v-bind="field"
+                    :model-value="field.value"
+                    @update:model-value="handleChange"
+                    @blur="handleBlur"
+                    :name="field.name"
                     id="edit-variant-stock"
                     type="number"
                     placeholder="0"
