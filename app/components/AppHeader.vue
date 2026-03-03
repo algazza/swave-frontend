@@ -7,6 +7,7 @@ import { logoBlack } from "~/lib/image";
 
 const { data, isLoading } = useCartCount();
 const token = useCookie("token");
+const isMobileMenuOpen = ref(false);
 </script>
 
 <template>
@@ -16,10 +17,63 @@ const token = useCookie("token");
     <CartHeader />
     <div class="w-full max-w-300">
       <nav class="flex justify-between items-center">
-        <div class="flex items-center lg:hidden">
-          <div class="md:w-26 md:text-left cursor-pointer">
-            <Menu />
-          </div>
+        <div class="flex items-center gap-3 lg:hidden">
+          <UiSheet v-model:open="isMobileMenuOpen">
+            <UiSheetTrigger as-child>
+              <button class="cursor-pointer" aria-label="Open navigation menu">
+                <Menu />
+              </button>
+            </UiSheetTrigger>
+            <UiSheetContent side="left" class="w-[80vw] max-w-80">
+              <UiSheetHeader>
+                <UiSheetTitle class="text-2xl">Menu</UiSheetTitle>
+              </UiSheetHeader>
+
+              <div class=" grid gap-6 px-4">
+                <ul class="grid gap-3">
+                  <li v-for="nav in navLink" :key="nav.name">
+                    <NuxtLink
+                      :to="nav.url"
+                      class="text-base font-medium"
+                      @click="isMobileMenuOpen = false"
+                    >
+                      {{ nav.name }}
+                    </NuxtLink>
+                  </li>
+                </ul>
+
+                <div class="grid gap-3 border-t pt-4">
+                  <NuxtLink
+                    v-if="token"
+                    to="/account"
+                    class="flex items-center gap-2"
+                    @click="isMobileMenuOpen = false"
+                  >
+                    <User class="size-4" />
+                    Account
+                  </NuxtLink>
+
+                  <NuxtLink
+                    v-if="token && isAdmin(token)"
+                    to="/admin"
+                    @click="isMobileMenuOpen = false"
+                  >
+                    <UiButton class="w-full bg-accent hover:bg-accent/90"
+                      >Admin</UiButton
+                    >
+                  </NuxtLink>
+
+                  <NuxtLink
+                    v-if="!token"
+                    to="/login"
+                    @click="isMobileMenuOpen = false"
+                  >
+                    <UiButton class="w-full">Login</UiButton>
+                  </NuxtLink>
+                </div>
+              </div>
+            </UiSheetContent>
+          </UiSheet>
 
           <NuxtLink to="/">
             <NuxtImg :src="logoBlack" alt="Swave" class="w-32.75 md:hidden" />
@@ -27,7 +81,7 @@ const token = useCookie("token");
         </div>
 
         <ul class="flex gap-6 items-center max-lg:hidden">
-          <li v-for="nav in navLink">
+          <li v-for="nav in navLink" :key="nav.name">
             <NuxtLink :to="nav.url">
               {{ nav.name }}
             </NuxtLink>
@@ -40,15 +94,15 @@ const token = useCookie("token");
 
         <div
           v-if="!token"
-          class="flex gap-4 items-center lg:w-63.75 justify-end"
+          class="flex gap-3 items-center lg:w-63.75 justify-end"
         >
           <Moon />
-          <NuxtLink to="/login">
+          <NuxtLink to="/login" class="max-md:hidden">
             <UiButton>Login</UiButton>
           </NuxtLink>
         </div>
 
-        <div v-else class="flex gap-4 items-center lg:w-63.75 justify-end">
+        <div v-else class="flex gap-3 items-center lg:w-63.75 justify-end">
           <Moon />
           <NuxtLink class="cursor-pointer" to="/account">
             <User />
