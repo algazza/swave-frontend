@@ -36,7 +36,6 @@ const router = useRouter();
 const cartStore = useCartStore();
 const schema = toTypedSchema(CheckoutSchema);
 
-// Load checkout products from localStorage if available
 cartStore.loadCheckoutFromStorage();
 
 if (cartStore.checkoutProduct.length === 0) {
