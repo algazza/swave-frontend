@@ -1,0 +1,125 @@
+import z from "zod";
+import { AddressSchema } from "./address";
+
+export const RegisterSchema = z
+  .object({
+    name: z
+      .string("This field is required")
+      .min(3, "character must be more than 3"),
+    username: z
+      .string("This field is required")
+      .min(6, "character must be more than 6")
+      .refine((val) => val === val.toLowerCase(), {
+        message: "must be lowercase",
+      })
+      .regex(/^[a-z0-9]+$/, {
+        message: "no spaces allowed and ",
+      }),
+    phone: z
+      .string("This field is required")
+      .min(12, "character must be more than 12")
+      .max(15, "character must be less than 15")
+      .regex(/^\+62\d+$/, {
+        message: "Number begin with +62",
+      }),
+    password: z
+      .string("This field is required")
+      .min(6, "character must be more than 6"),
+    confirm_password: z
+      .string("This field is required")
+      .min(6, "character must be more than 6"),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Passwords doesn't match",
+    path: ["confirm_password"],
+  });
+
+export const LoginSchema = RegisterSchema.omit({
+  name: true,
+  phone: true,
+  confirm_password: true,
+});
+
+export const UserSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  username: z.string(),
+  phone: z.string(),
+});
+
+export const EditUserSchema = z
+  .object({
+    name: z.string().min(3, "character must be more than 3").optional(),
+    username: z
+      .string()
+      .min(6, "character must be more than 6")
+      .refine((val) => val === val.toLowerCase(), {
+        message: "must be lowercase",
+      })
+      .regex(/^[a-z0-9]+$/, {
+        message: "no spaces allowed and special characters",
+      })
+      .optional(),
+    phone: z
+      .string()
+      .regex(/^\+62\d+$/, {
+        message: "Number begin with +62",
+      })
+      .min(12, "character must be more than 12")
+      .max(15, "character must be less than 15")
+      .optional(),
+    password: z.string().min(6, "character must be more than 6").optional(),
+    confirm_password: z
+      .string()
+      .min(6, "character must be more than 6")
+      .optional(),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Passwords doesn't match",
+    path: ["confirm_password"],
+  });
+
+export const AllUserAdminSchema = z.object({
+  name: z.string(),
+  username: z.string(),
+  phone: z.string(),
+});
+
+export const UserDetailAdminSchema = z.object({
+  name: z.string(),
+  username: z.string(),
+  phone: z.string(),
+  address: z.array(AddressSchema).optional(),
+  checkout: z.array(
+    z.object({
+      order_id: z.string(),
+      created_at: z.string(),
+      status: z.enum([
+        "pending",
+        "processing",
+        "delivery",
+        "cancel",
+        "success",
+      ]),
+      products: z.array(
+        z.object({
+          id: z.number(),
+          category: z.string(),
+          name: z.string(),
+          image_path: z.string(),
+          variant: z.string(),
+          variant_price: z.number(),
+          quantity: z.number(),
+          total_price: z.number(),
+        }),
+      ),
+    }),
+  ),
+});
+
+export type RegisterType = z.infer<typeof RegisterSchema>;
+export type LoginType = z.infer<typeof LoginSchema>;
+export type UserType = z.infer<typeof UserSchema>;
+export type EditUserType = z.infer<typeof EditUserSchema>;
+export type AllUserAdminType = z.infer<typeof AllUserAdminSchema>;
+export type UserDetailAdminType = z.infer<typeof UserDetailAdminSchema>;
